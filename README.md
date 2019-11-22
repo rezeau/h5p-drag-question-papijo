@@ -1,6 +1,8 @@
-H5P Drag Question
-==========
-
+H5P Drag Question Papi Jo
+=========================
+This is a fork of the official version of the H5P Drag & Drop content by "papi Jo"
+Tutorial, examples and more details on the papi Jo Drupal test site at  http://www.rezeau.org/drupal/
+=====================================================================================================
 Drag and drop the elements into the correct drop zones.
 Test your users with drag and drop tasks.
 Can be used in Question Sets, Course Presentations and Interactive Videos.
