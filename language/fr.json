@@ -1,0 +1,348 @@
+{
+  "semantics": [
+    {
+      "name": "info",
+      "type": "boolean",
+      "label": "<span style=\"position: absolute;top: -40px;left: 0px;\">Tutoriel et Exemples: <a href=\"http://www.rezeau.org/drupal/\" target=\"_blank\" rel=\"noopener\">Le site Drupal de Papi Jo</a></span>",
+      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"    
+      },
+    {
+      "label": "Bouton \"Vérifier\"",
+      "default": "Vérifier"
+    },
+    {
+      "label": "Bouton \"Recommencer\"",
+      "default": "Recommencer"
+    },
+    {
+      "label": "Bouton \"Voir la solution\"",
+      "default": "Voir la solution"
+    },
+    {
+      "label": "Texte d'explication du score",
+      "default": "Réponses correctes : +1 point. Réponses incorrectes : -1 point. Le score le plus bas possible est 0."
+    },
+    {
+      "fields": [
+        {
+          "label": "Réglages",
+          "fields": [
+            {
+              "label": "Titre de l'activité",
+              "default": "Glisser-déposer",
+              "description": "Utilisé dans les résumés, statistiques, etc."
+            },
+            {
+              "label": "Afficher le titre",
+              "description": "Décochez cette option si vous ne voulez pas que le titre de cette question s'affiche. Ce titre sera quand même affiché dans les résumés, les statistiques, etc. "
+            },
+            {
+              "label": "Image d'arrière-plan",
+              "description": "Sélectionnez une image d'arrière-plan pour votre activité (facultatif)."
+            },
+            {
+              "label": "Couleur de l'arrière-plan",
+              "description": "Couleur de l'arrière-plan de cette activité (s'il n'y a pas d'image d'arrière-plan).",
+              "default": "rgba(0, 0, 0, 0)",
+              "spectrum": {}
+            },
+            {
+              "label": "Taille de la zone de l'activité",
+              "description": "Spécifiez la hauteur et la largeur (en pixels) de la zone de l'activité.",
+              "default": {},
+              "fields": [
+                {},
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Éléments de l'activité",
+          "description": "Commencez par créer vos zones de dépôt.<br/>Ensuite, créez les éléments à glisser-déposer (texte ou image) et cochez la ou les zone(s) où ils pourront être glissés.<br/>Enfin, éditez de nouveau vos zones de dépôt et cochez les éléments qui devront y être <em>correctement</em> placées.",
+          "fields": [
+            {
+              "label": "Eléments",
+              "entity": "élément",
+              "field": {
+                "label": "Elément",
+                "fields": [
+                  {
+                    "description": "Sélectionnez le type de contenu que vous souhaitez ajouter."
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "label": "Sélectionnez les zones de dépôt"
+                  },
+                  {
+                    "label": "Opacité"
+                  },
+                  {
+                    "label": "Nombre illimité d'instances pour cet élément",
+                    "description": "Cloner cet élément de sorte qu'il puisse être déposé dans plusieurs zones."
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Zones de dépôt",
+              "entity": "Zone de dépôt",
+              "field": {
+                "label": "Zone de dépôt",
+                "fields": [
+                  {
+                    "label": "Étiquette"
+                  },
+                  {
+                    "label": "Afficher l'étiquette"
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "label": "Sélectionnez les éléments qui devront être correctement placés dans cette zone"
+                  },
+                  {
+                    "label": "Opacité",
+                    "description": "Opacité de l'arrière-plan de cette zone"
+                  },
+                  {
+                    "label": "Couleur de la bordure",
+                    "description": "Couleur de la bordure de cette zone (si elle est activée)",
+                    "default": "rgb(102, 102, 102)",
+                    "spectrum": {}
+                  },
+                  {
+                    "label": "Aides et commentaires",
+                    "fields": [
+                      {
+                        "label": "Indice"
+                      },
+                      {
+                        "label": "Message qui apparaît si l'association des éléments est correcte",
+                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé correctement."
+                      },
+                      {
+                        "label": "Message qui apparaît si l'association des éléments est incorrecte",
+                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé incorrectement."
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Cette zone de dépôt ne peut contenir qu'un seul élément",
+                    "description": "Assurez-vous qu'il n'existe qu'une seule bonne réponse pour cette zone"
+                  },
+                  {
+                    "label": "Activer l'alignement automatique des éléments déplacés",
+                    "description": "Les éléments déposés dans cette zone seront automatiquement alignés si cette option est cochée."
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Feedback global",
+      "fields": [
+        {
+          "widgets": [
+            {
+              "label": "Par défaut"
+            }
+          ],
+          "label": "Définissez le feedback pour chaque intervalle de scores",
+          "description": "Cliquez sur le bouton \"Ajouter un intervalle\" pour ajouter autant d'intervalles de score que vous le souhaitez. Exemple: 0-20% Mauvais score, 21-91% Score moyen, 91-100% Score excellent !",
+          "entity": "un intervalle",
+          "field": {
+            "fields": [
+              {
+                "label": "Intervalles"
+              },
+              {"warning":"do not delete or translate this bracketed element!"},
+              {
+                "label": "Feedback pour un intervalle de scores défini",
+                "placeholder": "Remplissez le feedback"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "label": "Options générales",
+      "description": "Ces options vous permettent de contrôler le déroulement de cette activité.",
+      "fields": [
+        {
+          "label": "Activer le bouton \"Recommencer\""
+        },
+        {
+          "label": "Activer le bouton \"Montrer la solution\""
+        },
+        {
+          "label": "Obliger l'utilisateur à saisir une réponse avant de pouvoir afficher la correction.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Supprimer les styles 'correct' et 'incorrect'.",
+          "description": "Supprimer les styles 'correct' et 'incorrect' sur les éléments à glisser-déposer peut être utile lorsqu'on affiche un puzzle entièrement achevé."
+        },
+        {
+          "label": "Donner un point pour la question dans sa globalité",
+          "description": "Désactivez cette option pour donner un point pour chaque étiquette correctement placée."
+        },
+        {
+          "label": "Appliquer des pénalités",
+          "description": "Appliquez des pénalités pour les éléments déposés dans les mauvaises zones de dépôt. Cela doit être activé lorsque un ou plusieurs éléments peuvent être déposés dans plusieurs zones de dépôt, ou s'il n'y a qu'une seule zone de dépôt. Si ce n'est pas activé, les apprenants peuvent faire correspondre tous les éléments à toutes les zones de dépôt et toujours recevoir un score complet."
+        },
+        {
+          "label": "Activer les explications du score",
+          "description": "Montrer l'explication du score aux utilisateurs en vérifiant leurs réponses (si l'option 'Appliquer les pénalités' a été sélectionnée).",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Conserver les réponses correctes",
+          "description": "Cochez cette option si vous voulez conserver les éléments de glisser-déposer correctement placés lorsque vous cliquez le bouton  \"Recommencer\"."
+        },
+        {
+          "label": "Afficher les éléments à glisser-déposer dans le désordre.",
+          "description": "Cochez cette option pour mélanger l'ordre d'affichage des éléments à chaque nouvelle tentative (sauf pour ceux à affichage multiple)."
+        },
+        {
+          "label": "Renvoyer les éléments à glisser-déposer à leur place de départ.",
+          "description": "Cochez cette option pour Renvoyer les éléments à glisser-déposer à leur place de départ lors du dépôt d'un nouvel élément (ne fonctionne qu'avec les zones ne pouvant comporter qu'un seul élément)."
+        },
+        {
+          "label": "Opacité des éléments déplaçables",
+          "description": "Si ce champ est défini, l'opacité définie individuellement sur tous les éléments déplaçables sera annulée. Cette valeur doit être un nombre compris entre 0 et 100, 0 signifiant transparence totale et 100 signifiant absence de transparence."
+        },
+        {
+          "label": "Opacité des zones de dépôt",
+          "description": "Si ce champ est défini, l'opacité définie individuellement sur toutes les zones de dépôt sera annulée. Cette valeur doit être un nombre compris entre 0 and 100, où 0 correspond à une transparence absolue and 100 à une opacité complète."
+        },
+        {
+          "label": "Couleur d'arrière-plan des zones de dépôt",
+          "description": "La couleur de fond des zones de dépôt. La valeur par défaut est rgb (245, 245, 245)",
+          "default": "rgb(245, 245, 245)",
+          "spectrum": {}
+        },
+        {
+          "label": "Couleur de la bordure des zones de dépôt",
+          "description": "Si cette couleur est définie, elle remplacera la couleur individuelle des bordures des zones de dépôt. Pour désactiver la couleur de remplacement, sélectionnez le premier paramètre de palette, rgba (0,0,0,0,).",
+          "default": "rgba(0, 0, 0, 0)",
+          "spectrum": {}
+        },
+        {
+          "label": "Mise en évidence de la zone de dépôt",
+          "description": "Choisissez quand mettre en évidence la zone de dépôt.",
+          "default": "dragging",
+          "options": [
+            {
+              "label": "Lors du glisser-déposer"
+            },
+            {
+              "label": "Toujours"
+            },
+            {
+              "label": "Jamais"
+            }
+          ]
+        },
+        {
+          "label": "Marge pour l'alignement automatique (en pixels)"
+        },
+        {
+          "label": "Activer le bouton Plein écran",
+          "description": "Cochez cette option pour autoriser le mode Plein écran."
+        },
+        {
+          "label": "Afficher les points obtenus",
+          "description": "Afficher les points obtenus pour chaque réponse. Indisponible quand l'option 'Donner un point pour la question dans sa globalité' est activée."
+        },
+        {
+          "label": "Afficher les icônes Correct/Incorrect et les scores horizontalement",
+                    "description": "Cochez cette option pour afficher les icônes correct/incorrect et les points marqués <em>horizontalement</em> au lieu de verticalement par défaut."
+        }
+      ]
+    },  
+{
+      "label": "Traduction de l'interface",
+      "fields": [
+        {
+          "label": "Texte pour ouvrir en plein écran",
+          "default": "Plein écran"
+        },
+        {
+          "label": "Texte pour quitter le plein écran",
+          "default": "Sortir du plein écran"
+        }
+      ]
+    },
+    {
+      "label": "Préfixe",
+      "default": "Eléments déplaçables {num} de {total}."
+    },
+    {
+      "label": "Suffixe",
+      "default": "Déposé dans la zone {num}."
+    },
+    {
+      "label": "Préfixe de la zone de Dépôt",
+      "default": "Zone {num} sur {total}."
+    },
+    {
+      "label": "Pas d'étiquette pour la sélection de la zone de dépôt",
+      "default": "Pas de zone de dépôt."
+    },
+    {
+      "label": "Étiquette pour montrer le bouton d'indice",
+      "default": "Montrer l'indice."
+    },
+    {
+      "label": "Étiquette pour l'indice disponible",
+      "default": "Indice disponible"
+    },
+    {
+      "label": "Étiquette pour une bonne réponse",
+      "default": "Bonne réponse"
+    },
+    {
+      "label": "Étiquette pour une mauvaise réponse",
+      "default": "Réponse incorrecte"
+    },
+    {
+      "label": "Intitulé de l'espace contenant des feedbacks pour des réponses correctes/incorrectes",
+      "default": "Feedback"
+    },
+    {
+      "label": "Représentation textuelle du panneau du score pour les utilisateurs des outils de la vocalisation (comme ReadSpeaker)",
+      "default": "Vous avez obtenu un total de :num sur :points"
+    },
+    {
+      "label": "Représentation textuelle de l'explication du bouton de score",
+      "default": "Montrer l'explication du score"
+    },
+    {
+      "label": "Description de l'affichage de la solution",
+      "default": "L'activité a été mise à jour pour afficher la solution.",
+      "description": "Ce texte indique à l'utilisateur que l'activité a été mise à jour avec l'affichage de la solution."
+    },
+    {
+      "label": "Texte pour le message \"Réponse requise\"",
+      "default": "Veuillez répondre avant de voir la solution"
+    }
+  ]
+}
