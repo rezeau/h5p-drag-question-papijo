@@ -26,6 +26,7 @@ export default class DropZone {
     self.backgroundOpacity = dropZone.backgroundOpacity;
     self.tip = dropZone.tipsAndFeedback.tip || '';
     self.single = dropZone.single;
+    self.acceptedNumber = dropZone.acceptedNumber;
     self.autoAlignable = dropZone.autoAlign;
     self.alignables = [];
     self.l10n = l10n;
@@ -382,5 +383,20 @@ export default class DropZone {
    */
   dehighlight() {
     this.$dropZone.attr('aria-disabled', 'true').children('.h5p-inner').removeClass('h5p-active');
+    this.$dropZone.children('.h5p-inner').css('color', 'red');
   }
+
+  /**
+   * Mark the current drop zone correct/wrong.
+   */
+  markResult(status) {
+    this.$dropZone.children('.h5p-inner').addClass('h5p-dropzone-' + status + '-answer');
+  }
+  
+  /**
+   * REmove the current drop zone correct/wrong mark.
+   */
+  unmarkResult() {
+    this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer h5p-dropzone-wrong-answer');
+  }  
 }

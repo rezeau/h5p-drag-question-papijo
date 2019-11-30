@@ -267,7 +267,17 @@
                   "label": "Infinite number of element instances",
                   "importance": "low",
                   "description": "Clones this element so that it can be dragged to multiple drop zones.",
-                  "default": false
+                  "default": false,
+                  "optional": true,
+                  "widget": "showWhen",
+                  "showWhen": {
+                    "rules": [
+                      {
+                        "field": "../../behaviour/enableDroppedQuantity",
+                        "equals": false
+                      }
+                    ]
+                  }
                 }
               ]
             }
@@ -479,7 +489,36 @@
                   "label": "This drop zone can only contain one element",
                   "description": "Make sure there is only one correct answer for this dropzone",
                   "importance": "low",
-                  "default": false
+                  "default": false,
+                  "optional": true,
+                  "widget": "showWhen",
+                  "showWhen": {
+                    "rules": [
+                      {
+                        "field": "../../behaviour/enableDroppedQuantity",
+                        "equals": false
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "acceptedNumber",
+                  "type": "number",
+                  "min": 0,
+                  "max": 100,
+                  "label": "How many elements must this drop zone contain?",
+                  "description": "Exact number of draggables expected in this drop zone",
+                  "importance": "low",                  
+                  "optional": true,
+                  "widget": "showWhen",
+                  "showWhen": {
+                    "rules": [
+                      {
+                        "field": "../../behaviour/enableDroppedQuantity",
+                        "equals": true
+                      }
+                    ]
+                  }
                 },
                 {
                   "name": "autoAlign",
@@ -915,6 +954,14 @@
         "label": "Display correct/wrong and scorepoints horizontally",
         "importance": "low",
         "description": "Check this option to display the correct/wrong ticks and the score points horizontally (inline) instead of the default vertical display.",
+        "default": false
+      },
+      {
+        "name": "enableDroppedQuantity",
+        "type": "boolean",
+        "label": "Enable draggables dropped Quantity in drop Zones",
+        "importance": "low",
+        "description": "Check this option to display an 'Exact number of draggables expected' field in each drop zone.",
         "default": false
       }
     ]
