@@ -334,7 +334,7 @@ export default class Draggable extends H5P.EventDispatcher {
    * Resets the position of the draggable to its original position.
    */
 
-  resetPosition(correctDZs) {
+  resetPosition(correctDZs, correctClass) {
     var self = this;
     var oneIsCorrect = false;
     var keepCorrectAnswers = (correctDZs !== undefined) ? true : false;
@@ -353,10 +353,9 @@ export default class Draggable extends H5P.EventDispatcher {
       // If keepCorrectAnswers and draggable is in the right DZ, then disable the draggable and stop.
         // DEV JR and number in dz < allowed number
         var element = self.elements[self.elements.indexOf(draggable)];
-        var ok = element.$.hasClass('h5p-correct');
+        var ok = element.$.hasClass(correctClass);
         if (keepCorrectAnswers && $.inArray(draggable.dropZone, correctDZs) !== -1 && ok === true) {
           oneIsCorrect = true;
-          
           var element = self.elements[self.elements.indexOf(draggable)];
           element.$.draggable('disable');
           return;
@@ -387,7 +386,7 @@ export default class Draggable extends H5P.EventDispatcher {
         self.updatePlacement(draggable);
       }
     });
-
+    
     if (oneIsCorrect === false) {
     // Draggable removed from dropzone.
       if (self.element.dropZone !== undefined) {

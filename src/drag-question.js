@@ -88,7 +88,14 @@ function C(options, contentId, contentData) {
   this.draggables = [];
   this.dropZones = [];
   this.nbDraggables = []; // Used by enableDroppedQuantity option.
-  this.nbPlacedDraggables = []; // Used by enableDroppedQuantity option.         
+  this.nbPlacedDraggables = []; // Used by enableDroppedQuantity option.
+  // Initialize these arrays.
+  var task = this.options.question.task;
+  for (i = 0; i < task.dropZones.length; i++) {
+    var dropZone = task.dropZones[i];   
+    this.nbDraggables[i] = 0;
+    this.nbPlacedDraggables[i] = 0;
+  }         
   this.answered = (contentData && contentData.previousState !== undefined && contentData.previousState.answers !== undefined && contentData.previousState.answers.length);
   this.hasSavedState = this.answered;
   this.blankIsCorrect = true;
@@ -129,7 +136,7 @@ function C(options, contentId, contentData) {
   this.correctDZs = [];
   for (i = 0; i < task.dropZones.length; i++) {
     dropZonesWithoutElements.push(true); // All true by default
-    var correctElements = task.dropZones[i].correctElements;
+    var correctElements = task.dropZones[i].correctElements;                              
     var acceptedNumber = task.dropZones[i].acceptedNumber;
     for (j = 0; j < correctElements.length; j++) {
       var correctElement = correctElements[j];
@@ -143,7 +150,7 @@ function C(options, contentId, contentData) {
     }
     task.dropZones[i].background = this.dropZonesBackgroundColor;
   }
-
+  
   this.weight = 1;
 
   // Add draggable elements JR
@@ -220,7 +227,24 @@ function C(options, contentId, contentData) {
       dropZonesWithoutElements[element.dropZones[j]] = false;
     }
   }
-
+  
+  // Create map over correct draggables for dropzones (if enableDroppedQuantity)                
+  if (this.options.behaviour.enableDroppedQuantity) {
+    this.correctDraggables = [];
+    for (i = 0; i < task.dropZones.length; i++) {   
+      this.correctDraggables[i] = [];
+      for (j = 0; j < this.correctDZs.length; j++) {
+        if (this.correctDZs[j] == undefined) {
+          continue;
+        }
+        var dragOkDZ = $.inArray(i, this.correctDZs[j]);                                             
+        if (dragOkDZ !== -1) {
+          this.correctDraggables[i].push(j);
+        }
+      }
+    }
+  }                                                         
+  
   // Create a count to subtrack from score
   this.numDropZonesWithoutElements = 0;
 
@@ -898,6 +922,7 @@ C.prototype.showAllSolutions = function (skipVisuals) {
     this.scoreInline = this.options.behaviour.showScoreInline;
   }
   this.maxScoreReached = false;
+  
   for (var i = 0; i < this.draggables.length; i++) {
     var draggable = this.draggables[i];
     if (draggable === undefined) {
@@ -907,15 +932,27 @@ C.prototype.showAllSolutions = function (skipVisuals) {
     if (!skipVisuals) {
       draggable.disable();
     }
-
-    // Find out where we are.
-    if (!this.options.behaviour.enableDroppedQuantity) {
-      this.points += draggable.results(skipVisuals, this.correctDZs[i], scorePoints, this.scoreInline);
-      this.rawPoints += draggable.rawPoints;
-    } else {     
-      draggable.results(skipVisuals, this.correctDZs[i]);
+  }
+  // Normal mode
+  if (!this.options.behaviour.enableDroppedQuantity) {
+    for (var i = 0; i < this.draggables.length; i++) {
+      var draggable = this.draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }
+      // Find out where we are.
+        this.points += draggable.results(skipVisuals, this.correctDZs[i], scorePoints, this.scoreInline);
+        this.rawPoints += draggable.rawPoints;
+    }
+  } else {
+    for (var i = 0; i < this.dropZones.length; i++) {
+      var dropzone = this.dropZones[i];
+      this.points += dropzone.results(this.draggables, this.correctDraggables, scorePoints);
+      
+      this.rawPoints = this.points;   
     }
   }
+  
   if (this.points < 0) {
     this.points = 0;
   }
@@ -1033,11 +1070,13 @@ C.prototype.reTry = function (forceReset) {
       var element = draggable.elements[0];
       // If keep correct answers and draggable is in its correct dropzone, set shuffled draggable coordinates but do not actually shuffle it.
       var shuffle = true;
-      if (element.$.hasClass('h5p-correct')){
+      // Deal with enableDroppedQuantity option
+      if (element.$.hasClass('h5p-correct') || element.$.hasClass('h5p-correct-quantity')) {
         shuffle = false;
       };
       var x = draggablePositions[i-skipIt][0];
       var y = draggablePositions[i-skipIt][1];
+      
       draggable.shufflePosition(shuffle, x, y);
     };
   };
@@ -1046,9 +1085,7 @@ C.prototype.reTry = function (forceReset) {
   // Do not reset positions if previous state is being restored.
   // DEV JR replace this by empty dropzones that are marked as wrong...
   // OR make it an option?
-  if (!this.hasSavedState) {
-    
-    // if count quantity
+  if (!this.hasSavedState) {    
     if (this.options.behaviour.enableDroppedQuantity) {
       var nbCorrectDropZones = 0;
       var totalDropZones = 0;
@@ -1059,44 +1096,50 @@ C.prototype.reTry = function (forceReset) {
         }
         if (dropZone.status == 'correct') {
           nbCorrectDropZones ++;
-        }
-      });
+        }   
+				var acceptedNumber = dropZone.acceptedNumber;     
+        if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
+					var nbOK = 0;
+					for (var i = 0; i < this.draggables.length; i++) {
+      			var draggable = this.draggables[i];
+	          if (dropZone.status == 'correct') {
+	          	nbOK ++;  
+	          }
+	      	}
+				}
+    	});
     }
-    this.draggables.forEach(function (draggable) {
-      if (self.options.behaviour.keepCorrectAnswers && !forceReset) {        
+
+		this.draggables.forEach(function (draggable) {
+    
+      if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
+				var dragId = draggable.id;        
         var $dropZones = self.dropZones; // DOM objects
         var task = self.options.question.task;
         var element = draggable.elements[0];
-        
-        task.dropZones.forEach((dropZone, dropZoneId) => {
-          var $dropZone = $dropZones[i];
-          var draggableIsInWrongZone = draggable.isInDropZone(dropZoneId);
-          if (draggableIsInWrongZone && dropZone.status == 'wrong') {
-            if (element.$.hasClass('h5p-correct')) {
-              element.$.removeClass('h5p-correct');
-            }
-          }
-        });
-        var ok = element.$.hasClass('h5p-correct');
-        
-        if (ok === true) {
-          draggable.resetPosition(self.correctDZs[draggable.id]);
+        var correctClass = 'h5p-correct';                    
+        if (self.options.behaviour.enableDroppedQuantity) {
+          correctClass += '-quantity';
+        }               
+        if (element.$.hasClass(correctClass)) {
+          draggable.resetPosition(self.correctDZs[draggable.id], correctClass);
         } else {          
           draggable.resetPosition();
         }
-      }
-      else {
+      } else {
        draggable.resetPosition();
       };
     });
         
-    if (nbCorrectDropZones == totalDropZones) {
-      //Enables Draggables
-      this.enableDraggables();
-      this.draggables.forEach(function (draggable) {
-        draggable.resetPosition();
-      });    
-    }
+    if (this.options.behaviour.enableDroppedQuantity) {
+			if (nbCorrectDropZones == totalDropZones) {
+	      //Enables Draggables
+	      this.enableDraggables();
+	      this.draggables.forEach(function (draggable) {
+	        draggable.resetPosition();
+	      });    
+	    }
+		} 
   }
   this.hasSavedState = false;
   if (this.options.behaviour.enableDroppedQuantity) {
@@ -1422,40 +1465,22 @@ C.prototype.getAnswerGiven = function () {
 C.prototype.showScore = function () {
   var self = this;
   var maxScore = this.calculateMaxScore();
-
+  if (this.options.behaviour.singlePoint) {
+    maxScore = 1;
+  }
+  
   if (this.options.behaviour.enableDroppedQuantity) {
-    var task = this.options.question.task;    
-    task.dropZones.forEach((dropZone, dropZoneId) => {
-      this.nbPlacedDraggables[dropZoneId] = 0;
-      this.nbDraggables[dropZoneId] = 0;
-      var acceptedNumber = dropZone.acceptedNumber;
-      // get draggables in dropZone
-      this.draggables.forEach(draggable => {
-        var dragId = draggable.id;
-        var dragCurDZ = draggable.isInDropZone(dropZoneId);
-        if (dragCurDZ) {
-          this.nbDraggables[dropZoneId] ++;
-        }
-        var dragOkDZ = $.inArray(dropZoneId, this.correctDZs[dragId]);        
-        if (dragCurDZ === true && dragOkDZ !== -1 && this.nbPlacedDraggables[dropZoneId] <= acceptedNumber) {
-          this.nbPlacedDraggables[dropZoneId]++;
-        }
-      }); 
-       
-    });
+    var task = this.options.question.task;
     // Count correctly filled in dropZones and add to score.
     var i = 0;
     var totalDropZones = 0;
     var $dropZones = self.dropZones; // DOM objects
     task.dropZones.forEach((dropZone, dropZoneId) => {
       var $dropZone = $dropZones[i];
-      var status;                                   
-      if (dropZone.acceptedNumber == this.nbPlacedDraggables[dropZoneId] 
-          && this.nbPlacedDraggables[dropZoneId] == this.nbDraggables[dropZoneId]) {
+      var status = $dropZone.getCompletedStatus();                                         
+      if (status == true) {    
         status = 'correct';
-        dropZone.status = status;
-        this.rawPoints ++;
-        this.points ++;        
+        dropZone.status = status;        
       } else {
         status = 'wrong';
         dropZone.status = status;
@@ -1466,23 +1491,9 @@ C.prototype.showScore = function () {
       }
       $dropZone.markResult(status);      
       i++;            
-    });
-    // Count dropzones with a NOT NULL quantity
-    task.dropZones.forEach((dropZone) => {
-      if (dropZone.status !== 'none') {
-        totalDropZones ++;
-      }
-    });
-    
-    if (this.options.behaviour.singlePoint) {
-      this.points = Math.floor (this.points / totalDropZones);
-    }
+    });    
   }
-  this.scoreViewed = true;
-  if (this.options.behaviour.singlePoint) {
-    maxScore = 1;
-  }
-  
+  this.scoreViewed = true;  
   var actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint) ? this.points : this.rawPoints;
   var scoreText = H5P.Question.determineOverallFeedback(this.options.overallFeedback, 
       actualPoints / maxScore).replace('@score', actualPoints).replace('@total', maxScore);
@@ -1509,7 +1520,6 @@ C.prototype.getCurrentState = function () {
     var draggableAnswers = [];
     for (var j = 0; j < draggable.elements.length; j++) {
       var element = draggable.elements[j];
-      // TODO JR
       if ( (element === undefined || element.dropZone === undefined) || element.$.hasClass('h5p-question-solution') || element.$.hasClass('h5p-question-hidden')) {
         continue;
       }
