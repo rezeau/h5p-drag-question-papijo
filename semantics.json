@@ -608,11 +608,28 @@
         "default": true
       },
       {
+        "name": "enableDroppedQuantity",
+        "type": "boolean",
+        "label": "Enable draggables dropped Quantity in drop Zones",
+        "importance": "low",
+        "description": "Check this option to display an 'Exact number of draggables expected' field in each drop zone.",
+        "default": false
+      },
+      {
         "name": "enableSolutionButton",
         "type": "boolean",
         "label": "Enable \"Show solution\" button",
         "importance": "low",
-        "default": false
+        "default": false,
+        "widget": "showWhen",
+        "showWhen": {               
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": false
+            }
+          ]
+        }
       },
       {
         "label": "Require user input before the solution can be viewed",
@@ -624,8 +641,8 @@
         "showWhen": {
           "rules": [
             {
-              "field": "enableSolutionButton",
-              "equals": true
+              "field": "enableDroppedQuantity",
+              "equals": false
             }
           ]
         }
@@ -636,7 +653,16 @@
         "name": "removeCorrectWrongStyles",
         "description": "Removing all 'correct' and 'wrong' styles may be useful e.g. when displaying a completed jigsaw puzzle activity.",
         "type": "boolean",
-        "default": false
+        "default": false,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": false
+            }
+          ]
+        }
       },
       {
         "name": "singlePoint",
@@ -693,7 +719,16 @@
         "label": "Reset the position of a dropped draggable element.",
         "description": "Check this option if you want to reset the position of a dropped draggable element when dropping a new one onto the drop zone (only works in drop zones which can only contain a single element).",
         "importance": "low",
-        "default": false
+        "default": false,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": false
+            }
+          ]
+        }
       },
       {
         "name": "backgroundOpacity",
@@ -946,7 +981,16 @@
         "label": "Show score points",
         "description": "Show points earned for each answer. Not available when the 'Give one point for the whole task' option is enabled.",
         "importance": "low",
-        "default": true
+        "default": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": false
+            }
+          ]
+        }
       },
       {
         "name": "showScoreInline",
@@ -954,15 +998,16 @@
         "label": "Display correct/wrong and scorepoints horizontally",
         "importance": "low",
         "description": "Check this option to display the correct/wrong ticks and the score points horizontally (inline) instead of the default vertical display.",
-        "default": false
-      },
-      {
-        "name": "enableDroppedQuantity",
-        "type": "boolean",
-        "label": "Enable draggables dropped Quantity in drop Zones",
-        "importance": "low",
-        "description": "Check this option to display an 'Exact number of draggables expected' field in each drop zone.",
-        "default": false
+        "default": false,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": false
+            }
+          ]
+        }
       }
     ]
   },

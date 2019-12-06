@@ -1,6 +1,10 @@
 {
   "semantics": [
     {
+      "label": "<span style=\"position: absolute;top: -40px;left: 0px;\">Tutorial and Examples: <a href=\"http://www.rezeau.org/drupal/\" target=\"_blank\" rel=\"noopener\">Papi Jo's Drupal test site</a></span>",
+      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
+    },
+    {
       "label": "Check answer button",
       "default": "Check"
     },
@@ -36,11 +40,18 @@
             },
             {
               "label": "Task Background color",
-              "description": "The color of the task background (if no image)"
+              "description": "The color of the task background (if no image)",
+              "default": "rgba(0, 0, 0, 0)",
+              "spectrum": {}
             },
             {
               "label": "Task size",
-              "description": "Specify how large (in px) the play area should be."
+              "description": "Specify how large (in px) the play area should be.",
+              "default": {},
+              "fields": [
+                {},
+                {}
+              ]
             }
           ]
         },
@@ -57,6 +68,10 @@
                   {
                     "description": "Choose the type of content you would like to add."
                   },
+                  {},
+                  {},
+                  {},
+                  {},
                   {
                     "label": "Select drop zones"
                   },
@@ -65,7 +80,12 @@
                   },
                   {
                     "label": "Infinite number of element instances",
-                    "description": "Clones this element so that it can be dragged to multiple drop zones."
+                    "description": "Clones this element so that it can be dragged to multiple drop zones.",
+                    "showWhen": {
+                      "rules": [
+                        {}
+                      ]
+                    }
                   }
                 ]
               }
@@ -82,6 +102,10 @@
                   {
                     "label": "Show label"
                   },
+                  {},
+                  {},
+                  {},
+                  {},
                   {
                     "label": "Select correct elements"
                   },
@@ -91,7 +115,9 @@
                   },
                   {
                     "label": "Border color",
-                    "description": "The border color of this dropzone (when highlighted)"
+                    "description": "The border color of this dropzone (when highlighted)",
+                    "default": "rgb(102, 102, 102)",
+                    "spectrum": {}
                   },
                   {
                     "label": "Tips and feedback",
@@ -111,7 +137,21 @@
                   },
                   {
                     "label": "This drop zone can only contain one element",
-                    "description": "Make sure there is only one correct answer for this dropzone"
+                    "description": "Make sure there is only one correct answer for this dropzone",
+                    "showWhen": {
+                      "rules": [
+                        {}
+                      ]
+                    }
+                  },
+                  {
+                    "label": "How many elements must this drop zone contain?",
+                    "description": "Exact number of draggables expected in this drop zone",
+                    "showWhen": {
+                      "rules": [
+                        {}
+                      ]
+                    }
                   },
                   {
                     "label": "Enable Auto-Align",
@@ -141,7 +181,7 @@
               {
                 "label": "Score Range"
               },
-              {"warning":"do not delete or translate this bracketed element!"},
+              {},
               {
                 "label": "Feedback for defined score range",
                 "placeholder": "Fill in the feedback"
@@ -159,14 +199,33 @@
           "label": "Enable \"Retry\""
         },
         {
-          "label": "Enable \"Show solution\" button"
+          "label": "Enable draggables dropped Quantity in drop Zones",
+          "description": "Check this option to display an 'Exact number of draggables expected' field in each drop zone."
         },
         {
-          "label": "Require user input before the solution can be viewed"
+          "label": "Enable \"Show solution\" button",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
+          "label": "Require user input before the solution can be viewed",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         },
         {
           "label": "Remove all 'correct' and 'wrong' styles on the draggables when all is correct.",
-          "description": "Removing all 'correct' and 'wrong' styles may be useful e.g. when displaying a completed jigsaw puzzle activity."
+          "description": "Removing all 'correct' and 'wrong' styles may be useful e.g. when displaying a completed jigsaw puzzle activity.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         },
         {
           "label": "Give one point for the whole task",
@@ -178,7 +237,12 @@
         },
         {
           "label": "Enable score explanation",
-          "description": "Display a score explanation to user when checking their answers (if the 'Apply penalties' option has been selected)."
+          "description": "Display a score explanation to user when checking their answers (if the 'Apply penalties' option has been selected).",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         },
         {
           "label": "Keep correct answers",
@@ -190,7 +254,12 @@
         },
         {
           "label": "Reset the position of a dropped draggable element.",
-          "description": "Check this option if you want to reset the position of a dropped draggable element when dropping a new one onto the drop zone (only works in drop zones which can only contain a single element)."
+          "description": "Check this option if you want to reset the position of a dropped draggable element when dropping a new one onto the drop zone (only works in drop zones which can only contain a single element).",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         },
         {
           "label": "Background opacity for draggables",
@@ -202,15 +271,20 @@
         },
         {
           "label": "Drop Zones Background color",
-          "description": "The background color of the Drop Zones. Default value is rgb(245, 245, 245)"
+          "description": "The background color of the Drop Zones. Default value is rgb(245, 245, 245)",
+          "default": "rgb(245, 245, 245)",
+          "spectrum": {}
         },
         {
           "label": "Border color for drop zones",
-          "description": "If this color is set, it will override the color of the individual dropzones borders. To UNSET this override color, select the first palette setting, rgba(0,0,0,0,)."
+          "description": "If this color is set, it will override the color of the individual dropzones borders. To UNSET this override color, select the first palette setting, rgba(0,0,0,0,).",
+          "default": "rgba(0, 0, 0, 0)",
+          "spectrum": {}
         },
         {
           "label": "Drop Zone Highlighting",
           "description": "Choose when to highlight drop zones.",
+          "default": "dragging",
           "options": [
             {
               "label": "When dragging"
@@ -232,11 +306,21 @@
         },
         {
           "label": "Show score points",
-          "description": "Show points earned for each answer. Not available when the 'Give one point for the whole task' option is enabled."
+          "description": "Show points earned for each answer. Not available when the 'Give one point for the whole task' option is enabled.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         },
         {
           "label": "Display correct/wrong and scorepoints horizontally",
-          "description": "Check this option to display the correct/wrong ticks and the score points horizontally (inline) instead of the default vertical display."
+          "description": "Check this option to display the correct/wrong ticks and the score points horizontally (inline) instead of the default vertical display.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
         }
       ]
     },

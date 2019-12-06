@@ -1692,8 +1692,8 @@ C.prototype.showAllSolutions = function (skipVisuals) {
     for (var i = 0; i < this.dropZones.length; i++) {
       var dropzone = this.dropZones[i];
       this.points += dropzone.results(this.draggables, this.correctDraggables, scorePoints);
-
-      this.rawPoints = this.points;
+      //dev jr
+      this.rawPoints += dropzone.rawPoints;
     }
   }
 
@@ -2189,6 +2189,7 @@ C.prototype.getMaxScore = function () {
  */
 C.prototype.getScore = function () {
   this.showAllSolutions(true);
+
   var actualPoints = this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint ? this.points : this.rawPoints;
   delete this.points;
   delete this.rawPoints;
@@ -3826,13 +3827,16 @@ var DropZone = function () {
     value: function results(draggables, solutions, scorePoints) {
       var self = this;
       var points = 0;
+      self.rawPoints = 0;
       var nbDraggablesInZone = 0;
       var nbPlacedDraggables = 0;
       var completed = false;
       var acceptedNumber = self.acceptedNumber;
       var dropZoneId = self.id;
       var solutions = solutions[dropZoneId];
-
+      if (nbDraggablesInZone === undefined) {
+        return 0;
+      }
       for (var i = 0; i < draggables.length; i++) {
         var draggable = draggables[i];
         if (draggable === undefined) {
@@ -3854,6 +3858,7 @@ var DropZone = function () {
         }
         if (nbPlacedDraggables == acceptedNumber && dragOkDZ !== -1 && nbDraggablesInZone == acceptedNumber && completed == false) {
           completed = true;
+          self.rawPoints++;
           self.markCompleted();
         } else {
           completed = false;
@@ -3864,6 +3869,7 @@ var DropZone = function () {
       if (nbDraggablesInZone === 0 && acceptedNumber === 0) {
         completed = true;
         self.markCompleted();
+        self.rawPoints++;
         return 1;
       }
 
@@ -3884,7 +3890,9 @@ var DropZone = function () {
         }
       }
       if (completed) {
-        points = 1;
+        points++;
+      } else {
+        points--;
       }
       return points;
     }

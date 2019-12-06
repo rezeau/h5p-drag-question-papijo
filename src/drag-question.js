@@ -948,8 +948,8 @@ C.prototype.showAllSolutions = function (skipVisuals) {
     for (var i = 0; i < this.dropZones.length; i++) {
       var dropzone = this.dropZones[i];
       this.points += dropzone.results(this.draggables, this.correctDraggables, scorePoints);
-      
-      this.rawPoints = this.points;   
+      //dev jr
+      this.rawPoints += dropzone.rawPoints;   
     }
   }
   
@@ -1444,6 +1444,7 @@ C.prototype.getMaxScore = function () {
  */
 C.prototype.getScore = function () {
   this.showAllSolutions(true);
+  
   var actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint) ? this.points : this.rawPoints;
   delete this.points;
   delete this.rawPoints;

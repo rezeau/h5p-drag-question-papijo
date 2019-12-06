@@ -428,13 +428,16 @@ export default class DropZone {
   results(draggables, solutions, scorePoints) {
     var self = this;
     var points = 0;
+    self.rawPoints = 0;
     var nbDraggablesInZone = 0;
     var nbPlacedDraggables = 0;
     var completed = false;
     var acceptedNumber = self.acceptedNumber;
     var dropZoneId = self.id;
     var solutions = solutions[dropZoneId];
-    
+    if (nbDraggablesInZone === undefined) {
+      return 0;
+    }
     for (var i = 0; i < draggables.length; i++) {
       var draggable = draggables[i];
       if (draggable === undefined) {
@@ -455,7 +458,8 @@ export default class DropZone {
         nbPlacedDraggables ++;                       
       }
       if (nbPlacedDraggables == acceptedNumber && dragOkDZ !== -1 && nbDraggablesInZone == acceptedNumber && completed == false) {
-        completed = true;                
+        completed = true;    
+        self.rawPoints++;            
         self.markCompleted();                
       } else {                                      
         completed = false;
@@ -466,6 +470,7 @@ export default class DropZone {
     if (nbDraggablesInZone === 0 && acceptedNumber === 0) {
       completed = true;                
       self.markCompleted();
+      self.rawPoints++;
       return 1;                                                                                              
     } 
                                                    
@@ -486,8 +491,10 @@ export default class DropZone {
       }
     }                   
     if (completed) {
-      points = 1;      
-    }                      
+      points++;      
+    } else {
+      points--;
+    }                     
     return points;
   }
 }
