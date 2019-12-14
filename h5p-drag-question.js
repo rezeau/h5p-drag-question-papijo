@@ -821,6 +821,7 @@ function C(options, contentId, contentData) {
       removeCorrectWrongStyles: false,
       applyPenalties: true,
       enableScoreExplanation: true,
+      enableScoreExplanationQuantity: true,
       dropZoneHighlighting: 'dragging',
       autoAlignSpacing: 2,
       showScorePoints: true,
@@ -835,8 +836,11 @@ function C(options, contentId, contentData) {
   // If single point is enabled, it makes no sense displaying
   // the score explanation. Note: In the editor, the score explanation is hidden
   // by the showWhen widget if singlePoint is enabled
-  if (this.options.behaviour.singlePoint) {
+  if (this.options.behaviour.singlePoint || this.options.behaviour.enableDroppedQuantity) {
     this.options.behaviour.enableScoreExplanation = false;
+  }
+  if (!this.options.behaviour.enableDroppedQuantity) {
+    this.options.behaviour.enableScoreExplanationQuantity = false;
   }
 
   this.draggables = [];
@@ -1353,6 +1357,7 @@ C.prototype.createQuestionContent = function () {
   for (i = 0; i < this.dropZones.length; i++) {
     this.dropZones[i].appendTo(this.$container, this.draggables);
   }
+
   return this.$container;
 };
 
@@ -1363,7 +1368,9 @@ C.prototype.registerButtons = function () {
   }
   this.addRetryButton();
   if (this.oneDropzonesHasCorrectElement()) {
-    this.addShowSolutionButton();
+    if (!this.options.behaviour.enableDroppedQuantity) {
+      this.addShowSolutionButton();
+    }
     if (this.options.behaviour.randomizeDraggables) {
       this.reTry();
     };
@@ -1483,6 +1490,7 @@ C.prototype.addRetryButton = function () {
     var forceReset = false;
     if (that.solutionViewed) {
       forceReset = true;
+      var keepCorrectAnswers = false;
       that.solutionViewed = false;
     };
 
@@ -1663,8 +1671,9 @@ C.prototype.showAllSolutions = function (skipVisuals) {
 
   if (!skipVisuals && this.options.behaviour.showScorePoints && !this.options.behaviour.singlePoint && this.options.behaviour.applyPenalties) {
     scorePoints = new H5P.Question.ScorePoints();
-    this.scoreInline = this.options.behaviour.showScoreInline;
   }
+
+  this.scoreInline = this.options.behaviour.showScoreInline;
   this.maxScoreReached = false;
 
   for (var i = 0; i < this.draggables.length; i++) {
@@ -1689,11 +1698,11 @@ C.prototype.showAllSolutions = function (skipVisuals) {
       this.rawPoints += draggable.rawPoints;
     }
   } else {
+    // enableDroppedQuantity Mode.
     for (var i = 0; i < this.dropZones.length; i++) {
       var dropzone = this.dropZones[i];
       this.points += dropzone.results(this.draggables, this.correctDraggables, scorePoints);
-      //dev jr
-      this.rawPoints += dropzone.rawPoints;
+      this.rawPoints = this.points;
     }
   }
 
@@ -1718,6 +1727,7 @@ C.prototype.showAllSolutions = function (skipVisuals) {
   if (this.options.behaviour.enableSolutionButton && !skipVisuals) {
     this.showButton('show-solution');
   }
+
   if (this.points === this.getMaxScore()) {
     this.maxScoreReached = true;
   }
@@ -1762,7 +1772,7 @@ C.prototype.showSolutions = function () {
  * Resets the task but keeps correct answers if required.
  * @public
  */
-C.prototype.reTry = function (forceReset) {
+C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
   var _this2 = this;
 
   var self = this;
@@ -1829,8 +1839,7 @@ C.prototype.reTry = function (forceReset) {
 
   //Only reset position and feedback if we are not keeping the correct answers.
   // Do not reset positions if previous state is being restored.
-  // DEV JR replace this by empty dropzones that are marked as wrong...
-  // OR make it an option?
+
   if (!this.hasSavedState) {
     if (this.options.behaviour.enableDroppedQuantity) {
       var nbCorrectDropZones = 0;
@@ -1857,12 +1866,14 @@ C.prototype.reTry = function (forceReset) {
     }
 
     this.draggables.forEach(function (draggable) {
-
       if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
         var dragId = draggable.id;
         var $dropZones = self.dropZones; // DOM objects
         var task = self.options.question.task;
         var element = draggable.elements[0];
+        if (element.$.hasClass('h5p-correct-quantity')) {
+          element.$.addClass('h5p-correct');
+        }
         var correctClass = 'h5p-correct';
         if (self.options.behaviour.enableDroppedQuantity) {
           correctClass += '-quantity';
@@ -1911,6 +1922,7 @@ C.prototype.reTry = function (forceReset) {
 C.prototype.showSolution = function () {
   var self = this;
   self.solutionViewed = true;
+
   var dropZones = self.dropZones;
   // Reset all dropzones alignables to empty. ???
   for (i = 0; i < dropZones.length; i++) {
@@ -2035,7 +2047,6 @@ C.prototype.showSolution = function () {
               // Add to alignables
               if (dropZone.getIndexOf(element.$) === -1) {
                 dropZone.alignables.push(element.$);
-                //dropZone.autoAlign();
               };
             };
           };
@@ -2178,6 +2189,7 @@ C.prototype.calculateMaxScore = function () {
  * @returns {Number} Max points
  */
 C.prototype.getMaxScore = function () {
+  var max = this.options.behaviour.singlePoint ? this.weight : this.calculateMaxScore();
   return this.options.behaviour.singlePoint ? this.weight : this.calculateMaxScore();
 };
 
@@ -2190,7 +2202,7 @@ C.prototype.getMaxScore = function () {
 C.prototype.getScore = function () {
   this.showAllSolutions(true);
 
-  var actualPoints = this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint ? this.points : this.rawPoints;
+  var actualPoints = this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint || this.options.behaviour.enableDroppedQuantity ? this.points : this.rawPoints;
   delete this.points;
   delete this.rawPoints;
   return actualPoints;
@@ -2219,30 +2231,56 @@ C.prototype.showScore = function () {
     var task = this.options.question.task;
     // Count correctly filled in dropZones and add to score.
     var i = 0;
-    var totalDropZones = 0;
+    var totalQtyDZs = 0;
+    var completedDZ = 0;
     var $dropZones = self.dropZones; // DOM objects
     task.dropZones.forEach(function (dropZone, dropZoneId) {
       var $dropZone = $dropZones[i];
+      var acceptedNumber = dropZone.acceptedNumber;
       var status = $dropZone.getCompletedStatus();
       if (status == true) {
         status = 'correct';
         dropZone.status = status;
+        totalQtyDZs++;
+        completedDZ++;
       } else {
         status = 'wrong';
         dropZone.status = status;
+        totalQtyDZs++;
       }
-      if (dropZone.acceptedNumber == undefined) {
+      if (dropZone.acceptedNumber === undefined) {
         status = 'none';
         dropZone.status = status;
+        totalQtyDZs--;
       }
       $dropZone.markResult(status);
       i++;
     });
+
+    // Enable correct or wrong background-color for the draggables, accounting for their opacity.
+    for (var i = 0; i < this.draggables.length; i++) {
+      var draggable = this.draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }
+      var element = draggable.elements[0];
+      if (element.$.hasClass('h5p-correct-quantity')) {
+        element.$.addClass('h5p-correct');
+      } else if (element.$.hasClass('h5p-incorrect-quantity')) {
+        element.$.addClass('h5p-wrong');
+      }
+      _dragUtils2.default.setOpacity(element.$, 'background', draggable.backgroundOpacity);
+    };
   }
+
   this.scoreViewed = true;
   var actualPoints = this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint ? this.points : this.rawPoints;
   var scoreText = H5P.Question.determineOverallFeedback(this.options.overallFeedback, actualPoints / maxScore).replace('@score', actualPoints).replace('@total', maxScore);
-  var helpText = this.options.behaviour.enableScoreExplanation && this.options.behaviour.applyPenalties ? this.options.scoreExplanation : false;
+  if (this.options.behaviour.enableDroppedQuantity) {
+    var helpText = this.options.behaviour.enableScoreExplanationQuantity ? this.options.scoreExplanationQuantity : false;
+  } else {
+    var helpText = this.options.behaviour.enableScoreExplanation && this.options.behaviour.applyPenalties ? this.options.scoreExplanation : false;
+  }
   this.setFeedback(scoreText, actualPoints, maxScore, this.options.scoreBarLabel, helpText, undefined, this.options.scoreExplanationButtonLabel);
 };
 
@@ -3827,16 +3865,12 @@ var DropZone = function () {
     value: function results(draggables, solutions, scorePoints) {
       var self = this;
       var points = 0;
-      self.rawPoints = 0;
       var nbDraggablesInZone = 0;
       var nbPlacedDraggables = 0;
       var completed = false;
       var acceptedNumber = self.acceptedNumber;
       var dropZoneId = self.id;
       var solutions = solutions[dropZoneId];
-      if (nbDraggablesInZone === undefined) {
-        return 0;
-      }
       for (var i = 0; i < draggables.length; i++) {
         var draggable = draggables[i];
         if (draggable === undefined) {
@@ -3849,6 +3883,7 @@ var DropZone = function () {
         }
         nbDraggablesInZone++;
         var dragId = draggable.id;
+
         var dragOkDZ = $.inArray(dragId, solutions);
         if (nbPlacedDraggables > acceptedNumber) {
           continue;
@@ -3858,18 +3893,19 @@ var DropZone = function () {
         }
         if (nbPlacedDraggables == acceptedNumber && dragOkDZ !== -1 && nbDraggablesInZone == acceptedNumber && completed == false) {
           completed = true;
-          self.rawPoints++;
           self.markCompleted();
         } else {
           completed = false;
           self.unMarkCompleted();
         }
+        // Do not mark elements inside a dropzone with undefined quantity either correct or wrong.
+        if (acceptedNumber == undefined) {
+          completed = undefined;
+        }
       }
       // Use case of empty dropZone expecting 0 draggables!   
       if (nbDraggablesInZone === 0 && acceptedNumber === 0) {
-        completed = true;
         self.markCompleted();
-        self.rawPoints++;
         return 1;
       }
 
@@ -3881,20 +3917,24 @@ var DropZone = function () {
         var element = draggable.elements[0];
         // Draggable not in dropZone
         if (element.dropZone !== dropZoneId) {
+          // Just in case it was previously added and element was moved away from dz!
+          if (element.dropZone === undefined) {
+            element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
+          }
           continue;
         }
-        // Just in case it was previously added.
-        element.$.removeClass('h5p-correct-quantity');
-        if (completed) {
+        element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
+        if (completed === true) {
           element.$.addClass('h5p-correct-quantity');
+        } else if (completed === false) {
+          element.$.addClass('h5p-incorrect-quantity');
         }
       }
-      if (completed) {
-        points++;
+      if (completed === true) {
+        return 1;
       } else {
-        points--;
+        return 0;
       }
-      return points;
     }
   }]);
 

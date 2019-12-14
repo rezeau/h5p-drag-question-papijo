@@ -41,6 +41,15 @@
     "optional": true
   },
   {
+    "label": "Score explanation text for drop zones with a fixed quantity",
+    "importance": "low",
+    "name": "scoreExplanationQuantity",
+    "type": "text",
+    "default": "Correctly filled drop zones have a green border and give 1 point. Incorrectly filled drop zones have a red border.",
+    "common": true,
+    "optional": true
+  },
+  {
     "name": "question",
     "importance": "high",
     "type": "group",
@@ -622,7 +631,7 @@
         "importance": "low",
         "default": false,
         "widget": "showWhen",
-        "showWhen": {               
+        "showWhen": {
           "rules": [
             {
               "field": "enableDroppedQuantity",
@@ -653,6 +662,14 @@
         "name": "removeCorrectWrongStyles",
         "description": "Removing all 'correct' and 'wrong' styles may be useful e.g. when displaying a completed jigsaw puzzle activity.",
         "type": "boolean",
+        "default": false
+      },
+      {
+        "name": "singlePoint",
+        "type": "boolean",
+        "label": "Give one point for the whole task",
+        "importance": "low",
+        "description": "Disable to give one point for each draggable that is placed correctly.",
         "default": false,
         "widget": "showWhen",
         "showWhen": {
@@ -665,19 +682,20 @@
         }
       },
       {
-        "name": "singlePoint",
-        "type": "boolean",
-        "label": "Give one point for the whole task",
-        "importance": "low",
-        "description": "Disable to give one point for each draggable that is placed correctly.",
-        "default": false
-      },
-      {
         "label": "Apply penalties",
         "name": "applyPenalties",
         "type": "boolean",
         "description": "Apply penalties for elements dropped in the wrong drop zones. This must be enabled when the same element(s) are able to be dropped into multiple drop zones, or if there is only one drop-zone. If this is not enabled, learners may match all items to all drop-zones and always receive a full score.",
-        "default": true
+        "default": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": false
+            }
+          ]
+        }
       },
       {
         "name": "enableScoreExplanation",
@@ -691,8 +709,26 @@
         "showWhen": {
           "rules": [
             {
-              "field": "singlePoint",
+              "field": "enableDroppedQuantity",
               "equals": false
+            }
+          ]
+        }
+      },
+      {
+        "name": "enableScoreExplanationQuantity",
+        "type": "boolean",
+        "label": "Enable score explanation for Quantity",
+        "description": "Display a score explanation to user when checking their answers.",
+        "importance": "low",
+        "default": true,
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": true
             }
           ]
         }
@@ -998,16 +1034,7 @@
         "label": "Display correct/wrong and scorepoints horizontally",
         "importance": "low",
         "description": "Check this option to display the correct/wrong ticks and the score points horizontally (inline) instead of the default vertical display.",
-        "default": false,
-        "widget": "showWhen",
-        "showWhen": {
-          "rules": [
-            {
-              "field": "enableDroppedQuantity",
-              "equals": false
-            }
-          ]
-        }
+        "default": false
       }
     ]
   },

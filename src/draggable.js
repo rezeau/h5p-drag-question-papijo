@@ -338,7 +338,7 @@ export default class Draggable extends H5P.EventDispatcher {
     var self = this;
     var oneIsCorrect = false;
     var keepCorrectAnswers = (correctDZs !== undefined) ? true : false;
-
+ 
     this.elements.forEach(function (draggable) {
 
       if (draggable.$feedback) {
