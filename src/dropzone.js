@@ -27,6 +27,7 @@ export default class DropZone {
     self.tip = dropZone.tipsAndFeedback.tip || '';
     self.single = dropZone.single;
     self.acceptedNumber = dropZone.acceptedNumber;
+    self.acceptedValue = dropZone.acceptedValue;
     self.autoAlignable = dropZone.autoAlign;
     self.alignables = [];
     self.l10n = l10n;
@@ -430,10 +431,20 @@ export default class DropZone {
     var points = 0;
     var nbDraggablesInZone = 0;
     var nbPlacedDraggables = 0;
+    var totalValue = 0;
     var completed = false;
-    var acceptedNumber = self.acceptedNumber;    
+    var acceptedNumber = self.acceptedNumber;
+    var acceptedValue = self.acceptedValue;
     var dropZoneId = self.id;
     var solutions = solutions[dropZoneId];
+    var oknb = false;
+    var okval = false;
+    // Do not mark elements inside a dropzone with undefined quantity OR undefined value either correct or wrong.
+    if (acceptedNumber === undefined && acceptedValue === undefined) {      
+      completed = undefined;
+      self.unmarkResult();
+      return 0;
+    }
     for (var i = 0; i < draggables.length; i++) {
       var draggable = draggables[i];
       if (draggable === undefined) {
@@ -446,24 +457,28 @@ export default class DropZone {
       }
       nbDraggablesInZone ++;
       var dragId = draggable.id;
-      
+      var dragVal = draggable.value;
       var dragOkDZ = $.inArray(dragId, solutions);
+      var oknb = false;
       if (nbPlacedDraggables > acceptedNumber) {
         continue;
       }
       if (dragOkDZ !== -1) {
-        nbPlacedDraggables ++;                       
+        nbPlacedDraggables ++;
+        totalValue += dragVal;                        
       }
-      if (nbPlacedDraggables == acceptedNumber && dragOkDZ !== -1 && nbDraggablesInZone == acceptedNumber && completed == false) {
-        completed = true;                
+      if (acceptedNumber == undefined && totalValue == acceptedValue) {
+        oknb = true;                                                                                                                                  
+      }
+      if (acceptedValue === undefined && nbPlacedDraggables == acceptedNumber) {
+        okval = true; 
+      }      
+      if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue == acceptedValue || okval) && completed == false) {
+        completed = true;
         self.markCompleted();                
       } else {                                      
         completed = false;
         self.unMarkCompleted();                                                                                              
-      }
-      // Do not mark elements inside a dropzone with undefined quantity either correct or wrong.
-      if (acceptedNumber == undefined) {
-        completed = undefined;
       }
     } 
     // Use case of empty dropZone expecting 0 draggables!   
@@ -487,11 +502,14 @@ export default class DropZone {
         continue;
       }
       element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
-      if (completed === true) {
+      if (completed == true) {
         element.$.addClass('h5p-correct-quantity');          
-      } else if (completed === false) {
+      } else if (completed == false) {
         element.$.addClass('h5p-incorrect-quantity');
       }
+    }
+    if (completed === undefined) {
+      self.unmarkResult();
     }                   
     if (completed === true) {
       return 1;      

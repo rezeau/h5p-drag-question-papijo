@@ -261,6 +261,11 @@ function C(options, contentId, contentData) {
   // Add drop zones
   for (i = 0; i < task.dropZones.length; i++) {
     var dropZone = task.dropZones[i];
+    
+    // Just in case it was previously set to true.
+    if (this.options.behaviour.enableDroppedQuantity) {      
+      dropZone.single = false;      
+    }
 
     if (dropZonesWithoutElements[i] === true) {
       this.numDropZonesWithoutElements += 1;
@@ -275,7 +280,6 @@ function C(options, contentId, contentData) {
     }
 
     dropZone.resetSingleDraggables = this.options.behaviour.resetSingleDraggables;
-
 
     dropZone.autoAlign = {
       enabled: dropZone.autoAlign,
@@ -1413,9 +1417,9 @@ C.prototype.calculateMaxScore = function () {
   if (this.options.behaviour.enableDroppedQuantity) {
     var dropZones = this.options.question.task.dropZones;
     for (var i = 0; i < dropZones.length; i++) {
-       if (dropZones[i].acceptedNumber !== undefined) {
+      if (dropZones[i].acceptedNumber !== undefined || dropZones[i].acceptedValue !== undefined) {
         max++;
-       }
+      }
     }
     return max;
   }
@@ -1487,7 +1491,6 @@ C.prototype.showScore = function () {
     var task = this.options.question.task;
     // Count correctly filled in dropZones and add to score.
     var i = 0;
-    var totalQtyDZs = 0;
     var completedDZ = 0;  
     var $dropZones = self.dropZones; // DOM objects
     task.dropZones.forEach((dropZone, dropZoneId) => {
@@ -1497,17 +1500,14 @@ C.prototype.showScore = function () {
       if (status == true) {    
         status = 'correct';
         dropZone.status = status;
-        totalQtyDZs ++;
         completedDZ++        
       } else {
         status = 'wrong';
         dropZone.status = status;
-        totalQtyDZs ++;
       }
-      if (dropZone.acceptedNumber === undefined) {
+      if (dropZone.acceptedNumber === undefined && dropZone.acceptedValue === undefined) {
         status = 'none';
         dropZone.status = status;
-        totalQtyDZs --;
       }
       $dropZone.markResult(status);      
       i++;            

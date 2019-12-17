@@ -1015,6 +1015,11 @@ function C(options, contentId, contentData) {
   for (i = 0; i < task.dropZones.length; i++) {
     var dropZone = task.dropZones[i];
 
+    // Just in case it was previously set to true.
+    if (this.options.behaviour.enableDroppedQuantity) {
+      dropZone.single = false;
+    }
+
     if (dropZonesWithoutElements[i] === true) {
       this.numDropZonesWithoutElements += 1;
     }
@@ -2159,7 +2164,7 @@ C.prototype.calculateMaxScore = function () {
   if (this.options.behaviour.enableDroppedQuantity) {
     var dropZones = this.options.question.task.dropZones;
     for (var i = 0; i < dropZones.length; i++) {
-      if (dropZones[i].acceptedNumber !== undefined) {
+      if (dropZones[i].acceptedNumber !== undefined || dropZones[i].acceptedValue !== undefined) {
         max++;
       }
     }
@@ -2231,7 +2236,6 @@ C.prototype.showScore = function () {
     var task = this.options.question.task;
     // Count correctly filled in dropZones and add to score.
     var i = 0;
-    var totalQtyDZs = 0;
     var completedDZ = 0;
     var $dropZones = self.dropZones; // DOM objects
     task.dropZones.forEach(function (dropZone, dropZoneId) {
@@ -2241,17 +2245,14 @@ C.prototype.showScore = function () {
       if (status == true) {
         status = 'correct';
         dropZone.status = status;
-        totalQtyDZs++;
         completedDZ++;
       } else {
         status = 'wrong';
         dropZone.status = status;
-        totalQtyDZs++;
       }
-      if (dropZone.acceptedNumber === undefined) {
+      if (dropZone.acceptedNumber === undefined && dropZone.acceptedValue === undefined) {
         status = 'none';
         dropZone.status = status;
-        totalQtyDZs--;
       }
       $dropZone.markResult(status);
       i++;
@@ -3435,6 +3436,7 @@ var DropZone = function () {
     self.tip = dropZone.tipsAndFeedback.tip || '';
     self.single = dropZone.single;
     self.acceptedNumber = dropZone.acceptedNumber;
+    self.acceptedValue = dropZone.acceptedValue;
     self.autoAlignable = dropZone.autoAlign;
     self.alignables = [];
     self.l10n = l10n;
@@ -3867,10 +3869,20 @@ var DropZone = function () {
       var points = 0;
       var nbDraggablesInZone = 0;
       var nbPlacedDraggables = 0;
+      var totalValue = 0;
       var completed = false;
       var acceptedNumber = self.acceptedNumber;
+      var acceptedValue = self.acceptedValue;
       var dropZoneId = self.id;
       var solutions = solutions[dropZoneId];
+      var oknb = false;
+      var okval = false;
+      // Do not mark elements inside a dropzone with undefined quantity OR undefined value either correct or wrong.
+      if (acceptedNumber === undefined && acceptedValue === undefined) {
+        completed = undefined;
+        self.unmarkResult();
+        return 0;
+      }
       for (var i = 0; i < draggables.length; i++) {
         var draggable = draggables[i];
         if (draggable === undefined) {
@@ -3883,24 +3895,28 @@ var DropZone = function () {
         }
         nbDraggablesInZone++;
         var dragId = draggable.id;
-
+        var dragVal = draggable.value;
         var dragOkDZ = $.inArray(dragId, solutions);
+        var oknb = false;
         if (nbPlacedDraggables > acceptedNumber) {
           continue;
         }
         if (dragOkDZ !== -1) {
           nbPlacedDraggables++;
+          totalValue += dragVal;
         }
-        if (nbPlacedDraggables == acceptedNumber && dragOkDZ !== -1 && nbDraggablesInZone == acceptedNumber && completed == false) {
+        if (acceptedNumber == undefined && totalValue == acceptedValue) {
+          oknb = true;
+        }
+        if (acceptedValue === undefined && nbPlacedDraggables == acceptedNumber) {
+          okval = true;
+        }
+        if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue == acceptedValue || okval) && completed == false) {
           completed = true;
           self.markCompleted();
         } else {
           completed = false;
           self.unMarkCompleted();
-        }
-        // Do not mark elements inside a dropzone with undefined quantity either correct or wrong.
-        if (acceptedNumber == undefined) {
-          completed = undefined;
         }
       }
       // Use case of empty dropZone expecting 0 draggables!   
@@ -3924,11 +3940,14 @@ var DropZone = function () {
           continue;
         }
         element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
-        if (completed === true) {
+        if (completed == true) {
           element.$.addClass('h5p-correct-quantity');
-        } else if (completed === false) {
+        } else if (completed == false) {
           element.$.addClass('h5p-incorrect-quantity');
         }
+      }
+      if (completed === undefined) {
+        self.unmarkResult();
       }
       if (completed === true) {
         return 1;
@@ -4001,9 +4020,9 @@ var Draggable = function (_H5P$EventDispatcher) {
     self.dropZones = element.dropZones;
     self.type = element.type;
     self.multiple = element.multiple;
+    self.value = element.value;
     self.l10n = l10n;
-    // JR self.inline = element.inline;
-
+    self.inline = element.inline;
     if (answers) {
       if (self.multiple) {
         // Add base element

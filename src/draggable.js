@@ -28,9 +28,9 @@ export default class Draggable extends H5P.EventDispatcher {
     self.dropZones = element.dropZones;
     self.type = element.type;
     self.multiple = element.multiple;
+    self.value = element.value;
     self.l10n = l10n;
-    // JR self.inline = element.inline;
-
+    self.inline = element.inline;
     if (answers) {
       if (self.multiple) {
         // Add base element

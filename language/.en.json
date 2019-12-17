@@ -90,6 +90,15 @@
                         {}
                       ]
                     }
+                  },
+                  {
+                    "label": "Value",
+                    "description": "Optionally set a value for this draggable element",
+                    "showWhen": {
+                      "rules": [
+                        {}
+                      ]
+                    }
                   }
                 ]
               }
@@ -149,8 +158,17 @@
                     }
                   },
                   {
-                    "label": "How many elements must this drop zone contain?",
+                    "label": "How many elements MUST this drop zone contain?",
                     "description": "Exact number of draggables expected in this drop zone",
+                    "showWhen": {
+                      "rules": [
+                        {}
+                      ]
+                    }
+                  },
+                  {
+                    "label": "Total draggables value",
+                    "description": "Enter the expected total value of the draggables dropped in this zone",
                     "showWhen": {
                       "rules": [
                         {}
@@ -203,8 +221,8 @@
           "label": "Enable \"Retry\""
         },
         {
-          "label": "Enable draggables dropped Quantity in drop Zones",
-          "description": "Check this option to display an 'Exact number of draggables expected' field in each drop zone."
+          "label": "Enable draggables dropped Quantity in drop Zones AND draggables value",
+          "description": "Check this option to display an 'Exact number of draggables expected' field in each drop zone  AND draggables value."
         },
         {
           "label": "Enable \"Show solution\" button",
