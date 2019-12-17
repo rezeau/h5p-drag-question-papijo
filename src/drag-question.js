@@ -67,25 +67,39 @@ function C(options, contentId, contentData) {
       removeCorrectWrongStyles: false,
       applyPenalties: true,
       enableScoreExplanation: true,
+      enableScoreExplanationQuantity: true,
       dropZoneHighlighting: 'dragging',
       autoAlignSpacing: 2,
       showScorePoints: true,
       showScoreInline: false,
       keepCorrectAnswers: false,
       randomizeDraggables: false,
-      resetSingleDraggables: false
+      resetSingleDraggables: false,
+      enableDroppedQuantity: false
     }
   }, options);
 
   // If single point is enabled, it makes no sense displaying
   // the score explanation. Note: In the editor, the score explanation is hidden
   // by the showWhen widget if singlePoint is enabled
-  if (this.options.behaviour.singlePoint) {
+  if (this.options.behaviour.singlePoint || this.options.behaviour.enableDroppedQuantity) {
     this.options.behaviour.enableScoreExplanation = false;
+  }
+  if (!this.options.behaviour.enableDroppedQuantity) {
+    this.options.behaviour.enableScoreExplanationQuantity = false;
   }
 
   this.draggables = [];
   this.dropZones = [];
+  this.nbDraggables = []; // Used by enableDroppedQuantity option.
+  this.nbPlacedDraggables = []; // Used by enableDroppedQuantity option.
+  // Initialize these arrays.
+  var task = this.options.question.task;
+  for (i = 0; i < task.dropZones.length; i++) {
+    var dropZone = task.dropZones[i];   
+    this.nbDraggables[i] = 0;
+    this.nbPlacedDraggables[i] = 0;
+  }         
   this.answered = (contentData && contentData.previousState !== undefined && contentData.previousState.answers !== undefined && contentData.previousState.answers.length);
   this.hasSavedState = this.answered;
   this.blankIsCorrect = true;
@@ -126,8 +140,8 @@ function C(options, contentId, contentData) {
   this.correctDZs = [];
   for (i = 0; i < task.dropZones.length; i++) {
     dropZonesWithoutElements.push(true); // All true by default
-
-    var correctElements = task.dropZones[i].correctElements;
+    var correctElements = task.dropZones[i].correctElements;                              
+    var acceptedNumber = task.dropZones[i].acceptedNumber;
     for (j = 0; j < correctElements.length; j++) {
       var correctElement = correctElements[j];
       if (this.correctDZs[correctElement] === undefined) {
@@ -140,19 +154,24 @@ function C(options, contentId, contentData) {
     }
     task.dropZones[i].background = this.dropZonesBackgroundColor;
   }
-
+  
   this.weight = 1;
 
   // Add draggable elements JR
-
+                                   
   var grabbablel10n = {
     prefix: self.options.grabbablePrefix.replace('{total}', task.elements.length),
     suffix: self.options.grabbableSuffix,
     correctAnswer: self.options.correctAnswer,
     wrongAnswer: self.options.wrongAnswer
   };
+  
   for (i = 0; i < task.elements.length; i++) {
     var element = task.elements[i];
+    // Just in case a draggable was created multiple BEFORE enableDroppedQuantity was set. 
+    if (this.options.behaviour.enableDroppedQuantity) {
+      element.multiple = false;
+    }
 
     if (element.dropZones === undefined || !element.dropZones.length) {
       continue; // Not a draggable
@@ -212,7 +231,24 @@ function C(options, contentId, contentData) {
       dropZonesWithoutElements[element.dropZones[j]] = false;
     }
   }
-
+  
+  // Create map over correct draggables for dropzones (if enableDroppedQuantity)                
+  if (this.options.behaviour.enableDroppedQuantity) {
+    this.correctDraggables = [];
+    for (i = 0; i < task.dropZones.length; i++) {   
+      this.correctDraggables[i] = [];
+      for (j = 0; j < this.correctDZs.length; j++) {
+        if (this.correctDZs[j] == undefined) {
+          continue;
+        }
+        var dragOkDZ = $.inArray(i, this.correctDZs[j]);                                             
+        if (dragOkDZ !== -1) {
+          this.correctDraggables[i].push(j);
+        }
+      }
+    }
+  }                                                         
+  
   // Create a count to subtrack from score
   this.numDropZonesWithoutElements = 0;
 
@@ -225,6 +261,11 @@ function C(options, contentId, contentData) {
   // Add drop zones
   for (i = 0; i < task.dropZones.length; i++) {
     var dropZone = task.dropZones[i];
+    
+    // Just in case it was previously set to true.
+    if (this.options.behaviour.enableDroppedQuantity) {      
+      dropZone.single = false;      
+    }
 
     if (dropZonesWithoutElements[i] === true) {
       this.numDropZonesWithoutElements += 1;
@@ -239,7 +280,6 @@ function C(options, contentId, contentData) {
     }
 
     dropZone.resetSingleDraggables = this.options.behaviour.resetSingleDraggables;
-
 
     dropZone.autoAlign = {
       enabled: dropZone.autoAlign,
@@ -577,6 +617,7 @@ C.prototype.createQuestionContent = function () {
   for (i = 0; i < this.dropZones.length; i++) {
     this.dropZones[i].appendTo(this.$container, this.draggables);
   }
+  
   return this.$container;
 };
 
@@ -587,7 +628,9 @@ C.prototype.registerButtons = function () {
   }
   this.addRetryButton();
   if (this.oneDropzonesHasCorrectElement() ) {
-    this.addShowSolutionButton();
+    if (!this.options.behaviour.enableDroppedQuantity) {
+      this.addShowSolutionButton();
+      }
     if (this.options.behaviour.randomizeDraggables) {
       this.reTry();
     };
@@ -610,7 +653,7 @@ C.prototype.addSolutionButton = function () {
     var xAPIEvent = that.createXAPIEventTemplate('answered');
     that.addQuestionToXAPI(xAPIEvent);
     that.addResponseToXAPI(xAPIEvent);
-    that.trigger(xAPIEvent);
+    that.trigger(xAPIEvent);               
     if (that.options.behaviour.removeCorrectWrongStyles && that.maxScoreReached) {
       that.draggables.forEach(draggable => {
         draggable.elements.forEach(element => {
@@ -704,13 +747,14 @@ C.prototype.addRetryButton = function () {
   var that = this;
 
   this.addButton('try-again', this.options.tryAgain, function () {
-    var forceReset = false;
+    var forceReset = false;          
     if (that.solutionViewed) {
       forceReset = true;
+      var keepCorrectAnswers = false;
       that.solutionViewed = false;
     };
-
-    if (that.maxScoreReached) {
+    
+    if (that.maxScoreReached) { 
       forceReset = true;
       that.maxScoreReached = false;
     };
@@ -884,12 +928,14 @@ C.prototype.showAllSolutions = function (skipVisuals) {
   }
 
   var scorePoints;
-
+   
   if (!skipVisuals && this.options.behaviour.showScorePoints && !this.options.behaviour.singlePoint && this.options.behaviour.applyPenalties) {
     scorePoints = new H5P.Question.ScorePoints();
-    this.scoreInline = this.options.behaviour.showScoreInline;
   }
+  
+  this.scoreInline = this.options.behaviour.showScoreInline;
   this.maxScoreReached = false;
+  
   for (var i = 0; i < this.draggables.length; i++) {
     var draggable = this.draggables[i];
     if (draggable === undefined) {
@@ -899,12 +945,26 @@ C.prototype.showAllSolutions = function (skipVisuals) {
     if (!skipVisuals) {
       draggable.disable();
     }
-
-    // Find out where we are.
-    this.points += draggable.results(skipVisuals, this.correctDZs[i], scorePoints, this.scoreInline);
-    this.rawPoints += draggable.rawPoints;
   }
-
+  // Normal mode
+  if (!this.options.behaviour.enableDroppedQuantity) {
+    for (var i = 0; i < this.draggables.length; i++) {
+      var draggable = this.draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }
+      // Find out where we are.
+        this.points += draggable.results(skipVisuals, this.correctDZs[i], scorePoints, this.scoreInline);
+        this.rawPoints += draggable.rawPoints;
+    }
+  } else { // enableDroppedQuantity Mode.
+    for (var i = 0; i < this.dropZones.length; i++) {
+      var dropzone = this.dropZones[i];      
+      this.points += dropzone.results(this.draggables, this.correctDraggables, scorePoints);
+      this.rawPoints = this.points;   
+    }
+  }
+  
   if (this.points < 0) {
     this.points = 0;
   }
@@ -914,7 +974,7 @@ C.prototype.showAllSolutions = function (skipVisuals) {
   if (this.options.behaviour.singlePoint) {
     this.points = (this.points === this.calculateMaxScore() ? 1 : 0);
   }
-
+  
   if (!skipVisuals) {
     this.hideButton('check-answer');
   }
@@ -926,10 +986,11 @@ C.prototype.showAllSolutions = function (skipVisuals) {
   if (this.options.behaviour.enableSolutionButton && !skipVisuals) {
     this.showButton('show-solution');
   }
+
   if (this.points === this.getMaxScore()) {
     this.maxScoreReached = true;
-  }
-
+  }                
+  
   if (this.hasButton('check-answer') && (this.options.behaviour.enableRetry === false || this.points === this.getMaxScore())) {
     // Max score reached, or the user cannot try again.
     // DEV JR allow retry even after Max score reached see H5P forum at ???
@@ -970,18 +1031,18 @@ C.prototype.showSolutions = function () {
  * Resets the task but keeps correct answers if required.
  * @public
  */
-C.prototype.reTry = function (forceReset) {
-  //alert('forceReset='+forceReset);
+C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
   var self = this;
+  var that = this;
   this.points = 0;
   this.rawPoints = 0;
   this.answered = false;
-
+  
   // Used in contracts (by showsolutions)
   this.solutionViewed = false;
   this.answerChecked = false;
   this.scoreViewed = false;
-
+  
   // The "h5p-question-hidden" class may need to be removed from elements.
   this.draggables.forEach(draggable => {
     draggable.elements.forEach(element => {
@@ -1022,28 +1083,85 @@ C.prototype.reTry = function (forceReset) {
       var element = draggable.elements[0];
       // If keep correct answers and draggable is in its correct dropzone, set shuffled draggable coordinates but do not actually shuffle it.
       var shuffle = true;
-      if (element.$.hasClass('h5p-correct')){
+      // Deal with enableDroppedQuantity option
+      if (element.$.hasClass('h5p-correct') || element.$.hasClass('h5p-correct-quantity')) {
         shuffle = false;
       };
       var x = draggablePositions[i-skipIt][0];
       var y = draggablePositions[i-skipIt][1];
+      
       draggable.shufflePosition(shuffle, x, y);
     };
   };
 
   //Only reset position and feedback if we are not keeping the correct answers.
   // Do not reset positions if previous state is being restored.
-  if (!this.hasSavedState) {
-    this.draggables.forEach(function (draggable) {
+  
+  if (!this.hasSavedState) {    
+    if (this.options.behaviour.enableDroppedQuantity) {
+      var nbCorrectDropZones = 0;
+      var totalDropZones = 0;
+      var task = this.options.question.task;
+      task.dropZones.forEach((dropZone, dropZoneId) => {
+        if (dropZone.status !== 'none') {
+          totalDropZones ++;
+        }
+        if (dropZone.status == 'correct') {
+          nbCorrectDropZones ++;
+        }   
+				var acceptedNumber = dropZone.acceptedNumber;     
+        if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
+					var nbOK = 0;
+					for (var i = 0; i < this.draggables.length; i++) {
+      			var draggable = this.draggables[i];
+	          if (dropZone.status == 'correct') {
+	          	nbOK ++;  
+	          }
+	      	}
+				}
+    	});
+    }
+
+		this.draggables.forEach(function (draggable) {    
       if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
-       draggable.resetPosition(self.correctDZs[draggable.id]);
-      }
-      else {
+				var dragId = draggable.id;        
+        var $dropZones = self.dropZones; // DOM objects
+        var task = self.options.question.task;
+        var element = draggable.elements[0];
+        if (element.$.hasClass('h5p-correct-quantity')) {
+          element.$.addClass('h5p-correct')
+        }
+        var correctClass = 'h5p-correct';                    
+        if (self.options.behaviour.enableDroppedQuantity) {
+          correctClass += '-quantity';
+        }               
+        if (element.$.hasClass(correctClass)) {
+          draggable.resetPosition(self.correctDZs[draggable.id], correctClass);
+        } else {          
+          draggable.resetPosition();
+        }
+      } else {
        draggable.resetPosition();
       };
     });
+        
+    if (this.options.behaviour.enableDroppedQuantity) {
+			if (nbCorrectDropZones == totalDropZones) {
+	      //Enables Draggables
+	      this.enableDraggables();
+	      this.draggables.forEach(function (draggable) {
+	        draggable.resetPosition();
+	      });    
+	    }
+		} 
   }
   this.hasSavedState = false;
+  if (this.options.behaviour.enableDroppedQuantity) {
+    var $dropZones = self.dropZones; // DOM objects
+    for (i = 0; i < $dropZones.length; i++) {
+      $dropZones[i].unmarkResult();
+    }
+  }
   //Show solution button
   this.showButton('check-answer');
   this.hideButton('try-again');
@@ -1061,13 +1179,14 @@ C.prototype.reTry = function (forceReset) {
 C.prototype.showSolution = function () {
   var self = this;
   self.solutionViewed = true;
+  
   var dropZones = self.dropZones;
   // Reset all dropzones alignables to empty. ???
   for (i = 0; i < dropZones.length; i++) {
     var dropZone = dropZones[i];
     dropZone.alignables = [];
   };
-
+  
   var correctDZs = [];
   for (var i = 0; i < this.draggables.length; i++) {
     var draggable = this.draggables[i];
@@ -1076,10 +1195,10 @@ C.prototype.showSolution = function () {
     }
     correctDZs[draggable.id] = this.correctDZs[i];
   }
-
+  
   var mustCloneElement = [];
   var oneIsMultiple = false;
-
+  
   for (var i = 0; i < this.draggables.length; i++) {
     var draggable = this.draggables[i];
     if (draggable === undefined) {
@@ -1116,7 +1235,7 @@ C.prototype.showSolution = function () {
       }
     }
   }
-
+  
   if (oneIsMultiple) {
     for (var i = 0; i < this.draggables.length; i++) {
       var draggable = this.draggables[i];
@@ -1142,6 +1261,7 @@ C.prototype.showSolution = function () {
     // in order to be able to remove the correctly placed elements later on
     // to avoid double display in dropzone.
     // TODO JR check that this is the cause for wrong solutions with multiple after using F5!
+
     var isMultiple = draggable.multiple;
     if (isMultiple && correctDZ) {
       var remainingCorrectDZ = [];
@@ -1181,8 +1301,7 @@ C.prototype.showSolution = function () {
               };
               // Add to alignables
               if (dropZone.getIndexOf(element.$) === -1) {
-                dropZone.alignables.push(element.$);
-                //dropZone.autoAlign();
+                dropZone.alignables.push(element.$);                
               };
             };
           };
@@ -1236,7 +1355,7 @@ C.prototype.showSolution = function () {
       }
     });
   });
-
+  
   // Hide "unused" draggables. Maybe there is a better option.
   for (var i = 0; i < this.draggables.length; i++) {
     var draggable = this.draggables[i];
@@ -1271,6 +1390,7 @@ C.prototype.showSolution = function () {
   this.hideButton('show-solution');
   // remove feedback/explanation h5p-question-explanation
   $( '.h5p-question-explanation').hide();
+  
 };
 
 /**
@@ -1294,7 +1414,15 @@ C.prototype.calculateMaxScore = function () {
   if (this.blankIsCorrect) {
     return 1;
   }
-
+  if (this.options.behaviour.enableDroppedQuantity) {
+    var dropZones = this.options.question.task.dropZones;
+    for (var i = 0; i < dropZones.length; i++) {
+      if (dropZones[i].acceptedNumber !== undefined || dropZones[i].acceptedValue !== undefined) {
+        max++;
+      }
+    }
+    return max;
+  }
   var elements = this.options.question.task.elements;
   for (var i = 0; i < elements.length; i++) {
     var correctDropZones = this.correctDZs[i];
@@ -1320,6 +1448,7 @@ C.prototype.calculateMaxScore = function () {
  * @returns {Number} Max points
  */
 C.prototype.getMaxScore = function () {
+  var max = this.options.behaviour.singlePoint ? this.weight : this.calculateMaxScore();
   return (this.options.behaviour.singlePoint ? this.weight : this.calculateMaxScore());
 };
 
@@ -1331,10 +1460,11 @@ C.prototype.getMaxScore = function () {
  */
 C.prototype.getScore = function () {
   this.showAllSolutions(true);
-  var actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint) ? this.points : this.rawPoints;
+  
+  var actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint || this.options.behaviour.enableDroppedQuantity) 
+    ? this.points : this.rawPoints;
   delete this.points;
   delete this.rawPoints;
-
   return actualPoints;
 };
 
@@ -1351,15 +1481,70 @@ C.prototype.getAnswerGiven = function () {
  * Shows the score to the user when the score button is pressed.
  */
 C.prototype.showScore = function () {
-  this.scoreViewed = true;
+  var self = this;
   var maxScore = this.calculateMaxScore();
   if (this.options.behaviour.singlePoint) {
     maxScore = 1;
   }
-  var actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint) ? this.points : this.rawPoints;
-  var scoreText = H5P.Question.determineOverallFeedback(this.options.overallFeedback, actualPoints / maxScore).replace('@score', actualPoints).replace('@total', maxScore);
-  var helpText = (this.options.behaviour.enableScoreExplanation && this.options.behaviour.applyPenalties) ? this.options.scoreExplanation : false;
-  this.setFeedback(scoreText, actualPoints, maxScore, this.options.scoreBarLabel, helpText, undefined, this.options.scoreExplanationButtonLabel);
+  
+  if (this.options.behaviour.enableDroppedQuantity) {
+    var task = this.options.question.task;
+    // Count correctly filled in dropZones and add to score.
+    var i = 0;
+    var completedDZ = 0;  
+    var $dropZones = self.dropZones; // DOM objects
+    task.dropZones.forEach((dropZone, dropZoneId) => {
+      var $dropZone = $dropZones[i];
+      var acceptedNumber = dropZone.acceptedNumber;
+      var status = $dropZone.getCompletedStatus();                                         
+      if (status == true) {    
+        status = 'correct';
+        dropZone.status = status;
+        completedDZ++        
+      } else {
+        status = 'wrong';
+        dropZone.status = status;
+      }
+      if (dropZone.acceptedNumber === undefined && dropZone.acceptedValue === undefined) {
+        status = 'none';
+        dropZone.status = status;
+      }
+      $dropZone.markResult(status);      
+      i++;            
+    });    
+    
+    // Enable correct or wrong background-color for the draggables, accounting for their opacity.
+    for (var i = 0; i < this.draggables.length; i++) {
+      var draggable = this.draggables[i];
+      if (draggable === undefined) {      
+        continue;
+      }
+      var element = draggable.elements[0];      
+      if (element.$.hasClass('h5p-correct-quantity')) {
+        element.$.addClass('h5p-correct');
+          
+      } else if (element.$.hasClass('h5p-incorrect-quantity')) {
+        element.$.addClass('h5p-wrong');
+      }
+      DragUtils.setOpacity(element.$, 'background', draggable.backgroundOpacity);
+      
+    };
+  }
+  
+  this.scoreViewed = true;  
+  var actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint) 
+    ? this.points : this.rawPoints;
+  var scoreText = H5P.Question.determineOverallFeedback(this.options.overallFeedback, 
+      actualPoints / maxScore).replace('@score', actualPoints).replace('@total', maxScore);
+  if (this.options.behaviour.enableDroppedQuantity) {
+    var helpText = (this.options.behaviour.enableScoreExplanationQuantity) 
+      ? this.options.scoreExplanationQuantity : false;
+  } else {
+    var helpText = (this.options.behaviour.enableScoreExplanation && this.options.behaviour.applyPenalties) 
+      ? this.options.scoreExplanation : false;
+  }
+  this.setFeedback(scoreText, actualPoints, maxScore, this.options.scoreBarLabel, helpText, undefined, 
+    this.options.scoreExplanationButtonLabel);
 };
 
 /**
@@ -1381,7 +1566,6 @@ C.prototype.getCurrentState = function () {
     var draggableAnswers = [];
     for (var j = 0; j < draggable.elements.length; j++) {
       var element = draggable.elements[j];
-      // TODO JR
       if ( (element === undefined || element.dropZone === undefined) || element.$.hasClass('h5p-question-solution') || element.$.hasClass('h5p-question-hidden')) {
         continue;
       }

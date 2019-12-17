@@ -28,9 +28,9 @@ export default class Draggable extends H5P.EventDispatcher {
     self.dropZones = element.dropZones;
     self.type = element.type;
     self.multiple = element.multiple;
+    self.value = element.value;
     self.l10n = l10n;
-    // JR self.inline = element.inline;
-
+    self.inline = element.inline;
     if (answers) {
       if (self.multiple) {
         // Add base element
@@ -334,12 +334,11 @@ export default class Draggable extends H5P.EventDispatcher {
    * Resets the position of the draggable to its original position.
    */
 
-  resetPosition(correctDZs) {
-
+  resetPosition(correctDZs, correctClass) {
     var self = this;
     var oneIsCorrect = false;
     var keepCorrectAnswers = (correctDZs !== undefined) ? true : false;
-
+ 
     this.elements.forEach(function (draggable) {
 
       if (draggable.$feedback) {
@@ -352,8 +351,10 @@ export default class Draggable extends H5P.EventDispatcher {
       if (draggable.dropZone !== undefined) {
 
       // If keepCorrectAnswers and draggable is in the right DZ, then disable the draggable and stop.
-
-        if (keepCorrectAnswers && $.inArray(draggable.dropZone, correctDZs) !== -1) {
+        // DEV JR and number in dz < allowed number
+        var element = self.elements[self.elements.indexOf(draggable)];
+        var ok = element.$.hasClass(correctClass);
+        if (keepCorrectAnswers && $.inArray(draggable.dropZone, correctDZs) !== -1 && ok === true) {
           oneIsCorrect = true;
           var element = self.elements[self.elements.indexOf(draggable)];
           element.$.draggable('disable');
@@ -385,7 +386,7 @@ export default class Draggable extends H5P.EventDispatcher {
         self.updatePlacement(draggable);
       }
     });
-
+    
     if (oneIsCorrect === false) {
     // Draggable removed from dropzone.
       if (self.element.dropZone !== undefined) {
@@ -528,7 +529,8 @@ export default class Draggable extends H5P.EventDispatcher {
       if (element === undefined || element.dropZone === undefined) {
         continue; // We have not been placed anywhere, we're neither wrong nor correct.
       }
-
+      // DEV JR QUANTITY do not mark correct if exceeds expected number!
+      // correct only if equals accepted number of elements
       correct = false;
       for (j = 0; j < solutions.length; j++) {
         if (element.dropZone === solutions[j]) {
@@ -572,6 +574,7 @@ export default class Draggable extends H5P.EventDispatcher {
    */
   markElement(element, status, scorePoints, scoreInline) {
     var self = this;
+    
     var $elementResult = $('<span/>', {
       'class': 'h5p-hidden-read',
       html: this.l10n[status + 'Answer']
@@ -589,5 +592,12 @@ export default class Draggable extends H5P.EventDispatcher {
     }
 
     DragUtils.setElementOpacity(element.$, this.backgroundOpacity);
+  }
+  
+  markElementCorrectNumber(element) {    
+    element.$.addClass('h5p-correct h5p-dg-normal');
+  }
+  unmarkElementCorrectNumber(element) {    
+    element.$.removeClass('h5p-correct h5p-dg-normal');
   }
 }

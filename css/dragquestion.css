@@ -119,7 +119,8 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   line-height: 1em;
 }
 
-.h5p-dragquestion .h5p-dropped.h5p-correct, .h5p-dragquestion .h5p-dropzone.h5p-correct-answer {
+.h5p-dragquestion .h5p-dropped.h5p-correct,
+.h5p-dragquestion .h5p-dropzone.h5p-correct-answer {
   color: #255c41;
   border: 0.1em solid #9dd8bb;
   box-shadow: none;
@@ -142,7 +143,6 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   font-weight: normal;
   position: absolute;
   right: 0.1em;
-  bottom: 0;
   background: inherit;
   -webkit-border-radius: 0.25em;
   -moz-border-radius: 0.25em;
@@ -150,12 +150,19 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   line-height: 1;
   padding: 0.15em 0 0 0.2em;
 }
+.h5p-dragquestion .h5p-draggable.h5p-correct.h5p-dg-normal:after,
+.h5p-dragquestion .h5p-draggable.h5p-wrong.h5p-dg-normal:after {
+  bottom: 0;
+}
 
 .h5p-dragquestion .h5p-draggable.h5p-correct.h5p-advanced-text:after, .h5p-dragquestion .h5p-draggable.h5p-wrong.h5p-advanced-text:after {
   background: none;
 }
-.h5p-dragquestion .h5p-dropped.h5p-correct:after {
+.h5p-dragquestion .h5p-dropped.h5p-correct:after {          
   content: "\f00c";
+}
+.h5p-dragquestion .h5p-dropped.h5p-correct.h5p-correct-number:after {
+  content: "";
 }
 
 .h5p-dragquestion .h5p-dropped.h5p-wrong:after {
@@ -184,7 +191,7 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 .h5p-dragquestion .h5p-dq-highlight-dz .h5p-dropzone > .h5p-inner.h5p-active,
 .h5p-dragquestion .h5p-dq-highlight-dz-always .h5p-dropzone > .h5p-inner {
   padding: 0;
-  border-style: dashed!important;
+  border-style: dashed;
   border-width: 2px;
 }
 
@@ -298,14 +305,17 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   right: -1.4em;
   margin: auto;
 }
-.h5p-question-solution {
-  //background-color: #cee0f4!important;
-  //border:none!important;
-  //padding:0!important;
-}
 
-.h5p-question-hidden {
+.h5p-dropped.h5p-question-hidden {
   display: none!important;
   top: 0;
   bottom: 0;
+}
+.h5p-dragquestion .h5p-dropzone-correct-answer {
+  color: #3cb371!important; 
+  border-style: solid!important;
+}
+.h5p-dragquestion .h5p-dropzone-wrong-answer {
+  color: red!important; 
+  border-style: solid!important;
 }

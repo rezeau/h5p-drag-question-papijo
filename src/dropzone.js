@@ -26,6 +26,8 @@ export default class DropZone {
     self.backgroundOpacity = dropZone.backgroundOpacity;
     self.tip = dropZone.tipsAndFeedback.tip || '';
     self.single = dropZone.single;
+    self.acceptedNumber = dropZone.acceptedNumber;
+    self.acceptedValue = dropZone.acceptedValue;
     self.autoAlignable = dropZone.autoAlign;
     self.alignables = [];
     self.l10n = l10n;
@@ -382,5 +384,137 @@ export default class DropZone {
    */
   dehighlight() {
     this.$dropZone.attr('aria-disabled', 'true').children('.h5p-inner').removeClass('h5p-active');
+    this.$dropZone.children('.h5p-inner').css('color', 'red');
+  }
+
+  /**
+   * Mark the current drop zone correct/wrong.
+   */
+  markResult(status) {
+    this.$dropZone.children('.h5p-inner').addClass('h5p-dropzone-' + status + '-answer');
+  }
+  
+  /**
+   * REmove the current drop zone correct/wrong mark.
+   */
+  unmarkResult() {
+    this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer h5p-dropzone-wrong-answer');
+    this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+  }  
+
+  /**
+   * Mark the current drop zone completed.
+   */
+  markCompleted() {
+    this.$dropZone.addClass('h5p-dropzone-completed-answer');
+  }
+  unMarkCompleted() {
+    this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+  }
+
+  getCompletedStatus() {
+    var completed = this.$dropZone.hasClass('h5p-dropzone-completed-answer');
+    return completed;
+  }
+
+/**
+   * JR enableDroppedQuantity Calculate score for this dropzone.
+   *
+   * @param {Array} draggables
+   * @param {Array} solutions
+   * @param {H5P.Question.ScorePoints} scorePoints
+   * @returns {number}
+   */
+  
+  results(draggables, solutions, scorePoints) {
+    var self = this;
+    var points = 0;
+    var nbDraggablesInZone = 0;
+    var nbPlacedDraggables = 0;
+    var totalValue = 0;
+    var completed = false;
+    var acceptedNumber = self.acceptedNumber;
+    var acceptedValue = self.acceptedValue;
+    var dropZoneId = self.id;
+    var solutions = solutions[dropZoneId];
+    var oknb = false;
+    var okval = false;
+    // Do not mark elements inside a dropzone with undefined quantity OR undefined value either correct or wrong.
+    if (acceptedNumber === undefined && acceptedValue === undefined) {      
+      completed = undefined;
+      self.unmarkResult();
+      return 0;
+    }
+    for (var i = 0; i < draggables.length; i++) {
+      var draggable = draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }
+      var element = draggable.elements[0];
+      // Draggable not in dropZone
+      if (element.dropZone !== dropZoneId) {
+        continue;
+      }
+      nbDraggablesInZone ++;
+      var dragId = draggable.id;
+      var dragVal = draggable.value;
+      var dragOkDZ = $.inArray(dragId, solutions);
+      var oknb = false;
+      if (nbPlacedDraggables > acceptedNumber) {
+        continue;
+      }
+      if (dragOkDZ !== -1) {
+        nbPlacedDraggables ++;
+        totalValue += dragVal;                        
+      }
+      if (acceptedNumber == undefined && totalValue == acceptedValue) {
+        oknb = true;                                                                                                                                  
+      }
+      if (acceptedValue === undefined && nbPlacedDraggables == acceptedNumber) {
+        okval = true; 
+      }      
+      if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue == acceptedValue || okval) && completed == false) {
+        completed = true;
+        self.markCompleted();                
+      } else {                                      
+        completed = false;
+        self.unMarkCompleted();                                                                                              
+      }
+    } 
+    // Use case of empty dropZone expecting 0 draggables!   
+    if (nbDraggablesInZone === 0 && acceptedNumber === 0) {               
+      self.markCompleted();
+      return 1;                                                                                              
+    } 
+                                                   
+    for (var i = 0; i < draggables.length; i++) {
+      var draggable = draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }                                           
+      var element = draggable.elements[0];
+      // Draggable not in dropZone
+      if (element.dropZone !== dropZoneId) {
+        // Just in case it was previously added and element was moved away from dz!
+        if (element.dropZone === undefined) {
+          element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
+        }
+        continue;
+      }
+      element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
+      if (completed == true) {
+        element.$.addClass('h5p-correct-quantity');          
+      } else if (completed == false) {
+        element.$.addClass('h5p-incorrect-quantity');
+      }
+    }
+    if (completed === undefined) {
+      self.unmarkResult();
+    }                   
+    if (completed === true) {
+      return 1;      
+    } else {                    
+      return 0;
+    }
   }
 }
