@@ -3911,7 +3911,7 @@ var DropZone = function () {
         if (acceptedValue === undefined && nbPlacedDraggables == acceptedNumber) {
           okval = true;
         }
-        if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue == acceptedValue || okval) && completed == false) {
+        if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue === acceptedValue || okval)) {
           completed = true;
           self.markCompleted();
         } else {

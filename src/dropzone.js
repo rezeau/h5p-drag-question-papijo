@@ -465,21 +465,21 @@ export default class DropZone {
       }
       if (dragOkDZ !== -1) {
         nbPlacedDraggables ++;
-        totalValue += dragVal;                        
-      }
+        totalValue += dragVal;
+      }   
       if (acceptedNumber == undefined && totalValue == acceptedValue) {
         oknb = true;                                                                                                                                  
       }
       if (acceptedValue === undefined && nbPlacedDraggables == acceptedNumber) {
         okval = true; 
       }      
-      if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue == acceptedValue || okval) && completed == false) {
+      if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue === acceptedValue || okval) ) {
         completed = true;
         self.markCompleted();                
       } else {                                      
         completed = false;
         self.unMarkCompleted();                                                                                              
-      }
+      }   
     } 
     // Use case of empty dropZone expecting 0 draggables!   
     if (nbDraggablesInZone === 0 && acceptedNumber === 0) {               
@@ -511,7 +511,7 @@ export default class DropZone {
     if (completed === undefined) {
       self.unmarkResult();
     }                   
-    if (completed === true) {
+    if (completed === true) {                  
       return 1;      
     } else {                    
       return 0;
