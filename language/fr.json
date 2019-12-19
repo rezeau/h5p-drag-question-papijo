@@ -93,7 +93,7 @@
                   },
                   {
                     "label": "Valeur",
-                    "description": "Définir optionnellement une valeur pour cet élément glissable",
+                    "description": "Définir une valeur pour cet élément glissable. Les valeurs négatives sont acceptées.",
                     "showWhen": {
                       "rules": [
                         {}

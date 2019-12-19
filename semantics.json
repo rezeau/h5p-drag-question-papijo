@@ -293,9 +293,9 @@
                   "type": "number",
                   "label": "Value",
                   "importance": "low",
-                  "description": "Optionally set a value for this draggable element",
+                  "description": "Please set a value for this draggable element. Negative values accepted.",
                   "default": 0,
-                  "optional": true,
+                  "optional": false,
                   "widget": "showWhen",
                   "showWhen": {
                     "rules": [
