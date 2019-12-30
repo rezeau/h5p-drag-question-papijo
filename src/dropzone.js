@@ -481,8 +481,8 @@ export default class DropZone {
         self.unMarkCompleted();                                                                                              
       }   
     } 
-    // Use case of empty dropZone expecting 0 draggables!   
-    if (nbDraggablesInZone === 0 && acceptedNumber === 0) {               
+    // Use case of empty dropZone expecting 0 or undefined draggables AND 0 or undefined total value!   
+    if (nbDraggablesInZone === 0 && !acceptedNumber && !acceptedValue) {               
       self.markCompleted();
       return 1;                                                                                              
     } 
