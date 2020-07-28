@@ -100,7 +100,10 @@ function C(options, contentId, contentData) {
     this.nbDraggables[i] = 0;
     this.nbPlacedDraggables[i] = 0;
   }         
-  this.answered = (contentData && contentData.previousState !== undefined && contentData.previousState.answers !== undefined && contentData.previousState.answers.length);
+  this.answered = (contentData !== undefined 
+    && contentData.previousState !== undefined 
+    && contentData.previousState.answers !== undefined 
+    && contentData.previousState.answers.length !== 0);
   this.hasSavedState = this.answered;
   this.blankIsCorrect = true;
   this.backgroundOpacity = (this.options.behaviour.backgroundOpacity === undefined || this.options.behaviour.backgroundOpacity === '') ? undefined : this.options.behaviour.backgroundOpacity;
@@ -421,6 +424,7 @@ C.prototype.registerDomElements = function () {
   setTimeout(function () {
     self.trigger('resize');
   }, 200);
+  
 };
 
 /**
@@ -632,7 +636,7 @@ C.prototype.registerButtons = function () {
       this.addShowSolutionButton();
       }
     if (this.options.behaviour.randomizeDraggables) {
-      this.reTry();
+      this.shuffleDraggables();
     };
   };
 };
@@ -1054,113 +1058,78 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
 
   //Enables Draggables
   this.enableDraggables();
-
+  
   // IF SHUFFLE/RANDOMIZE DRAGGABLES POSITIONS
   if (self.options.behaviour.randomizeDraggables) {
-
-    var draggablePositions = [];
-    // Put current draggables coordinates into an array (except for
-    // the multiple draggables which cannot be shuffled at the moment).
-    // Check that the draggable does have elements, exclude distracters.
-    this.draggables.forEach(draggable => {
-      if (draggable.elements && !draggable.multiple) {
-        draggablePositions.push([draggable.x, draggable.y]);
-      };
-    });
-
-    // Shuffle the array of coordinates.
-    draggablePositions = H5P.shuffleArray(draggablePositions);
-
-    var skipIt = 0;
-    for (var i = 0; i < this.draggables.length; i++) {
-      var draggable = this.draggables[i];
-      // Do not shuffle the multiple draggables --- too complicated. Maybe later...
-      if (draggable === undefined || draggable.multiple) {
-        skipIt++;
-        continue;
-      }
-      var dragId = draggable.id;
-      var element = draggable.elements[0];
-      // If keep correct answers and draggable is in its correct dropzone, set shuffled draggable coordinates but do not actually shuffle it.
-      var shuffle = true;
-      // Deal with enableDroppedQuantity option
-      if (element.$.hasClass('h5p-correct') || element.$.hasClass('h5p-correct-quantity')) {
-        shuffle = false;
-      };
-      var x = draggablePositions[i-skipIt][0];
-      var y = draggablePositions[i-skipIt][1];
-      
-      draggable.shufflePosition(shuffle, x, y);
-    };
-  };
-
-  //Only reset position and feedback if we are not keeping the correct answers.
-  // Do not reset positions if previous state is being restored.
-  
-  if (!this.hasSavedState) {    
-    if (this.options.behaviour.enableDroppedQuantity) {
-      var nbCorrectDropZones = 0;
-      var totalDropZones = 0;
-      var task = this.options.question.task;
-      task.dropZones.forEach((dropZone, dropZoneId) => {
-        if (dropZone.status !== 'none') {
-          totalDropZones ++;
-        }
-        if (dropZone.status == 'correct') {
-          nbCorrectDropZones ++;
-        }   
-				var acceptedNumber = dropZone.acceptedNumber;     
-        if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
-					var nbOK = 0;
-					for (var i = 0; i < this.draggables.length; i++) {
-      			var draggable = this.draggables[i];
-	          if (dropZone.status == 'correct') {
-	          	nbOK ++;  
-	          }
-	      	}
-				}
-    	});
-    }
-
-		this.draggables.forEach(function (draggable) {    
-      if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
-				var dragId = draggable.id;        
-        var $dropZones = self.dropZones; // DOM objects
-        var task = self.options.question.task;
-        var element = draggable.elements[0];
-        if (element.$.hasClass('h5p-correct-quantity')) {
-          element.$.addClass('h5p-correct')
-        }
-        var correctClass = 'h5p-correct';                    
-        if (self.options.behaviour.enableDroppedQuantity) {
-          correctClass += '-quantity';
-        }               
-        if (element.$.hasClass(correctClass)) {
-          draggable.resetPosition(self.correctDZs[draggable.id], correctClass);
-        } else {          
-          draggable.resetPosition();
-        }
-      } else {
-       draggable.resetPosition();
-      };
-    });
-        
-    if (this.options.behaviour.enableDroppedQuantity) {
-			if (nbCorrectDropZones == totalDropZones) {
-	      //Enables Draggables
-	      this.enableDraggables();
-	      this.draggables.forEach(function (draggable) {
-	        draggable.resetPosition();
-	      });    
-	    }
-		} 
+    this.shuffleDraggables()
   }
+ 
+  //Only reset position and feedback if we are not keeping the correct answers.
+  // Do not reset positions if previous state is being restored. WHY NOT? dove
+    
+  if (this.options.behaviour.enableDroppedQuantity) {
+    var nbCorrectDropZones = 0;
+    var totalDropZones = 0;
+    var task = this.options.question.task;
+    task.dropZones.forEach((dropZone, dropZoneId) => {
+      if (dropZone.status !== 'none') {
+        totalDropZones ++;
+      }
+      if (dropZone.status == 'correct') {
+        nbCorrectDropZones ++;
+      }   
+			var acceptedNumber = dropZone.acceptedNumber;     
+      if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
+				var nbOK = 0;
+				for (var i = 0; i < this.draggables.length; i++) {
+    			var draggable = this.draggables[i];
+          if (dropZone.status == 'correct') {
+          	nbOK ++;  
+          }
+      	}
+			}
+  	});
+  }
+
+	this.draggables.forEach(function (draggable) {    
+    if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
+			var dragId = draggable.id;        
+      var $dropZones = self.dropZones; // DOM objects
+      var task = self.options.question.task;
+      var element = draggable.elements[0];
+      if (element.$.hasClass('h5p-correct-quantity')) {
+        element.$.addClass('h5p-correct')
+      }
+      var correctClass = 'h5p-correct';                    
+      if (self.options.behaviour.enableDroppedQuantity) {
+        correctClass += '-quantity';
+      }               
+      if (element.$.hasClass(correctClass)) {
+        draggable.resetPosition(self.correctDZs[draggable.id], correctClass);
+      } else {          
+        draggable.resetPosition();
+      }
+    } else {
+     draggable.resetPosition();
+    };
+  });
+      
+  if (this.options.behaviour.enableDroppedQuantity) {
+		if (nbCorrectDropZones == totalDropZones) {
+      //Enables Draggables
+      this.enableDraggables();
+      this.draggables.forEach(function (draggable) {
+        draggable.resetPosition();
+      });    
+    }
+	}
+
   this.hasSavedState = false;
   if (this.options.behaviour.enableDroppedQuantity) {
     var $dropZones = self.dropZones; // DOM objects
-    for (i = 0; i < $dropZones.length; i++) {
+    for (var i = 0; i < $dropZones.length; i++) {
       $dropZones[i].unmarkResult();
-    }
+    } 
   }
   //Show solution button
   this.showButton('check-answer');
@@ -1184,6 +1153,7 @@ C.prototype.showSolution = function () {
   // Reset all dropzones alignables to empty. ???
   for (i = 0; i < dropZones.length; i++) {
     var dropZone = dropZones[i];
+    dropZone.autoAlign();
     dropZone.alignables = [];
   };
   
@@ -1303,6 +1273,8 @@ C.prototype.showSolution = function () {
               if (dropZone.getIndexOf(element.$) === -1) {
                 dropZone.alignables.push(element.$);                
               };
+              // maybe not needed ? dove              
+              dropZone.autoAlign();
             };
           };
         } else {
@@ -1314,7 +1286,8 @@ C.prototype.showSolution = function () {
             if (dropZone.getIndexOf(element.$) === -1) {
               dropZone.alignables.push(element.$);
             }
-            //dropZone.autoAlign();
+            // TODO ???
+            dropZone.autoAlign();
             remainingCorrectDZ.splice(index, 1);
           } else {
             // If multiple element is wrongly placed then leave it in place and continue.
@@ -1335,8 +1308,8 @@ C.prototype.showSolution = function () {
                   // Add to alignables
                   if (dropZone.getIndexOf(element.$) === -1) {
                     dropZone.alignables.push(element.$);
-
-                    //dropZone.autoAlign();
+                    // dove not needed?
+                    dropZone.autoAlign();
                   }
                   // Now remove element.dropzone so that this element is NOT saved to currentState.
                   element.dropZone = '';
@@ -1618,6 +1591,46 @@ C.prototype.getCopyrights = function () {
 C.prototype.getTitle = function() {
   return H5P.createTitle(this.options.question.settings.questionTitle);
 };
+
+C.prototype.shuffleDraggables = function() {
+  // IF SHUFFLE/RANDOMIZE DRAGGABLES POSITIONS
+  var self = this;
+  var draggablePositions = [];
+  // Put current draggables coordinates into an array (except for
+  // the multiple draggables which cannot be shuffled at the moment).
+  // Check that the draggable does have elements, exclude distracters.
+  this.draggables.forEach(draggable => {
+    if (draggable.elements && !draggable.multiple) {
+      draggablePositions.push([draggable.x, draggable.y]);
+    };
+  });
+
+  // Shuffle the array of coordinates.
+  draggablePositions = H5P.shuffleArray(draggablePositions);
+
+  var skipIt = 0;
+  for (var i = 0; i < this.draggables.length; i++) {
+    var draggable = this.draggables[i];
+    // Do not shuffle the multiple draggables --- too complicated. Maybe later...
+    if (draggable === undefined || draggable.multiple) {
+      skipIt++;
+      continue;
+    }
+    var dragId = draggable.id;
+    var element = draggable.elements[0];
+    // If keep correct answers and draggable is in its correct dropzone, set shuffled draggable coordinates but do not actually shuffle it.
+    var shuffle = true;
+    // Deal with enableDroppedQuantity option
+    if (element.$.hasClass('h5p-dropped')) {
+      shuffle = false;
+    };
+    var x = draggablePositions[i-skipIt][0];
+    var y = draggablePositions[i-skipIt][1];
+    
+    draggable.shufflePosition(shuffle, x, y);
+  };
+};
+
 
 /**
  * Initialize controls to improve a11Y.

@@ -330,8 +330,15 @@
                   "tags": [
                     "strong",
                     "em",
-                    "del"
-                  ]
+                    "strike",
+                    "sub",
+                    "sup"                   
+                  ],
+                  "font": {
+                    "size": true,
+                    "color": true,
+                    "background": true
+                  }
                 },
                 {
                   "name": "showLabel",

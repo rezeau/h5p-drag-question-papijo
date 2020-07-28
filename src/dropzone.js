@@ -3,6 +3,7 @@ import DragUtils from './drag-utils';
 const $ = H5P.jQuery;
 
 export default class DropZone {
+
   /**
    * Creates a new drop zone instance.
    * Makes it easy to keep track of all instance variables.
@@ -188,10 +189,18 @@ export default class DropZone {
 
     // Set element opacity when element has been appended
     setTimeout(function () {
-      DragUtils.setOpacity(self.$dropZone.children('.h5p-label'), 'background', self.backgroundOpacity);
-      DragUtils.setOpacity(self.$dropZone.children('.h5p-inner'), 'background', self.backgroundOpacity);
+      self.updateBackgroundOpacity();
     }, 0);
   }
+
+  /**
+   * Update the background opacity
+   */
+  updateBackgroundOpacity() {
+    DragUtils.setOpacity(this.$dropZone.children('.h5p-label'), 'background', this.backgroundOpacity);
+    DragUtils.setOpacity(this.$dropZone.children('.h5p-inner'), 'background', this.backgroundOpacity);
+  }
+
 
   /**
    * Help determine if the drop zone can accept this draggable
@@ -282,11 +291,7 @@ export default class DropZone {
       x: (self.autoAlignable.spacing / self.autoAlignable.size.width) * 100,
       y: (self.autoAlignable.spacing / self.autoAlignable.size.height) * 100
     };
-    spacing = {
-      x: 0,
-      y: 0
-    };
-
+    
     // Determine coordinates for first 'spot'
     var pos = {
       x: self.x + spacing.x,
@@ -330,6 +335,7 @@ export default class DropZone {
       var spaceDiffX = (alignableSize.width + self.autoAlignable.spacing);
       spaceLeft.x -= spaceDiffX;
       pos.x += (spaceDiffX / containerSize.width) * 100;
+      
       // Keep track of the highest element in this row
       var spaceDiffY = (alignableSize.height + self.autoAlignable.spacing);
       if (spaceDiffY > currentRowHeight) {
@@ -384,7 +390,6 @@ export default class DropZone {
    */
   dehighlight() {
     this.$dropZone.attr('aria-disabled', 'true').children('.h5p-inner').removeClass('h5p-active');
-    this.$dropZone.children('.h5p-inner').css('color', 'red');
   }
 
   /**

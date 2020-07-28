@@ -125,7 +125,8 @@ export default class Draggable extends H5P.EventDispatcher {
         width: self.width + 'em',
         height: self.height + 'em'
       },
-      appendTo: $container
+      appendTo: $container,
+      title: self.type.params.title
     })
       .on('click', function () {
         self.trigger('focus', this);
@@ -268,13 +269,11 @@ export default class Draggable extends H5P.EventDispatcher {
   addToDropZone(index, element, addToZone) {
     var self = this;
     if (self.multiple) {
-
       // Check that we're the only element here
       for (var i = 0; i < self.elements.length; i++) {
         if (i !== index && self.elements[i] !== undefined && self.elements[i].dropZone === addToZone) {
 
-          // Copy of element already in drop zone
-
+          // Copy of element already in drop zone 
           // Remove current element
           if (self.elements[index].dropZone !== undefined && self.elements[index].dropZone !== addToZone) {
             // Leaving old drop zone!
@@ -286,7 +285,6 @@ export default class Draggable extends H5P.EventDispatcher {
           return;
         }
       }
-
     }
 
     if (element.dropZone !== undefined && element.dropZone !== addToZone) {
@@ -401,6 +399,7 @@ export default class Draggable extends H5P.EventDispatcher {
 
   }
 
+
   /**
    * Shuffles the position of the draggables.
    */
@@ -421,6 +420,7 @@ export default class Draggable extends H5P.EventDispatcher {
       });
     });
   }
+  
 
   /**
    * Look for the given DOM element inside this draggable.
@@ -505,12 +505,11 @@ export default class Draggable extends H5P.EventDispatcher {
     var self = this;
     var i, j, element, correct, points = 0;
     self.rawPoints = 0;
-    if (solutions === undefined) {
-
+    
+    if (solutions === undefined) { 
       // We should not be anywhere.
       for (i = 0; i < self.elements.length; i++) {
         element = self.elements[i];
-
         if (element !== undefined && element.dropZone !== undefined) {
           // ... but we are!
           if (skipVisuals !== true) {

@@ -200,7 +200,7 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 }
 
 .h5p-dragquestion .h5p-label {
-  line-height: 1.25em;
+  line-height: normal;
   padding-left: 0.5em;
   padding-right: 0.5em;
   right: 0;
