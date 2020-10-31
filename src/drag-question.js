@@ -1248,9 +1248,9 @@ C.prototype.showSolution = function () {
       }
 
       if (correctDZ) {
-        // Hide away multiple elements wrongly placed.
-        if (isMultiple && element.$.hasClass('h5p-wrong')) {
-          element.$.addClass('h5p-question-hidden');
+        // Hide away multiple elements incorrectly placed, including remaining multiple draggage FIXED JR 31 OCT 2020!
+        if (isMultiple && !element.$.hasClass('h5p-correct')) {
+          element.$.addClass('h5p-dragquestion h5p-question-hidden');
         }
         if (!isMultiple) {
           for (var i = 0; i < correctDZ.length; i++) {

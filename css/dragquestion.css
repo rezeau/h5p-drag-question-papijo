@@ -312,6 +312,12 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   top: 0;
   bottom: 0;
 }
+.h5p-dragquestion .h5p-question-hidden {
+  display: none!important;
+  top: 0;
+  bottom: 0;
+}
+
 .h5p-dragquestion .h5p-dropzone-correct-answer {
   color: #3cb371!important; 
   border-style: solid!important;
