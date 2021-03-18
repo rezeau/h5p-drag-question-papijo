@@ -651,13 +651,33 @@ C.prototype.addSolutionButton = function () {
     that.answerChecked = true;
     that.showAllSolutions();
     that.showScore();
-    that.addExplanation();
+    if (!that.options.behaviour.enableDroppedQuantity) {
+			that.addExplanation();
+		} else {
+			that.addExplanationDroppedQuantity();
+		}
+    
+    
     // Just in case question-explanation has been hidden by showsolution
     $( '.h5p-question-explanation').show();
     var xAPIEvent = that.createXAPIEventTemplate('answered');
     that.addQuestionToXAPI(xAPIEvent);
     that.addResponseToXAPI(xAPIEvent);
-    that.trigger(xAPIEvent);               
+    that.trigger(xAPIEvent);
+                   
+    // Hide potential remaining multiple draggables
+    
+    if (that.maxScoreReached) {
+      that.draggables.forEach(draggable => {
+        if (draggable.multiple) {
+          draggable.elements.forEach(element => {
+            if (!element.$.hasClass('h5p-correct')) {
+              element.$.addClass('h5p-dragquestion h5p-question-hidden');
+            } 
+          });
+        }
+      });
+    }    
     if (that.options.behaviour.removeCorrectWrongStyles && that.maxScoreReached) {
       that.draggables.forEach(draggable => {
         draggable.elements.forEach(element => {
@@ -675,16 +695,17 @@ C.prototype.addSolutionButton = function () {
     var $nextFocus = that.$introduction ? that.$introduction : that.$container.children().first();
     $nextFocus.focus();
   });
+  
 };
 
 /**
  * Add explanation/feedback (the part on the bottom part)
  */
 C.prototype.addExplanation = function () {
-  const task = this.options.question.task;
+  const task = this.options.question.task;     
 
   let explanations = [];
-
+  
   // Go through all dropzones, and find answers:
   task.dropZones.forEach((dropZone, dropZoneId) => {
     const feedback = {
@@ -742,7 +763,92 @@ C.prototype.addExplanation = function () {
   if (explanations.length !== 0) {
     this.setExplanation(explanations, this.options.feedbackHeader);
   }
+};    
+
+/**
+ * Add explanation/feedback (the part on the bottom part) FOR contents with enableDroppedQuantity.
+ */
+C.prototype.addExplanationDroppedQuantity = function () {
+  const task = this.options.question.task;
+  var self = this;
+  let explanations = [];
+  var $dropZones = self.dropZones; // DOM objects
+  var i = 0;
+  var completedDZ = 0;
+	var $dropZones = self.dropZones; // DOM objects
+	// Go through all dropzones, and find correct/incorrect feedback and current status. 
+	task.dropZones.forEach((dropZone, dropZoneId) => {
+		const feedback = {
+    	correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
+      incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect
+    };
+	  var $dropZone = $dropZones[i];
+	  const dropZoneLabel = DragUtils.strip(dropZone.label);
+	  var draggableLabel = '';
+	  var valueLabel = '';
+	  var numberLabel = '';
+	  if (dropZone.acceptedValue !== undefined) {
+	  	valueLabel = 'Total value (' + dropZone.acceptedValue + ')'; 
+		}
+		if (dropZone.acceptedNumber !== undefined) {
+	  	numberLabel = 'Number (' + dropZone.acceptedNumber + ')'; 
+		}
+	  
+	  draggableLabel = numberLabel + valueLabel;
+	  
+	  var status = $dropZone.getCompletedStatus();                                         
+	  if (status == true) {
+			explanations.push({
+          correct: dropZoneLabel + ' + ' + draggableLabel,
+          text: feedback.correct
+        });
+        
+	  } else {
+	  	// Find and count all dragables placed on this dropzone:
+	    let placedDraggables = {};
+	    var nbWrong = 0;
+	    var valueWrong = 0;
+	    this.draggables.forEach(draggable => {
+	      draggable.elements.forEach(dz => {
+	        if (dz.dropZone == dropZoneId) {
+	        	if (dropZone.acceptedNumber !== undefined) {
+	        		nbWrong++;
+	        	};
+	        	if (dropZone.acceptedValue !== undefined) {
+	        		valueWrong += draggable.value;
+	        	};
+	        };
+	      });
+	    });
+	    var valueWrongLabel = '';
+		  var numberWrongLabel = '';
+		  if (dropZone.acceptedValue !== undefined) {
+		  	valueWrongLabel = 'Wrong total value (' + valueWrong + ')'; 
+			}
+			if (dropZone.acceptedNumber !== undefined) {
+		  	numberWrongLabel = 'Wrong number (' + nbWrong + ')'; 
+			}
+	    draggableLabel = numberWrongLabel + '<br />' + valueWrongLabel;
+	  	explanations.push({
+          correct: dropZoneLabel + ' + ',
+          wrong: draggableLabel,
+          text: feedback.incorrect
+        });
+    
+	  }
+	  if (dropZone.acceptedNumber === undefined && dropZone.acceptedValue === undefined) {
+	    
+	  }
+	  $dropZone.markResult(status);      
+	  i++;            
+	});
+	
+	if (explanations.length !== 0) {
+    this.setExplanation(explanations, this.options.feedbackHeader);
+  }
+ 
 };
+
 
 /**
  * Add retry button to our container.
@@ -788,12 +894,10 @@ C.prototype.isAnswerSelected = function () {
 C.prototype.oneDropzonesHasCorrectElement = function () {
   var task = this.options.question.task;
   for (var i = 0; i < task.dropZones.length; i++) {
-      if (task.dropZones[i].correctElements.length !== 0) {
-        //alert('FALSE');
+      if (task.dropZones[i].correctElements.length !== 0) {        
         return true;
       }
   }
-  //alert('TRUE');
   return false;
 };
 
@@ -812,7 +916,7 @@ C.prototype.addShowSolutionButton = function () {
     }
     that.showSolution();
     that.hideButton('check-answer');
-    that.hideButton('show-solution');
+    that.hideButton('show-solution');    
     that.showButton('try-again');
     that.read(that.options.displaySolutionDescription);
   }, false);
@@ -1036,6 +1140,7 @@ C.prototype.showSolutions = function () {
  * @public
  */
 C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
+
   var self = this;
   var that = this;
   this.points = 0;
@@ -1093,18 +1198,36 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
 
 	this.draggables.forEach(function (draggable) {    
     if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
-			var dragId = draggable.id;        
+			var dragId = draggable.id;   
+      var isMultiple = draggable.multiple;     
       var $dropZones = self.dropZones; // DOM objects
-      var task = self.options.question.task;
+      var task = self.options.question.task;      
       var element = draggable.elements[0];
-      if (element.$.hasClass('h5p-correct-quantity')) {
-        element.$.addClass('h5p-correct')
-      }
-      var correctClass = 'h5p-correct';                    
+      var correctClass = 'h5p-correct';
+      var isCorrect = false;
+      
       if (self.options.behaviour.enableDroppedQuantity) {
+        if (element.$.hasClass('h5p-correct-quantity')) {
+          element.$.addClass(correctClass);
+          isCorrect = true;
+        }
         correctClass += '-quantity';
-      }               
-      if (element.$.hasClass(correctClass)) {
+      }
+      // Deal with multiple draggables.
+      if (isMultiple) {      
+        draggable.elements.forEach(element => {
+          if (element.$.hasClass(correctClass) && element.$.hasClass('h5p-dropped')) {
+            isCorrect = true;            
+          }
+          return;
+        });  
+      } else {
+        if (element.$.hasClass(correctClass)) {         
+          isCorrect = true;
+        }
+      }        
+            
+      if (isCorrect) {
         draggable.resetPosition(self.correctDZs[draggable.id], correctClass);
       } else {          
         draggable.resetPosition();
@@ -1249,7 +1372,7 @@ C.prototype.showSolution = function () {
 
       if (correctDZ) {
         // Hide away multiple elements incorrectly placed, including remaining multiple draggage FIXED JR 31 OCT 2020!
-        if (isMultiple && !element.$.hasClass('h5p-correct')) {
+        if (isMultiple && element.$.hasClass('h5p-wrong')) {
           element.$.addClass('h5p-dragquestion h5p-question-hidden');
         }
         if (!isMultiple) {
@@ -1459,7 +1582,7 @@ C.prototype.showScore = function () {
   if (this.options.behaviour.singlePoint) {
     maxScore = 1;
   }
-  
+      
   if (this.options.behaviour.enableDroppedQuantity) {
     var task = this.options.question.task;
     // Count correctly filled in dropZones and add to score.
@@ -1492,12 +1615,15 @@ C.prototype.showScore = function () {
       if (draggable === undefined) {      
         continue;
       }
-      var element = draggable.elements[0];      
-      if (element.$.hasClass('h5p-correct-quantity')) {
-        element.$.addClass('h5p-correct');
-          
-      } else if (element.$.hasClass('h5p-incorrect-quantity')) {
-        element.$.addClass('h5p-wrong');
+      var element = draggable.elements[0];
+            
+      if (this.options.behaviour.enableDroppedQuantity) {
+        if (element.$.hasClass('h5p-correct-quantity')) {
+          element.$.addClass('h5p-correct');
+            
+        } else if (element.$.hasClass('h5p-incorrect-quantity')) {
+          element.$.addClass('h5p-wrong');
+        }
       }
       DragUtils.setOpacity(element.$, 'background', draggable.backgroundOpacity);
       
@@ -1517,7 +1643,7 @@ C.prototype.showScore = function () {
       ? this.options.scoreExplanation : false;
   }
   this.setFeedback(scoreText, actualPoints, maxScore, this.options.scoreBarLabel, helpText, undefined, 
-    this.options.scoreExplanationButtonLabel);
+    this.options.scoreExplanationButtonLabel);    
 };
 
 /**

@@ -128,7 +128,7 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   background: #9dd8bb;
 }
 
-.h5p-dragquestion .h5p-dropped.h5p-wrong {
+.h5p-dragquestion .h5p-dropped.h5p-	 {
   border: 0.1em solid #f7d0d0;
   color: #b71c1c;
   background: #f7d0d0;
@@ -325,4 +325,13 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 .h5p-dragquestion .h5p-dropzone-wrong-answer {
   color: red!important; 
   border-style: solid!important;
+}
+
+.h5p-dragquestion .h5p-question-explanation-wrong {
+  color: #b61c1e;
+  text-decoration: none!important;
+}
+
+.h5p-dragquestion .h5p-question-explanation-status {
+	width: 30%;
 }
