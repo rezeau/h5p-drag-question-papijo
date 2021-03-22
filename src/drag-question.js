@@ -26,6 +26,7 @@ function C(options, contentId, contentData) {
   this.id = this.contentId = contentId;
   H5P.Question.call(self, 'dragquestion');
   this.options = $.extend(true, {}, {
+  	description: 'Task description',
     scoreShow: 'Check',
     tryAgain: 'Retry',
     showSolutionButton: "Show solution",
@@ -37,6 +38,10 @@ function C(options, contentId, contentData) {
     tipAvailable: 'Tip available',
     correctAnswer: 'Correct answer',
     wrongAnswer: 'Wrong answer',
+    correctNumber: 'Correct number: ',
+    inCorrectNumber: 'Incorrect number: ',
+    correctValue: 'Correct total value: ',
+    inCorrectValue: 'Incorrect total value: ',
     feedbackHeader: 'Feedback',
     scoreBarLabel: 'You got :num out of :total points',
     scoreExplanationButtonLabel: 'Show score explanation',
@@ -73,6 +78,7 @@ function C(options, contentId, contentData) {
       showScorePoints: true,
       showScoreInline: false,
       keepCorrectAnswers: false,
+      disableCompletedDropZones: false,
       randomizeDraggables: false,
       resetSingleDraggables: false,
       enableDroppedQuantity: false
@@ -350,12 +356,15 @@ C.prototype.registerDomElements = function () {
   var self = this;
 
   // Register introduction section
+  var titleText = '';
   if (self.options.question.settings.showTitle) {
-    self.$introduction = $('<p class="h5p-dragquestion-introduction" id="dq-intro-' + numInstances + '">' + self.options.question.settings.questionTitle + '</p>');
-    self.setIntroduction(self.$introduction);
-  }
-
-
+  	titleText = self.options.question.settings.questionTitle;
+	}
+  
+	self.$introduction = $('<p class="h5p-dragquestion-introduction" id="dq-intro-' + numInstances + '">' 
+			+ titleText + '</p><p>' + self.options.question.settings.description + '</p>');
+  self.setIntroduction(self.$introduction);
+	
   // Set class if no background
   var classes = '';
   if (this.options.question.settings.background !== undefined) {
@@ -767,8 +776,88 @@ C.prototype.addExplanation = function () {
 
 /**
  * Add explanation/feedback (the part on the bottom part) FOR contents with enableDroppedQuantity.
- */
+ */                                        
 C.prototype.addExplanationDroppedQuantity = function () {
+  const task = this.options.question.task;
+  var self = this;
+  let explanations = [];
+  var $dropZones = self.dropZones; // DOM objects
+  var i = 0;
+	var $dropZones = self.dropZones; // DOM objects
+	// Go through all dropzones, and find correct/incorrect feedback and current status. 
+	task.dropZones.forEach((dropZone, dropZoneId) => {
+		// Init labels.
+		var correctValueLabel = '';
+	  var correctNumberLabel = '';
+		var inCorrectNumberLabel = '';
+		var inCorrectValueLabel = '';
+		const feedback = {
+    	correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
+      incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect
+    };
+	  var $dropZone = $dropZones[i];
+	  const dropZoneLabel = DragUtils.strip(dropZone.label);
+	  var draggableLabel = '';
+	  
+		// Calculate number of draggables in current zone and their total value.
+		var nbDraggablesInZone = 0;
+  	var totalValueInZone = 0;
+    this.draggables.forEach(draggable => {
+      draggable.elements.forEach(dz => {
+        if (dz.dropZone == dropZoneId) {
+        		nbDraggablesInZone++;
+        		totalValueInZone += draggable.value;
+        };
+      });
+    });
+		if (dropZone.acceptedNumber !== undefined) {		
+			if (nbDraggablesInZone == dropZone.acceptedNumber) {
+				correctNumberLabel = this.options.correctNumber + dropZone.acceptedNumber +'<br />'; 
+			} else {
+				inCorrectNumberLabel = this.options.inCorrectNumber + nbDraggablesInZone + '<br />'; 
+			}
+		};
+		// 
+	  if (dropZone.acceptedValue !== undefined /*&& dropZone.acceptedValue !== 0*/) {
+		  if (totalValueInZone == dropZone.acceptedValue) {
+				correctValueLabel = this.options.correctValue + dropZone.acceptedValue +'<br />'; 
+			} else {
+				if (dropZone.acceptedValue !== undefined) {
+					inCorrectValueLabel = this.options.inCorrectValue + totalValueInZone +'<br />' ;
+				} 
+			}
+		};
+	  var fb = '';
+	  var status = $dropZone.getCompletedStatus();
+	  if (status == true) {
+	  	status = 'correct';
+	  	fb = feedback.correct;
+	  } else if (dropZone.acceptedNumber == undefined && dropZone.acceptedValue == undefined) {    	
+		    status = 'none';
+		} else {
+			  status = 'incorrect';
+			  fb = feedback.incorrect;
+		} 
+	  	if (status !== 'none') { 
+			explanations.push({					
+          correct: dropZoneLabel +'<br />' + correctNumberLabel + correctValueLabel,
+          wrong: inCorrectNumberLabel + inCorrectValueLabel,
+          text: fb
+        });
+      };
+	   
+	  $dropZone.markResult(status);      
+	  i++;            
+	});
+	
+	if (explanations.length !== 0) {
+    this.setExplanation(explanations, this.options.feedbackHeader);
+  }
+ 
+};
+
+
+C.prototype.addExplanationDroppedQuantity00 = function () {
   const task = this.options.question.task;
   var self = this;
   let explanations = [];
@@ -1019,6 +1108,7 @@ C.prototype.enableDraggables = function () {
   });
 };
 
+
 /**
  * Shows the correct solutions on the boxes and disables input and buttons depending on settings.
  * @public
@@ -1199,9 +1289,7 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
 	this.draggables.forEach(function (draggable) {    
     if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
 			var dragId = draggable.id;   
-      var isMultiple = draggable.multiple;     
-      var $dropZones = self.dropZones; // DOM objects
-      var task = self.options.question.task;      
+      var isMultiple = draggable.multiple;
       var element = draggable.elements[0];
       var correctClass = 'h5p-correct';
       var isCorrect = false;
@@ -1251,7 +1339,9 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
   if (this.options.behaviour.enableDroppedQuantity) {
     var $dropZones = self.dropZones; // DOM objects
     for (var i = 0; i < $dropZones.length; i++) {
-      $dropZones[i].unmarkResult();
+    	var $dropZone = $dropZones[i];
+	    var status = $dropZone.getCompletedStatus();
+      $dropZone.unmarkResult(status, self.options.behaviour.keepCorrectAnswers, self.options.behaviour.disableCompletedDropZones, forceReset);
     } 
   }
   //Show solution button

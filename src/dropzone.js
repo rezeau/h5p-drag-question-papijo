@@ -400,13 +400,27 @@ export default class DropZone {
   }
   
   /**
-   * REmove the current drop zone correct/wrong mark.
+   * REmove the current drop zone correct mark.
    */
-  unmarkResult() {
-    this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer h5p-dropzone-wrong-answer');
-    this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+  unmarkResult(status, keepCorrectAnswers, disableCompletedDropZones, forceReset) {
+  	// Status true = dropzone is correct ; status false = dropzone is incorrect.
+  	if (status == false) {
+    	this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-wrong-answer');
+    	this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+    } else if (keepCorrectAnswers && disableCompletedDropZones) {
+			// If dropzone is correct, then disable it, no more drops allowed!
+			this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", true );
+		} else {
+			this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer');
+		};
+		if (forceReset) {
+			this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer h5p-dropzone-wrong-answer');
+			// Re-enable dropzones droppable
+			this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", false );
+			this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+		};
   }  
-
+	
   /**
    * Mark the current drop zone completed.
    */
@@ -444,12 +458,7 @@ export default class DropZone {
     var solutions = solutions[dropZoneId];
     var oknb = false;
     var okval = false;
-    // Do not mark elements inside a dropzone with undefined quantity OR undefined value either correct or wrong.
-    if (acceptedNumber === undefined && acceptedValue === undefined) {      
-      completed = undefined;
-      self.unmarkResult();
-      return 0;
-    }
+    
     for (var i = 0; i < draggables.length; i++) {
       var draggable = draggables[i];
       if (draggable === undefined) {
@@ -485,11 +494,6 @@ export default class DropZone {
         completed = false;
         self.unMarkCompleted();                                                                                              
       }   
-    } 
-    // Use case of empty dropZone expecting 0 or undefined draggables AND 0 or undefined total value!   
-    if (nbDraggablesInZone === 0 && !acceptedNumber && !acceptedValue) {               
-      self.markCompleted();
-      return 1;                                                                                              
     } 
                                                    
     for (var i = 0; i < draggables.length; i++) {

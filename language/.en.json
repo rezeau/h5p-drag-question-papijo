@@ -39,6 +39,11 @@
               "description": "Uncheck this option if you do not want this title to be displayed. The title will only be displayed in summaries, statistics etc."
             },
             {
+              "label": "Task description",
+              "default": "",
+              "font": {}
+            },
+            {
               "label": "Background image",
               "description": "Optional. Select an image to use as background for your drag and drop task."
             },
@@ -93,7 +98,7 @@
                   },
                   {
                     "label": "Value",
-                    "description": "Optionally set a value for this draggable element",
+                    "description": "Please set a value for this draggable element. Negative values accepted.",
                     "showWhen": {
                       "rules": [
                         {}
@@ -110,7 +115,8 @@
                 "label": "Drop Zone",
                 "fields": [
                   {
-                    "label": "Label"
+                    "label": "Label",
+                    "font": {}
                   },
                   {
                     "label": "Show label"
@@ -285,6 +291,15 @@
           "description": "Check this option if you want to keep the draggable elements dropped in the correct drop zones after pressing 'Retry'."
         },
         {
+          "label": "Disable completed Drop Zones",
+          "description": "Check this option if you want to make it impossible to drag draggables into or out of correctly completed Drop Zones.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
           "label": "Randomize the position of the draggable elements",
           "description": "Check this option if you want to randomize the position of the draggable elements (except for the multiple draggables)."
         },
@@ -399,6 +414,22 @@
     {
       "label": "Label for incorrect answer",
       "default": "Wrong answer"
+    },
+    {
+      "label": "Label for correct number",
+      "default": "Correct number: "
+    },
+    {
+      "label": "Label for incorrect number",
+      "default": "Incorrect number: "
+    },
+    {
+      "label": "Label for correct  total value",
+      "default": "Correct total value: "
+    },
+    {
+      "label": "Label for incorrect  total value",
+      "default": "Incorrect total value: "
     },
     {
       "label": "Header for panel containing feedback for correct/incorrect answers",

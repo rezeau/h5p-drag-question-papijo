@@ -77,6 +77,33 @@
             "description": "Uncheck this option if you do not want this title to be displayed. The title will only be displayed in summaries, statistics etc.",
             "default": true
           },
+					{
+				    "name": "description",
+				    "type": "text",
+				    "widget": "html",
+				    "label": "Task description",
+				    "importance": "medium",
+				    "default": "",
+				    "optional": true,
+				    "tags": [
+				      "strong",
+				      "em",
+				      "u",
+				      "a",
+				      "ul",
+				      "ol",
+				      "h2",
+				      "h3",
+				      "h4",
+				      "h5",
+				      "hr"
+				    ],
+				    "font": {
+				      "size": true,
+				      "color": true,
+				      "background": true
+				    }
+			  	},
           {
             "name": "background",
             "type": "image",
@@ -784,6 +811,24 @@
         "default": false
       },
       {
+        "name": "disableCompletedDropZones",
+        "type": "boolean",
+        "label": "Disable completed Drop Zones",
+        "description": "Check this option if you want to make it impossible to drag draggables into or out of correctly completed Drop Zones.",
+        "importance": "low",
+        "default": false,
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": true
+            }
+          ]
+        }
+      },
+      {
         "name": "randomizeDraggables",
         "type": "boolean",
         "label": "Randomize the position of the draggable elements",
@@ -1162,6 +1207,38 @@
     "label": "Label for incorrect answer",
     "importance": "low",
     "default": "Wrong answer",
+    "common": true
+  },
+  {
+    "name": "correctNumber",
+    "type": "text",
+    "label": "Label for correct number",
+    "importance": "low",
+    "default": "Correct number: ",
+    "common": true
+  },
+  {
+    "name": "inCorrectNumber",
+    "type": "text",
+    "label": "Label for incorrect number",
+    "importance": "low",
+    "default": "Incorrect number: ",
+    "common": true
+  },
+  {
+    "name": "correctValue",
+    "type": "text",
+    "label": "Label for correct  total value",
+    "importance": "low",
+    "default": "Correct total value: ",
+    "common": true
+  },
+  {
+    "name": "inCorrectValue",
+    "type": "text",
+    "label": "Label for incorrect  total value",
+    "importance": "low",
+    "default": "Incorrect total value: ",
     "common": true
   },
   {

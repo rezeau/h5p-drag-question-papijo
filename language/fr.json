@@ -39,6 +39,11 @@
               "description": "Décochez cette option si vous ne voulez pas que le titre de cette question s'affiche. Ce titre sera quand même affiché dans les résumés, les statistiques, etc. "
             },
             {
+              "label": "Consigne",
+              "default": "",
+              "font": {}
+            },
+            {
               "label": "Image d'arrière-plan",
               "description": "Sélectionnez une image d'arrière-plan pour votre activité (facultatif)."
             },
@@ -275,6 +280,15 @@
           "description": "Cochez cette option si vous voulez conserver les éléments de glisser-déposer correctement placés lorsque vous cliquez le bouton  \"Recommencer\"."
         },
         {
+          "label": "Désactiver les zones de dépôt",
+          "description": "Cochez cette option si vous voulez qu'il soit interdit de faire glisser des éléments à l'intérieur ou à l'extérieur des zones de dépôt correctement remplies.",
+          "showWhen": {
+            "rules": [
+              {}
+            ]
+          }
+        },
+        {
           "label": "Afficher les éléments à glisser-déposer dans le désordre.",
           "description": "Cochez cette option pour mélanger l'ordre d'affichage des éléments à chaque nouvelle tentative (sauf pour ceux à affichage multiple)."
         },
@@ -389,6 +403,22 @@
     {
       "label": "Étiquette pour une mauvaise réponse",
       "default": "Réponse incorrecte"
+    },
+    {
+      "label": "Étiquette pour un nombre correct d'éléments déposés dans une zone",
+      "default": "Éléments corrects : "
+    },
+    {
+      "label": "Étiquette pour un nombre incorrect d'éléments déposés dans une zone",
+      "default": "Éléments incorrects : "
+    },
+    {
+      "label": "Étiquette pour la valeur totale correcte des éléments déposés dans une zone",
+      "default": "Valeur totale correcte : "
+    },
+    {
+      "label": "Étiquette pour une valeur totale incorrecte des éléments déposés dans une zone",
+      "default": "Valeur totale incorrecte : "
     },
     {
       "label": "Intitulé de l'espace contenant des feedbacks pour des réponses correctes/incorrectes",
