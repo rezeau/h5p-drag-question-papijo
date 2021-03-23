@@ -155,6 +155,24 @@
                       {
                         "label": "Message qui apparaît si l'association des éléments est incorrecte",
                         "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé incorrectement."
+                      },
+                      {
+                        "label": "Message affiché pour un nombre incorrect",
+                        "description": "Ce message apparaîtra au-dessous de \"Vérifier\" si la zone de dépôt contient un nombre incorrect d'éléments. Vous pouvez utiliser les variables @requirednumber et @selectednumber dans votre message, par exemple : \"Désolé, vous avez sélectionné @selectednumber éléments, ce n'est pas correct. Vous auriez dû sélectionner @requirednumber\"",
+                        "showWhen": {
+                          "rules": [
+                            {}
+                          ]
+                        }
+                      },
+                      {
+                        "label": "Message affiché pour une valeur totale incorrecte",
+                        "description": "Ce message apparaîtra au-dessous de  \"Vérifier\" si la zone de dépôt contient une valeur totale incorrecte. Vous pouvez utiliser les variables @requiredvalue et @totalvalue dans votre message, par exemple : \"Désolé, les éléments que vous avez sélectionnés totalisent une valeur de @totalvalue ; leur somme devrait être égale à @requiredvalue\". Vous pouvez également utiliser les variables @oppositerequiredvalue et @oppositetotalvalue si nécessaire.",
+                        "showWhen": {
+                          "rules": [
+                            {}
+                          ]
+                        }
                       }
                     ]
                   },
@@ -406,19 +424,19 @@
     },
     {
       "label": "Étiquette pour un nombre correct d'éléments déposés dans une zone",
-      "default": "Éléments corrects : "
+      "default": "Éléments corrects :&nbsp;"
     },
     {
       "label": "Étiquette pour un nombre incorrect d'éléments déposés dans une zone",
-      "default": "Éléments incorrects : "
+      "default": "Éléments incorrects :&nbsp;"
     },
     {
       "label": "Étiquette pour la valeur totale correcte des éléments déposés dans une zone",
-      "default": "Valeur totale correcte : "
+      "default": "Valeur totale correcte :&nbsp;"
     },
     {
       "label": "Étiquette pour une valeur totale incorrecte des éléments déposés dans une zone",
-      "default": "Valeur totale incorrecte : "
+      "default": "Valeur totale incorrecte :&nbsp;"
     },
     {
       "label": "Intitulé de l'espace contenant des feedbacks pour des réponses correctes/incorrectes",

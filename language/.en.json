@@ -151,6 +151,24 @@
                       {
                         "label": "Message displayed on incorrect match",
                         "description": "Message will appear below the task on \"check\" if the match is incorrect."
+                      },
+                      {
+                        "label": "Message displayed on incorrect number",
+                        "description": "Message will appear below the task on \"check\" if drop zone contains an incorrect number of items. You can use the variables @requirednumber and @selectednumber in your message, for example \"Sorry, you selected @selectednumber items, that's not correct. You should have selected @requirednumber\"",
+                        "showWhen": {
+                          "rules": [
+                            {}
+                          ]
+                        }
+                      },
+                      {
+                        "label": "Message displayed on incorrect total value",
+                        "description": "Message will appear below the task on \"check\" if drop zone contains an incorrect total value. You can use the variables @requiredvalue and @totalvalue in your message, for example \"Sorry, the items you selected make up a total value of @totalvalue; they should add up to @requiredvalue\". You can also use the variables @oppositerequiredvalue and @oppositetotalvalue is needed.",
+                        "showWhen": {
+                          "rules": [
+                            {}
+                          ]
+                        }
                       }
                     ]
                   },
@@ -417,19 +435,19 @@
     },
     {
       "label": "Label for correct number",
-      "default": "Correct number: "
+      "default": "Correct number:&nbsp;"
     },
     {
       "label": "Label for incorrect number",
-      "default": "Incorrect number: "
+      "default": "Incorrect number:&nbsp;"
     },
     {
       "label": "Label for correct  total value",
-      "default": "Correct total value: "
+      "default": "Correct total value:&nbsp;"
     },
     {
       "label": "Label for incorrect  total value",
-      "default": "Incorrect total value: "
+      "default": "Incorrect total value:&nbsp;"
     },
     {
       "label": "Header for panel containing feedback for correct/incorrect answers",

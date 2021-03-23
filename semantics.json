@@ -1248,7 +1248,7 @@
     "type": "text",
     "label": "Label for correct number",
     "importance": "low",
-    "default": "Correct number: ",
+    "default": "Correct number:&nbsp;",
     "common": true
   },
   {
@@ -1256,7 +1256,7 @@
     "type": "text",
     "label": "Label for incorrect number",
     "importance": "low",
-    "default": "Incorrect number: ",
+    "default": "Incorrect number:&nbsp;",
     "common": true
   },
   {
@@ -1264,7 +1264,7 @@
     "type": "text",
     "label": "Label for correct  total value",
     "importance": "low",
-    "default": "Correct total value: ",
+    "default": "Correct total value:&nbsp;",
     "common": true
   },
   {
@@ -1272,7 +1272,7 @@
     "type": "text",
     "label": "Label for incorrect  total value",
     "importance": "low",
-    "default": "Incorrect total value: ",
+    "default": "Incorrect total value:&nbsp;",
     "common": true
   },
   {
