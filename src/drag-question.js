@@ -712,7 +712,7 @@ C.prototype.addSolutionButton = function () {
  */
 C.prototype.addExplanation = function () {
   const task = this.options.question.task;     
-
+	
   let explanations = [];
   
   // Go through all dropzones, and find answers:
@@ -721,6 +721,7 @@ C.prototype.addExplanation = function () {
       correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
       incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect
     };
+    
     // Don't run this code if feedback is not configured;
     if (feedback.correct === undefined && feedback.incorrect === undefined) {
       return;
@@ -780,6 +781,7 @@ C.prototype.addExplanation = function () {
 C.prototype.addExplanationDroppedQuantity = function () {
   const task = this.options.question.task;
   var self = this;
+  
   let explanations = [];
   var $dropZones = self.dropZones; // DOM objects
   var i = 0;
@@ -787,14 +789,17 @@ C.prototype.addExplanationDroppedQuantity = function () {
 	// Go through all dropzones, and find correct/incorrect feedback and current status. 
 	task.dropZones.forEach((dropZone, dropZoneId) => {
 		// Init labels.
+		var fb = '';
 		var correctValueLabel = '';
 	  var correctNumberLabel = '';
 		var inCorrectNumberLabel = '';
 		var inCorrectValueLabel = '';
 		const feedback = {
-    	correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
-      incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect
+			correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
+    	incorrectNumber:dropZone.tipsAndFeedback.feedbackOnIncorrectNumber,
+			incorrectValue: dropZone.tipsAndFeedback.feedbackOnIncorrectValue
     };
+    
 	  var $dropZone = $dropZones[i];
 	  const dropZoneLabel = DragUtils.strip(dropZone.label);
 	  var draggableLabel = '';
@@ -814,7 +819,12 @@ C.prototype.addExplanationDroppedQuantity = function () {
 			if (nbDraggablesInZone == dropZone.acceptedNumber) {
 				correctNumberLabel = this.options.correctNumber + dropZone.acceptedNumber +'<br />'; 
 			} else {
-				inCorrectNumberLabel = this.options.inCorrectNumber + nbDraggablesInZone + '<br />'; 
+				inCorrectNumberLabel = this.options.inCorrectNumber + nbDraggablesInZone + '<br />';
+				if (feedback.incorrectNumber) {
+					fb += feedback.incorrectNumber
+						.replace('@requirednumber', dropZone.acceptedNumber)
+						.replace('@selectednumber', nbDraggablesInZone);
+				} 
 			}
 		};
 		// 
@@ -823,11 +833,20 @@ C.prototype.addExplanationDroppedQuantity = function () {
 				correctValueLabel = this.options.correctValue + dropZone.acceptedValue +'<br />'; 
 			} else {
 				if (dropZone.acceptedValue !== undefined) {
-					inCorrectValueLabel = this.options.inCorrectValue + totalValueInZone +'<br />' ;
+					if (fb == '') {
+						inCorrectValueLabel = this.options.inCorrectValue + totalValueInZone +'<br />' ;
+					}
+					if (fb == '' && feedback.incorrectValue) {
+						fb += feedback.incorrectValue
+						.replace('@requiredvalue', dropZone.acceptedValue)
+						.replace('@totalvalue', totalValueInZone)
+						.replace('@oppositerequiredvalue', - dropZone.acceptedValue)
+						.replace('@oppositetotalvalue', - totalValueInZone);
+					}
 				} 
 			}
 		};
-	  var fb = '';
+	  
 	  var status = $dropZone.getCompletedStatus();
 	  if (status == true) {
 	  	status = 'correct';
@@ -836,7 +855,6 @@ C.prototype.addExplanationDroppedQuantity = function () {
 		    status = 'none';
 		} else {
 			  status = 'incorrect';
-			  fb = feedback.incorrect;
 		} 
 	  	if (status !== 'none') { 
 			explanations.push({					
@@ -855,89 +873,6 @@ C.prototype.addExplanationDroppedQuantity = function () {
   }
  
 };
-
-
-C.prototype.addExplanationDroppedQuantity00 = function () {
-  const task = this.options.question.task;
-  var self = this;
-  let explanations = [];
-  var $dropZones = self.dropZones; // DOM objects
-  var i = 0;
-  var completedDZ = 0;
-	var $dropZones = self.dropZones; // DOM objects
-	// Go through all dropzones, and find correct/incorrect feedback and current status. 
-	task.dropZones.forEach((dropZone, dropZoneId) => {
-		const feedback = {
-    	correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
-      incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect
-    };
-	  var $dropZone = $dropZones[i];
-	  const dropZoneLabel = DragUtils.strip(dropZone.label);
-	  var draggableLabel = '';
-	  var valueLabel = '';
-	  var numberLabel = '';
-	  if (dropZone.acceptedValue !== undefined) {
-	  	valueLabel = 'Total value (' + dropZone.acceptedValue + ')'; 
-		}
-		if (dropZone.acceptedNumber !== undefined) {
-	  	numberLabel = 'Number (' + dropZone.acceptedNumber + ')'; 
-		}
-	  
-	  draggableLabel = numberLabel + valueLabel;
-	  
-	  var status = $dropZone.getCompletedStatus();                                         
-	  if (status == true) {
-			explanations.push({
-          correct: dropZoneLabel + ' + ' + draggableLabel,
-          text: feedback.correct
-        });
-        
-	  } else {
-	  	// Find and count all dragables placed on this dropzone:
-	    let placedDraggables = {};
-	    var nbWrong = 0;
-	    var valueWrong = 0;
-	    this.draggables.forEach(draggable => {
-	      draggable.elements.forEach(dz => {
-	        if (dz.dropZone == dropZoneId) {
-	        	if (dropZone.acceptedNumber !== undefined) {
-	        		nbWrong++;
-	        	};
-	        	if (dropZone.acceptedValue !== undefined) {
-	        		valueWrong += draggable.value;
-	        	};
-	        };
-	      });
-	    });
-	    var valueWrongLabel = '';
-		  var numberWrongLabel = '';
-		  if (dropZone.acceptedValue !== undefined) {
-		  	valueWrongLabel = 'Wrong total value (' + valueWrong + ')'; 
-			}
-			if (dropZone.acceptedNumber !== undefined) {
-		  	numberWrongLabel = 'Wrong number (' + nbWrong + ')'; 
-			}
-	    draggableLabel = numberWrongLabel + '<br />' + valueWrongLabel;
-	  	explanations.push({
-          correct: dropZoneLabel + ' + ',
-          wrong: draggableLabel,
-          text: feedback.incorrect
-        });
-    
-	  }
-	  if (dropZone.acceptedNumber === undefined && dropZone.acceptedValue === undefined) {
-	    
-	  }
-	  $dropZone.markResult(status);      
-	  i++;            
-	});
-	
-	if (explanations.length !== 0) {
-    this.setExplanation(explanations, this.options.feedbackHeader);
-  }
- 
-};
-
 
 /**
  * Add retry button to our container.
