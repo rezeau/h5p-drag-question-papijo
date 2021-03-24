@@ -145,12 +145,12 @@
                         "label": "Tip text"
                       },
                       {
-                        "label": "Message displayed on correct match",
-                        "description": "Message will appear below the task on \"check\" if correct droppable is matched."
+                        "label": "Message displayed on correct match or drop zone",
+                        "description": "Message will appear below the task on \"check\" if correct droppable is matched. If the Draggables Quantity and Value option is enabled, this message will appear if the drop zone is correctly filled."
                       },
                       {
-                        "label": "Message displayed on incorrect match",
-                        "description": "Message will appear below the task on \"check\" if the match is incorrect."
+                        "label": "Message displayed on incorrect match or drop zone",
+                        "description": "Message will appear below the task on \"check\" if the match is incorrect. If the Draggables Quantity and Value option is enabled, this message will appear if the drop zone is incorrectly filled. In this case, this message may be replaced by the next two messages, displayed on incorrect number OR incorrect total value."
                       },
                       {
                         "label": "Message displayed on incorrect number",

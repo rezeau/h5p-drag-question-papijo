@@ -149,12 +149,12 @@
                         "label": "Indice"
                       },
                       {
-                        "label": "Message qui apparaît si l'association des éléments est correcte",
-                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé correctement."
+                        "label": "Message qui apparaît si l'association des éléments est correcte (ou si la zone de dépôt est correctement remplie).",
+                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé correctement (ou si la zone de dépôt est correctement remplie)."
                       },
                       {
                         "label": "Message qui apparaît si l'association des éléments est incorrecte",
-                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé incorrectement."
+                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé incorrectement. Si l'option Quantité et Valeur des éléments à déposer est activée, ce message s'affichera si la zone de dépôt est incorrectement remplie. Dans ce cas, ce message peut être remplacé par les deux messages suivants, affichés en cas de nombre incorrect OU de valeur totale incorrecte."
                       },
                       {
                         "label": "Message affiché pour un nombre incorrect",

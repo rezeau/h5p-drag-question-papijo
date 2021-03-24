@@ -529,17 +529,17 @@
                     {
                       "name": "feedbackOnCorrect",
                       "type": "text",
-                      "label": "Message displayed on correct match",
+                      "label": "Message displayed on correct match or drop zone",
                       "importance": "low",
-                      "description": "Message will appear below the task on \"check\" if correct droppable is matched.",
+                      "description": "Message will appear below the task on \"check\" if correct droppable is matched. If the Draggables Quantity and Value option is enabled, this message will appear if the drop zone is correctly filled.",
                       "optional": true
                     },
                     {
                       "name": "feedbackOnIncorrect",
                       "type": "text",
-                      "label": "Message displayed on incorrect match",
+                      "label": "Message displayed on incorrect match or drop zone",
                       "importance": "low",
-                      "description": "Message will appear below the task on \"check\" if the match is incorrect.",
+                      "description": "Message will appear below the task on \"check\" if the match is incorrect. If the Draggables Quantity and Value option is enabled, this message will appear if the drop zone is incorrectly filled. In this case, this message may be replaced by the next two messages, displayed on incorrect number OR incorrect total value.",
                       "optional": true
                     },
                     {

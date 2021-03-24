@@ -796,6 +796,7 @@ C.prototype.addExplanationDroppedQuantity = function () {
 		var inCorrectValueLabel = '';
 		const feedback = {
 			correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
+			incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect,
     	incorrectNumber:dropZone.tipsAndFeedback.feedbackOnIncorrectNumber,
 			incorrectValue: dropZone.tipsAndFeedback.feedbackOnIncorrectValue
     };
@@ -821,7 +822,7 @@ C.prototype.addExplanationDroppedQuantity = function () {
 			} else {
 				inCorrectNumberLabel = this.options.inCorrectNumber + nbDraggablesInZone + '<br />';
 				if (feedback.incorrectNumber) {
-					fb += feedback.incorrectNumber
+					fb = feedback.incorrectNumber
 						.replace('@requirednumber', dropZone.acceptedNumber)
 						.replace('@selectednumber', nbDraggablesInZone);
 				} 
@@ -855,6 +856,9 @@ C.prototype.addExplanationDroppedQuantity = function () {
 		    status = 'none';
 		} else {
 			  status = 'incorrect';
+			  if (fb == '' && feedback.incorrect) {
+			  	fb = feedback.incorrect;
+			  }
 		} 
 	  	if (status !== 'none') { 
 			explanations.push({					
