@@ -799,7 +799,7 @@ C.prototype.addExplanationDroppedQuantity = function () {
 			incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect,
     	incorrectNumber:dropZone.tipsAndFeedback.feedbackOnIncorrectNumber,
 			incorrectValue: dropZone.tipsAndFeedback.feedbackOnIncorrectValue
-    };
+    };                      
     
 	  var $dropZone = $dropZones[i];
 	  const dropZoneLabel = DragUtils.strip(dropZone.label);
@@ -816,7 +816,7 @@ C.prototype.addExplanationDroppedQuantity = function () {
         };
       });
     });
-		if (dropZone.acceptedNumber !== undefined) {		
+		if (dropZone.acceptedNumber !== undefined && dropZone.acceptedNumber !== 0) {		
 			if (nbDraggablesInZone == dropZone.acceptedNumber) {
 				correctNumberLabel = this.options.correctNumber + dropZone.acceptedNumber +'<br />'; 
 			} else {
@@ -828,8 +828,8 @@ C.prototype.addExplanationDroppedQuantity = function () {
 				} 
 			}
 		};
-		// 
-	  if (dropZone.acceptedValue !== undefined /*&& dropZone.acceptedValue !== 0*/) {
+		//    
+	  if (dropZone.acceptedValue !== undefined && dropZone.acceptedValue !== 0) {
 		  if (totalValueInZone == dropZone.acceptedValue) {
 				correctValueLabel = this.options.correctValue + dropZone.acceptedValue +'<br />'; 
 			} else {
@@ -848,6 +848,15 @@ C.prototype.addExplanationDroppedQuantity = function () {
 			}
 		};
 	  
+		if (dropZone.acceptedNumber === 0 && nbDraggablesInZone === 0) {
+			correctNumberLabel = '';
+			inCorrectNumberLabel = '';
+		} 
+	  if  (dropZone.acceptedValue === 0 && nbDraggablesInZone === 0) {
+			correctValueLabel = '';
+			inCorrectValueLabel = '';
+		} 
+		
 	  var status = $dropZone.getCompletedStatus();
 	  if (status == true) {
 	  	status = 'correct';

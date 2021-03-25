@@ -16,7 +16,7 @@ export default class DropZone {
   constructor (dropZone, id, l10n) {
     var self = this;
     H5P.EventDispatcher.call(self);
-
+																		7
     self.id = id;
     self.showLabel = dropZone.showLabel;
     self.label = dropZone.label;
@@ -473,7 +473,7 @@ export default class DropZone {
       var dragId = draggable.id;
       var dragVal = draggable.value;
       var dragOkDZ = $.inArray(dragId, solutions);
-      var oknb = false;
+      var oknb = false;                      
       if (nbPlacedDraggables > acceptedNumber) {
         continue;
       }
@@ -486,7 +486,7 @@ export default class DropZone {
       }
       if (acceptedValue === undefined && nbPlacedDraggables == acceptedNumber) {
         okval = true; 
-      }      
+      }                       
       if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue === acceptedValue || okval) ) {
         completed = true;
         self.markCompleted();                
@@ -495,7 +495,18 @@ export default class DropZone {
         self.unMarkCompleted();                                                                                              
       }   
     } 
-                                                   
+    // Use case of empty dropZone expecting 0 or undefined draggables AND 0 or undefined total value!   
+    if (nbDraggablesInZone === 0 && acceptedNumber === 0 && !acceptedValue) {
+			self.markCompleted();
+      return 1;                                                                                              
+    } 
+    
+    if (nbDraggablesInZone === 0 && acceptedNumber === undefined && acceptedValue !== undefined) {
+			//self.markCompleted();
+      return 0;                                                                                              
+    } 
+    
+		                                           
     for (var i = 0; i < draggables.length; i++) {
       var draggable = draggables[i];
       if (draggable === undefined) {
@@ -522,7 +533,7 @@ export default class DropZone {
     }                   
     if (completed === true) {                  
       return 1;      
-    } else {                    
+    } else {                       
       return 0;
     }
   }
