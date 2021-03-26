@@ -360,9 +360,14 @@ C.prototype.registerDomElements = function () {
   if (self.options.question.settings.showTitle) {
   	titleText = self.options.question.settings.questionTitle;
 	}
+	
+	var titleDescription = '';
+  if (self.options.question.settings.description != '') {
+  	titleDescription = '<p>' + self.options.question.settings.description + '</p>';
+	}
   
 	self.$introduction = $('<p class="h5p-dragquestion-introduction" id="dq-intro-' + numInstances + '">' 
-			+ titleText + '</p><p>' + self.options.question.settings.description + '</p>');
+			+ titleText + '</p>' + titleDescription);
   self.setIntroduction(self.$introduction);
 	
   // Set class if no background
