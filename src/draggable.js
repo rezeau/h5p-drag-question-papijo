@@ -573,7 +573,6 @@ export default class Draggable extends H5P.EventDispatcher {
    */
   markElement(element, status, scorePoints, scoreInline) {
     var self = this;
-    
     var $elementResult = $('<span/>', {
       'class': 'h5p-hidden-read',
       html: this.l10n[status + 'Answer']
@@ -593,10 +592,4 @@ export default class Draggable extends H5P.EventDispatcher {
     DragUtils.setElementOpacity(element.$, this.backgroundOpacity);
   }
   
-  markElementCorrectNumber(element) {    
-    element.$.addClass('h5p-correct h5p-dg-normal');
-  }
-  unmarkElementCorrectNumber(element) {    
-    element.$.removeClass('h5p-correct h5p-dg-normal');
-  }
 }

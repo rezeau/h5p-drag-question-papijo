@@ -821,7 +821,7 @@ C.prototype.addExplanationDroppedQuantity = function () {
         };
       });
     });
-		if (dropZone.acceptedNumber !== undefined && dropZone.acceptedNumber !== 0) {		
+		if (dropZone.acceptedNumber !== undefined) {		
 			if (nbDraggablesInZone == dropZone.acceptedNumber) {
 				correctNumberLabel = this.options.correctNumber + dropZone.acceptedNumber +'<br />'; 
 			} else {
@@ -833,8 +833,8 @@ C.prototype.addExplanationDroppedQuantity = function () {
 				} 
 			}
 		};
-		//    
-	  if (dropZone.acceptedValue !== undefined && dropZone.acceptedValue !== 0) {
+		    
+	  if (dropZone.acceptedValue !== undefined) {
 		  if (totalValueInZone == dropZone.acceptedValue) {
 				correctValueLabel = this.options.correctValue + dropZone.acceptedValue +'<br />'; 
 			} else {
@@ -853,15 +853,6 @@ C.prototype.addExplanationDroppedQuantity = function () {
 			}
 		};
 	  
-		if (dropZone.acceptedNumber === 0 && nbDraggablesInZone === 0) {
-			correctNumberLabel = '';
-			inCorrectNumberLabel = '';
-		} 
-	  if  (dropZone.acceptedValue === 0 && nbDraggablesInZone === 0) {
-			correctValueLabel = '';
-			inCorrectValueLabel = '';
-		} 
-		
 	  var status = $dropZone.getCompletedStatus();
 	  if (status == true) {
 	  	status = 'correct';
@@ -874,14 +865,13 @@ C.prototype.addExplanationDroppedQuantity = function () {
 			  	fb = feedback.incorrect;
 			  }
 		} 
-	  	if (status !== 'none') { 
+  	if (status !== 'none') { 
 			explanations.push({					
-          correct: dropZoneLabel +'<br />' + correctNumberLabel + correctValueLabel,
-          wrong: inCorrectNumberLabel + inCorrectValueLabel,
-          text: fb
-        });
-      };
-	   
+      	correct: dropZoneLabel +'<br />' + correctNumberLabel + correctValueLabel,
+      	wrong: inCorrectNumberLabel + inCorrectValueLabel,
+      	text: fb
+    	});
+  	};
 	  $dropZone.markResult(status);      
 	  i++;            
 	});
@@ -1237,7 +1227,8 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
       	}
 			}
   	});
-  }
+  
+	}
 
 	this.draggables.forEach(function (draggable) {    
     if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
@@ -1294,7 +1285,8 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
     for (var i = 0; i < $dropZones.length; i++) {
     	var $dropZone = $dropZones[i];
 	    var status = $dropZone.getCompletedStatus();
-      $dropZone.unmarkResult(status, self.options.behaviour.keepCorrectAnswers, self.options.behaviour.disableCompletedDropZones, forceReset);
+			$dropZone.unmarkResult(status, self.options.behaviour.keepCorrectAnswers, self.options.behaviour.disableCompletedDropZones, forceReset);
+			
     } 
   }
   //Show solution button
@@ -1556,9 +1548,9 @@ C.prototype.calculateMaxScore = function () {
   if (this.options.behaviour.enableDroppedQuantity) {
     var dropZones = this.options.question.task.dropZones;
     for (var i = 0; i < dropZones.length; i++) {
-      if (dropZones[i].acceptedNumber !== undefined || dropZones[i].acceptedValue !== undefined) {
+      //if (dropZones[i].acceptedNumber !== undefined || dropZones[i].acceptedValue !== undefined) {
         max++;
-      }
+      //}
     }
     return max;
   }
@@ -1617,7 +1609,7 @@ C.prototype.getAnswerGiven = function () {
 };
 
 /**
- * Shows the score to the user when the score button is pressed.
+ * Shows the score to the user when the check button is pressed.
  */
 C.prototype.showScore = function () {
   var self = this;
@@ -1645,8 +1637,8 @@ C.prototype.showScore = function () {
         dropZone.status = status;
       }
       if (dropZone.acceptedNumber === undefined && dropZone.acceptedValue === undefined) {
-        status = 'none';
-        dropZone.status = status;
+        //status = 'none';
+        //dropZone.status = status;
       }
       $dropZone.markResult(status);      
       i++;            

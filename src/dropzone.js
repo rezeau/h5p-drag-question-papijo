@@ -403,6 +403,7 @@ export default class DropZone {
    * REmove the current drop zone correct mark.
    */
   unmarkResult(status, keepCorrectAnswers, disableCompletedDropZones, forceReset) {
+  
   	// Status true = dropzone is correct ; status false = dropzone is incorrect.
   	if (status == false) {
     	this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-wrong-answer');
@@ -411,7 +412,8 @@ export default class DropZone {
 			// If dropzone is correct, then disable it, no more drops allowed!
 			this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", true );
 		} else {
-			this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer');
+			// TODO
+			//this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer');
 		};
 		if (forceReset) {
 			this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer h5p-dropzone-wrong-answer');
@@ -486,7 +488,12 @@ export default class DropZone {
       }
       if (acceptedValue === undefined && nbPlacedDraggables == acceptedNumber) {
         okval = true; 
-      }                       
+      }              
+			// In this use case, accept any number/value except empty number.         
+      if (acceptedNumber == undefined && acceptedValue === undefined && nbDraggablesInZone) {
+				oknb = true;
+				okval = true;
+			}
       if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue === acceptedValue || okval) ) {
         completed = true;
         self.markCompleted();                
@@ -502,10 +509,13 @@ export default class DropZone {
     } 
     
     if (nbDraggablesInZone === 0 && acceptedNumber === undefined && acceptedValue !== undefined) {
-			//self.markCompleted();
       return 0;                                                                                              
     } 
     
+    if (acceptedNumber == undefined && acceptedValue == undefined) {
+			self.markCompleted();
+			completed = true;                                                    
+    }
 		                                           
     for (var i = 0; i < draggables.length; i++) {
       var draggable = draggables[i];
@@ -523,11 +533,12 @@ export default class DropZone {
       }
       element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
       if (completed == true) {
-        element.$.addClass('h5p-correct-quantity');          
+        element.$.addClass('h5p-correct-quantity');
       } else if (completed == false) {
         element.$.addClass('h5p-incorrect-quantity');
       }
     }
+    
     if (completed === undefined) {
       self.unmarkResult();
     }                   
