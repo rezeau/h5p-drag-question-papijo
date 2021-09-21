@@ -1548,6 +1548,15 @@ C.prototype.calculateMaxScore = function () {
     return this.maxScore; // Will never change
   }
 
+  if (this.options.behaviour.enableDroppedQuantity) {
+    var max = 0;
+    var dropZones = this.options.question.task.dropZones;
+    for (var i = 0; i < dropZones.length; i++) {
+        max++;
+    }
+    return max;
+  }
+
   const that = this;
 
   /*
@@ -1599,9 +1608,7 @@ C.prototype.calculateMaxScore = function () {
 
   // Account for number of elements that cannot be placed anywhere
   maxScoreDraggables = maxScoreDraggables - Math.max(0, numberElementsNeedSingleDZ - numberSingleDropZones);
-
   this.maxScore = Math.min(maxScoreDropZones, maxScoreDraggables);
-
   return this.maxScore;
 };
 
