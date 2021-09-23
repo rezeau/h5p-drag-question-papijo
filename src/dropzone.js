@@ -468,6 +468,10 @@ export default class DropZone {
       }
       var element = draggable.elements[0];
       // Draggable not in dropZone
+      // SEPT 2021 in Interactive Book papi Jo throws error "element is undefined" if click Summary &submit before any action.
+      if (!element) {
+        return 0;
+      }
       if (element.dropZone !== dropZoneId) {
         continue;
       }
