@@ -56,7 +56,7 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 .h5p-dragquestion .h5p-draggable {
   border-radius: 0.25em;
   border: 0.1em solid #c6c6c6;
-  cursor: pointer;
+  cursor: move;
   position: absolute;
   padding: 0.3em 0.3em;
   line-height: 1.25em;
@@ -334,4 +334,7 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 
 .h5p-dragquestion .h5p-question-explanation-status {
 	width: 30%;
+}
+.h5p-dragquestion .h5p-audio-inner .h5p-audio-minimal-button {
+  cursor: pointer;
 }
