@@ -387,9 +387,8 @@ C.prototype.registerDomElements = function () {
     'class': classes
   });
 
-  // First we check if full screen is supported
-  if (H5P.canHasFullScreen !== false && this.options.behaviour.enableFullScreen) {
-
+  // First we check if full screen is supported and if this content is not included in an Interactive Book, etc.
+  if (this.isRoot() && H5P.canHasFullScreen !== false && this.options.behaviour.enableFullScreen) {
     // We create a function that is used to enter or
     // exit full screen when our button is pressed
     var toggleFullScreen = function () {
