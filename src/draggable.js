@@ -471,6 +471,7 @@ export default class Draggable extends H5P.EventDispatcher {
       if (element) {
         element.$.draggable('disable');
         self.trigger('elementremove', element.$[0]);
+        element.$.unbind('mouseenter mouseleave');
       }
     }
   }
