@@ -134,9 +134,7 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   background: #f7d0d0;
 }
 
-.h5p-dragquestion .h5p-dropped.h5p-correct:hover,
-.h5p-dragquestion .h5p-dropped.h5p-wrong:hover,
-.h5p-dragquestion .h5p-question-solution:hover  {
+.h5p-dragquestion .ui-draggable-disabled  {
   cursor: default;
 }
 
