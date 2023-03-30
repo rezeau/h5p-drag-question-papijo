@@ -140,7 +140,13 @@ export default class Draggable extends H5P.EventDispatcher {
             top: self.y + '%',
             left: self.x + '%'
           };
-          self.updatePlacement(element);
+          // Removed updatePlacement because it caused visual problems papijo 30/03/2023
+          //self.updatePlacement(element);
+          // Added papijo 30/03/2023
+          if (element.$suffix) {
+          // Always remove old a11y text. (drop zone may have changed)
+            element.$suffix.remove();
+        }
           $this[0].setAttribute('aria-grabbed', 'false');
 
           self.trigger('dragend');
@@ -159,6 +165,7 @@ export default class Draggable extends H5P.EventDispatcher {
           // Send element to the top!
           $this.removeClass('h5p-wrong').detach().appendTo($container);
           $container.addClass('h5p-dragging');
+          $this.removeClass('h5p-dropped');
           DragUtils.setElementOpacity($this, self.backgroundOpacity);
           this.setAttribute('aria-grabbed', 'true');
 
@@ -471,7 +478,6 @@ export default class Draggable extends H5P.EventDispatcher {
       if (element) {
         element.$.draggable('disable');
         self.trigger('elementremove', element.$[0]);
-        element.$.unbind('mouseenter mouseleave');
       }
     }
   }
