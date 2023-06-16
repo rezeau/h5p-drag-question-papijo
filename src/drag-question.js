@@ -708,7 +708,6 @@ C.prototype.addExplanationDroppedQuantity = function () {
     };
     const $dropZone = $dropZones[i];
     const dropZoneLabel = DragUtils.strip(dropZone.label);
-    let draggableLabel = '';
     // Calculate number of draggables in current zone and their total value.
     let nbDraggablesInZone = 0;
     let totalValueInZone = 0;
@@ -789,7 +788,6 @@ C.prototype.addRetryButton = function () {
     let forceReset = false;
     if (that.solutionViewed) {
       forceReset = true;
-      const keepCorrectAnswers = false;
       that.solutionViewed = false;
     }
     if (that.maxScoreReached) {
@@ -1034,9 +1032,8 @@ C.prototype.showSolutions = function () {
  * Resets the task but keeps correct answers if required.
  * @public
  */
-C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
+C.prototype.reTry = function (forceReset) {
   const self = this;
-  const that = this;
   this.points = 0;
   this.rawPoints = 0;
   this.answered = false;
@@ -1064,28 +1061,17 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
   // Do not reset positions if previous state is being restored. WHY NOT? dove
   if (this.options.behaviour.enableDroppedQuantity) {
     const task = this.options.question.task;
-    task.dropZones.forEach((dropZone, dropZoneId) => {
+    task.dropZones.forEach((dropZone) => {
       if (dropZone.status !== 'none') {
         totalDropZones ++;
       }
       if (dropZone.status === 'correct') {
         nbCorrectDropZones ++;
       }
-      // TODO not needed const acceptedNumber = dropZone.acceptedNumber;
-      if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
-        let nbOK = 0;
-        for (let i = 0; i < this.draggables.length; i++) {
-          const draggable = this.draggables[i];
-          if (dropZone.status === 'correct') {
-            nbOK ++;
-          }
-        }
-      }
     });
   }
   this.draggables.forEach(function (draggable) {
     if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
-      const dragId = draggable.id;
       let isMultiple = draggable.multiple;
       const element = draggable.elements[0];
       let correctClass = 'h5p-correct';
@@ -1177,7 +1163,6 @@ C.prototype.showSolution = function () {
     if (draggable === undefined) {
       continue;
     }
-    const multipleDrag = [];
     if (draggable.multiple) {
       oneIsMultiple = true;
       const dragId = draggable.id;
@@ -1297,7 +1282,6 @@ C.prototype.showSolution = function () {
                 if (dropZone !== undefined) {
                   element.$.addClass('h5p-question-solution');
                   element.dropZone = dropZone.id;
-                  const elClass = element.$.attr('class');
                   draggable.updatePlacement(element);
                   // Set position in case DZ is full (auto align doesn't work)
                   element.$.css({
@@ -1338,11 +1322,6 @@ C.prototype.showSolution = function () {
       const element = draggable.elements[j];
       if (!element.$.hasClass('h5p-correct') && !element.$.hasClass('h5p-question-solution')) {
         element.$.addClass('h5p-question-hidden');
-      }
-      if (this.options.behaviour.removeCorrectWrongStyles) {
-        element.$
-          .removeClass('h5p-wrong')
-          .removeClass('h5p-correct')          ;
       }
     }
   }
@@ -1441,7 +1420,7 @@ C.prototype.calculateMaxScore = function () {
  */
 C.prototype.getMaxScore = function () {
   const max = this.options.behaviour.singlePoint ? this.weight : this.calculateMaxScore();
-  return (this.options.behaviour.singlePoint ? this.weight : this.calculateMaxScore());
+  return (max);
 };
 /**
  * Count the number of correct answers.
@@ -1478,15 +1457,13 @@ C.prototype.showScore = function () {
     const task = this.options.question.task;
     // Count correctly filled in dropZones and add to score.
     let i = 0;
-    let completedDZ = 0;
     const $dropZones = self.dropZones; // DOM objects
-    task.dropZones.forEach((dropZone, dropZoneId) => {
+    task.dropZones.forEach((dropZone) => {
       const $dropZone = $dropZones[i];
       let status = $dropZone.getCompletedStatus();
       if (status === true) {
         status = 'correct';
         dropZone.status = status;
-        completedDZ++;
       }
       else {
         status = 'wrong';
@@ -1598,7 +1575,6 @@ C.prototype.getTitle = function () {
 };
 C.prototype.shuffleDraggables = function () {
   // IF SHUFFLE/RANDOMIZE DRAGGABLES POSITIONS
-  const self = this;
   let draggablePositions = [];
   // Put current draggables coordinates into an array (except for
   // the multiple draggables which cannot be shuffled at the moment).
@@ -1618,7 +1594,6 @@ C.prototype.shuffleDraggables = function () {
       skipIt++;
       continue;
     }
-    const dragId = draggable.id;
     const element = draggable.elements[0];
     // If keep correct answers and draggable is in its correct dropzone, set shuffled draggable coordinates but do not actually shuffle it.
     let shuffle = true;
