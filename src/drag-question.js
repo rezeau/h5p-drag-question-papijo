@@ -137,7 +137,6 @@ function C(options, contentId, contentData) {
   for (i = 0; i < task.dropZones.length; i++) {
     dropZonesWithoutElements.push(true); // All true by default
     const correctElements = task.dropZones[i].correctElements;
-    const acceptedNumber = task.dropZones[i].acceptedNumber;
     for (j = 0; j < correctElements.length; j++) {
       const correctElement = correctElements[j];
       if (this.correctDZs[correctElement] === undefined) {
@@ -222,7 +221,7 @@ function C(options, contentId, contentData) {
     for (i = 0; i < task.dropZones.length; i++) {
       this.correctDraggables[i] = [];
       for (j = 0; j < this.correctDZs.length; j++) {
-        if (this.correctDZs[j] == undefined) {
+        if (this.correctDZs[j] === undefined) {
           continue;
         }
         var dragOkDZ = $.inArray(i, this.correctDZs[j]);
@@ -283,7 +282,7 @@ function C(options, contentId, contentData) {
     });
   }
   this.on('resize', self.resize, self);
-  this.on('domChanged', function(event) {
+  this.on('domChanged', function (event) {
     if (self.contentId === event.data.contentId) {
       self.trigger('resize');
     }
@@ -315,7 +314,7 @@ C.prototype.registerDomElements = function () {
     titleText = self.options.question.settings.questionTitle;
   }
   var titleDescription = '';
-  if (self.options.question.settings.description != '') {
+  if (self.options.question.settings.description !== '') {
     titleDescription = '<p>' + self.options.question.settings.description + '</p>';
   }
   self.$introduction = $('<p class="h5p-dragquestion-introduction" id="dq-intro-' + numInstances + '">'
@@ -401,7 +400,7 @@ C.prototype.getXAPIData = function () {
 /**
  * Add the question itselt to the definition part of an xAPIEvent
  */
-C.prototype.addQuestionToXAPI = function(xAPIEvent) {
+C.prototype.addQuestionToXAPI = function (xAPIEvent) {
   var definition = xAPIEvent.getVerifiedStatementValue(['object', 'definition']);
   $.extend(definition, this.getXAPIDefinition());
 };
@@ -464,10 +463,10 @@ C.prototype.getXAPIDefinition = function () {
  * @param {H5P.XAPIEvent} xAPIEvent
  *  The xAPI event we will add a response to
  */
-C.prototype.addResponseToXAPI = function(xAPIEvent) {
+C.prototype.addResponseToXAPI = function (xAPIEvent) {
   var maxScore = this.getMaxScore();
   var score = this.getScore();
-  var success = score == maxScore ? true : false;
+  var success = score === maxScore ? true : false;
   xAPIEvent.setScoredResult(score, maxScore, this, true, success);
   xAPIEvent.data.statement.result.response = this.getUserXAPIResponse();
 };
@@ -525,7 +524,8 @@ C.prototype.createQuestionContent = function () {
   this.$container = $('<div class="h5p-inner" role="application" aria-labelledby="dq-intro-' + numInstances + '"></div>');
   if (this.options.question.settings.background !== undefined) {
     this.$container.css('backgroundImage', 'url("' + H5P.getPath(this.options.question.settings.background.path, this.id) + '")');
-  } else if (this.backgroundColor !== undefined) {
+  }
+  else if (this.backgroundColor !== undefined) {
     this.$container.css('background-color', this.backgroundColor);
   }
   var task = this.options.question.task;
@@ -586,7 +586,8 @@ C.prototype.addSolutionButton = function () {
     that.showScore();
     if (!that.options.behaviour.enableDroppedQuantity) {
       that.addExplanation();
-    } else {
+    }
+    else {
       that.addExplanationDroppedQuantity();
     }
     // Just in case question-explanation has been hidden by showsolution
@@ -647,7 +648,7 @@ C.prototype.addExplanation = function () {
     let placedDraggables = {};
     this.draggables.forEach(draggable => {
       draggable.elements.forEach(dz => {
-        if (dz.dropZone == dropZoneId) {
+        if (dz.dropZone === dropZoneId) {
           // Save reference to draggable, and mark it as correct/incorrect
           placedDraggables[draggable.id] = {
             instance: draggable,
@@ -715,16 +716,17 @@ C.prototype.addExplanationDroppedQuantity = function () {
     var totalValueInZone = 0;
     this.draggables.forEach(draggable => {
       draggable.elements.forEach(dz => {
-        if (dz.dropZone == dropZoneId) {
+        if (dz.dropZone === dropZoneId) {
             nbDraggablesInZone++;
             totalValueInZone += draggable.value;
         };
       });
     });
     if (dropZone.acceptedNumber !== undefined) {
-      if (nbDraggablesInZone == dropZone.acceptedNumber) {
+      if (nbDraggablesInZone === dropZone.acceptedNumber) {
         correctNumberLabel = this.options.correctNumber + dropZone.acceptedNumber +'<br />';
-      } else {
+      }
+      else {
         inCorrectNumberLabel = this.options.inCorrectNumber + nbDraggablesInZone + '<br />';
         if (feedback.incorrectNumber) {
           fb = feedback.incorrectNumber
@@ -734,14 +736,15 @@ C.prototype.addExplanationDroppedQuantity = function () {
       }
     };
     if (dropZone.acceptedValue !== undefined) {
-      if (totalValueInZone == dropZone.acceptedValue) {
+      if (totalValueInZone === dropZone.acceptedValue) {
         correctValueLabel = this.options.correctValue + dropZone.acceptedValue +'<br />';
-      } else {
+      }
+      else {
         if (dropZone.acceptedValue !== undefined) {
-          if (fb == '') {
+          if (fb === '') {
             inCorrectValueLabel = this.options.inCorrectValue + totalValueInZone +'<br />' ;
           }
-          if (fb == '' && feedback.incorrectValue) {
+          if (fb === '' && feedback.incorrectValue) {
             fb += feedback.incorrectValue
             .replace('@requiredvalue', dropZone.acceptedValue)
             .replace('@totalvalue', totalValueInZone)
@@ -752,14 +755,16 @@ C.prototype.addExplanationDroppedQuantity = function () {
       }
     };
     var status = $dropZone.getCompletedStatus();
-    if (status == true) {
+    if (status === true) {
       status = 'correct';
       fb = feedback.correct;
-    } else if (dropZone.acceptedNumber == undefined && dropZone.acceptedValue == undefined) {
+    }
+    else if (dropZone.acceptedNumber === undefined && dropZone.acceptedValue === undefined) {
         status = 'none';
-    } else {
+    }
+    else {
         status = 'incorrect';
-        if (fb == '' && feedback.incorrect) {
+        if (fb === '' && feedback.incorrect) {
           fb = feedback.incorrect;
         }
     }
@@ -968,7 +973,8 @@ C.prototype.showAllSolutions = function (skipVisuals) {
         this.points += draggable.results(skipVisuals, this.correctDZs[i], scorePoints, this.scoreInline);
         this.rawPoints += draggable.rawPoints;
     }
-  } else { // enableDroppedQuantity Mode.
+  }
+  else { // enableDroppedQuantity Mode.
     for (var i = 0; i < this.dropZones.length; i++) {
       var dropzone = this.dropZones[i];
       this.points += dropzone.results(this.draggables, this.correctDraggables, scorePoints);
@@ -1063,7 +1069,7 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
       if (dropZone.status !== 'none') {
         totalDropZones ++;
       }
-      if (dropZone.status == 'correct') {
+      if (dropZone.status === 'correct') {
         nbCorrectDropZones ++;
       }
       var acceptedNumber = dropZone.acceptedNumber;
@@ -1071,7 +1077,7 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
         var nbOK = 0;
         for (var i = 0; i < this.draggables.length; i++) {
           var draggable = this.draggables[i];
-          if (dropZone.status == 'correct') {
+          if (dropZone.status === 'correct') {
             nbOK ++;
           }
         }
@@ -1100,22 +1106,25 @@ C.prototype.reTry = function (forceReset, keepCorrectAnswers) {
           }
           return;
         });
-      } else {
+      }
+      else {
         if (element.$.hasClass(correctClass)) {
           isCorrect = true;
         }
       }
       if (isCorrect) {
         draggable.resetPosition(self.correctDZs[draggable.id], correctClass);
-      } else {
+      }
+      else {
         draggable.resetPosition();
       }
-    } else {
+    }
+    else {
      draggable.resetPosition();
     };
   });
   if (this.options.behaviour.enableDroppedQuantity) {
-    if (nbCorrectDropZones == totalDropZones) {
+    if (nbCorrectDropZones === totalDropZones) {
       //Enables Draggables
       this.enableDraggables();
       this.draggables.forEach(function (draggable) {
@@ -1178,11 +1187,11 @@ C.prototype.showSolution = function () {
       if (correctDZ) {
         mustCloneElement[dragId] = correctDZ.length;
         // When using Retry after ShowSolution, we may need to remove NULL elements from draggable.elements array.
-        draggable.elements = draggable.elements.filter(function(n){ return n != undefined });
+        draggable.elements = draggable.elements.filter(function (n){ return n !== undefined });
         // Needed if keepstate is ON and user has moved away and back.
         // Otherwise showSolution does not work if first dropZone is undefined.
         var element = draggable.elements[0];
-        if (element.dropZone == undefined) {
+        if (element.dropZone === undefined) {
           var ary = draggable.elements;
           ary.push(ary.shift());
         }
@@ -1264,7 +1273,8 @@ C.prototype.showSolution = function () {
               dropZone.autoAlign();
             };
           };
-        } else {
+        }
+        else {
           // If element is correctly placed, leave it there but remove it from array of remainingCorrectDZ.
           if (element.$.hasClass('h5p-correct')) {
             var index = remainingCorrectDZ.indexOf(element.dropZone);
@@ -1276,7 +1286,8 @@ C.prototype.showSolution = function () {
             // TODO ???
             dropZone.autoAlign();
             remainingCorrectDZ.splice(index, 1);
-          } else {
+          }
+          else {
             // If multiple element is wrongly placed then leave it in place and continue.
             if (!element.$.hasClass('h5p-wrong')) {
               // If multiple element has not yet been dropped into any correct dropzone then move it there.
@@ -1306,7 +1317,8 @@ C.prototype.showSolution = function () {
             }
           }
         };
-      } else {
+      }
+      else {
         // This draggable is not accepted by any dropZone. It's a so-called "distracter".
         // If it has been dropped, hide it away.
         if (element.$.hasClass('h5p-dropped')) {
@@ -1469,13 +1481,13 @@ C.prototype.showScore = function () {
     var $dropZones = self.dropZones; // DOM objects
     task.dropZones.forEach((dropZone, dropZoneId) => {
       var $dropZone = $dropZones[i];
-      var acceptedNumber = dropZone.acceptedNumber;
       var status = $dropZone.getCompletedStatus();
-      if (status == true) {
+      if (status === true) {
         status = 'correct';
         dropZone.status = status;
         completedDZ++
-      } else {
+      }
+      else {
         status = 'wrong';
         dropZone.status = status;
       }
@@ -1496,7 +1508,8 @@ C.prototype.showScore = function () {
       if (this.options.behaviour.enableDroppedQuantity) {
         if (element.$.hasClass('h5p-correct-quantity')) {
           element.$.addClass('h5p-correct');
-        } else if (element.$.hasClass('h5p-incorrect-quantity')) {
+        }
+        else if (element.$.hasClass('h5p-incorrect-quantity')) {
           element.$.addClass('h5p-wrong');
         }
       }
@@ -1511,7 +1524,8 @@ C.prototype.showScore = function () {
   if (this.options.behaviour.enableDroppedQuantity) {
     var helpText = (this.options.behaviour.enableScoreExplanationQuantity)
       ? this.options.scoreExplanationQuantity : false;
-  } else {
+  }
+  else {
     var helpText = (this.options.behaviour.enableScoreExplanation && this.options.behaviour.applyPenalties)
       ? this.options.scoreExplanation : false;
   }
@@ -1577,10 +1591,10 @@ C.prototype.getCopyrights = function () {
   }
   return info;
 };
-C.prototype.getTitle = function() {
+C.prototype.getTitle = function () {
   return H5P.createTitle(this.options.question.settings.questionTitle);
 };
-C.prototype.shuffleDraggables = function() {
+C.prototype.shuffleDraggables = function () {
   // IF SHUFFLE/RANDOMIZE DRAGGABLES POSITIONS
   var self = this;
   var draggablePositions = [];
