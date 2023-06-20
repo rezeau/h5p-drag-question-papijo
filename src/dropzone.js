@@ -455,10 +455,10 @@ export default class DropZone {
     let nbPlacedDraggables = 0;
     let totalValue = 0;
     let completed = false;
-    let acceptedNumber = self.acceptedNumber;
-    let acceptedValue = self.acceptedValue;
+    const acceptedNumber = self.acceptedNumber;
+    const acceptedValue = self.acceptedValue;
     const dropZoneId = self.id;
-    //const solutions = solutions[dropZoneId];
+    const currSolutions = solutions[dropZoneId];
     let oknb = false;
     let okval = false;
 
@@ -479,7 +479,7 @@ export default class DropZone {
       nbDraggablesInZone ++;
       const dragId = draggable.id;
       const dragVal = draggable.value;
-      const dragOkDZ = $.inArray(dragId, solutions);
+      const dragOkDZ = $.inArray(dragId, currSolutions);
       oknb = false;
       if (nbPlacedDraggables > acceptedNumber) {
         continue;
