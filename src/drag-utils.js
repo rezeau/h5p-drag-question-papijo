@@ -29,6 +29,7 @@ export default class DragUtils {
     }
 
     opacity = (opacity === undefined ? 1 : opacity / 100);
+    let properties = {};
 
     // Private. Get css properties objects.
     function getProperties(property, value) {
@@ -40,27 +41,26 @@ export default class DragUtils {
             borderBottomColor: value,
             borderLeftColor: value
           };
-
         default:
-          var properties = {};
           properties[property] = value;
           return properties;
       }
     }
 
-    var original = $element.css(property);
+    let original = $element.css(property);
 
     // Reset css to be sure we're using CSS and not inline values.
-    var properties = getProperties(property, '');
+    properties = getProperties(property, '');
     $element.css(properties);
 
     // Determine prop and assume all props are the same and use the first.
-    for (var prop in properties) {
+    let prop;
+    for (prop in properties) {
       break;
     }
 
     // Get value from css
-    var style = $element.css(prop);
+    let style = $element.css(prop);
     if (style === '' || style === 'none') {
       // No value from CSS, fall back to original
       style = original;
@@ -84,11 +84,11 @@ export default class DragUtils {
     if (!style) {
       return;
     }
-    var colorStart = style.indexOf(prefix);
+    let colorStart = style.indexOf(prefix);
 
     while (colorStart !== -1) {
-      var colorEnd = style.indexOf(')', colorStart);
-      var channels = style.substring(colorStart + prefix.length, colorEnd).split(',');
+      let colorEnd = style.indexOf(')', colorStart);
+      let channels = style.substring(colorStart + prefix.length, colorEnd).split(',');
 
       // Set alpha channel
       channels[3] = (channels[3] !== undefined ? parseFloat(channels[3]) * alpha : alpha);
@@ -110,11 +110,11 @@ export default class DragUtils {
    * @param {Element} element
    */
   static elementToDraggable(draggables, element) {
-    for (var i = 0; i < draggables.length; i++) {
+    for (let i = 0; i < draggables.length; i++) {
       if (!draggables[i]) {
         continue;
       }
-      var result = draggables[i].findElement(element);
+      let result = draggables[i].findElement(element);
       if (result) {
         result.draggable = draggables[i];
         return result;
@@ -130,7 +130,7 @@ export default class DragUtils {
    * @param {Element} element
    */
   static elementToDropZone(dropZones, element) {
-    for (var i = 0; i < dropZones.length; i++) {
+    for (let i = 0; i < dropZones.length; i++) {
       if (dropZones[i].$dropZone.is(element)) {
         return dropZones[i];
       }
@@ -181,7 +181,7 @@ export default class DragUtils {
    * @return {string}
    */
   static strip(html) {
-    var tmp = document.createElement('div');
+    let tmp = document.createElement('div');
     tmp.innerHTML = html;
     return tmp.textContent || tmp.innerText || '';
   }
