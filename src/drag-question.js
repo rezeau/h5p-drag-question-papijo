@@ -1053,10 +1053,7 @@ C.prototype.reTry = function (forceReset) {
   });
   //Enables Draggables
   this.enableDraggables();
-  // IF SHUFFLE/RANDOMIZE DRAGGABLES POSITIONS
-  if (self.options.behaviour.randomizeDraggables) {
-    this.shuffleDraggables();
-  }
+
   //Only reset position and feedback if we are not keeping the correct answers.
   // Do not reset positions if previous state is being restored. WHY NOT? dove
   if (this.options.behaviour.enableDroppedQuantity) {
@@ -1576,11 +1573,12 @@ C.prototype.getTitle = function () {
 C.prototype.shuffleDraggables = function () {
   // IF SHUFFLE/RANDOMIZE DRAGGABLES POSITIONS
   let draggablePositions = [];
-  // Put current draggables coordinates into an array (except for
-  // the multiple draggables which cannot be shuffled at the moment).
+  // Put current draggables coordinates into an array.
   // Check that the draggable does have elements, exclude distracters.
+  // Do not shuffle the multiple draggables if content state has been saved at least once.
   this.draggables.forEach(draggable => {
-    if (draggable.elements && !draggable.multiple) {
+    //if (draggable.elements && !draggable.multiple) {
+    if (draggable.elements && !(draggable.multiple && this.hasSavedState)) {
       draggablePositions.push([draggable.x, draggable.y]);
     }
   });
@@ -1589,8 +1587,8 @@ C.prototype.shuffleDraggables = function () {
   let skipIt = 0;
   for (let i = 0; i < this.draggables.length; i++) {
     const draggable = this.draggables[i];
-    // Do not shuffle the multiple draggables --- too complicated. Maybe later...
-    if (draggable === undefined || draggable.multiple) {
+    // Do not shuffle the multiple draggables if content state has been saved at least once.
+    if (draggable === undefined || (draggable.multiple && this.hasSavedState)) {
       skipIt++;
       continue;
     }

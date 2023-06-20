@@ -867,7 +867,7 @@
         "name": "randomizeDraggables",
         "type": "boolean",
         "label": "Randomize the position of the draggable elements",
-        "description": "Check this option if you want to randomize the position of the draggable elements (except for the multiple draggables).",
+        "description": "Check this option if you want to randomize the position of the draggable elements. Note that the 'multiple' draggables can only be shuffled once.",
         "importance": "low",
         "default": false
       },
