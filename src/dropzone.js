@@ -6,17 +6,16 @@ export default class DropZone {
 
   /**
    * Creates a new drop zone instance.
-   * Makes it easy to keep track of all instance variables.
+   * Makes it easy to keep track of all instance constiables.
    *
    * @param {Object} dropZone
    * @param {Number} id
    * @param {string[]} l10n
    * @returns {_L8.DropZone}
    */
-  constructor (dropZone, id, l10n) {
-    var self = this;
+  constructor(dropZone, id, l10n) {
+    const self = this;
     H5P.EventDispatcher.call(self);
-																		7
     self.id = id;
     self.showLabel = dropZone.showLabel;
     self.label = dropZone.label;
@@ -45,19 +44,19 @@ export default class DropZone {
    * @returns {undefined}
    */
   appendTo($container, draggables) {
-    var self = this;
+    const self = this;
 
     // Prepare inner html with prefix for good a11y
-    var html = '<div class="h5p-inner" style="color:' + self.dropzonebordercolor + ';"></div>';
-    var extraClass = '';
+    let html = '<div class="h5p-inner" style="color:' + self.dropzonebordercolor + ';"></div>';
+    let extraClass = '';
     if (self.showLabel) {
       html = '<div class="h5p-label">' + self.label + '<span class="h5p-hidden-read"></span></div>' + html;
       extraClass = ' h5p-has-label';
     }
     html = '<span class="h5p-hidden-read">' + (self.l10n.prefix.replace('{num}', self.id + 1)) + '</span>' + html;
 
-    var opacity = self.backgroundOpacity / 100;
-    var style = self.background;
+    const opacity = self.backgroundOpacity / 100;
+    let style = self.background;
     style = DragUtils.setAlphas(style, 'rgba(', opacity); // Update rgba
     style = DragUtils.setAlphas(style, 'rgb(', opacity); // Convert rgb
 
@@ -79,76 +78,75 @@ export default class DropZone {
     })
       .appendTo($container)
       .children('.h5p-inner')
-        .droppable({
-          activeClass: 'h5p-active',
-          tolerance: 'intersect',
-          accept: function (element) {
-            /**
-             * Functional note:
-             * This will fire every time a draggable is starting to get dragged, globally
-             * for all initialized drop zones  <-> draggables. That means in a compound H5P this
-             * function will fire for all Drag Questions within that compound content type,
-             * no matter if it is at a different timestamp, already completed or otherwise
-             * intuitively would be disabled. This can lead to some unexpected behaviour if you
-             * don't take this into consideration.
-             */
+      .droppable({
+        activeClass: 'h5p-active',
+        tolerance: 'intersect',
+        accept: function (element) {
+          /**
+         * Functional note:
+         * This will fire every time a draggable is starting to get dragged, globally
+         * for all initialized drop zones  <-> draggables. That means in a compound H5P this
+         * function will fire for all Drag Questions within that compound content type,
+         * no matter if it is at a different timestamp, already completed or otherwise
+         * intuitively would be disabled. This can lead to some unexpected behaviour if you
+         * don't take this into consideration.
+         */
 
-            // Find draggable element belongs to
-            var result = DragUtils.elementToDraggable(draggables, element);
+          // Find draggable element belongs to
+          const result = DragUtils.elementToDraggable(draggables, element);
 
-            // Found no Draggable that the element belongs to. Don't accept it.
-            if (!result) {
-              return false;
-            }
+          // Found no Draggable that the element belongs to. Don't accept it.
+          if (!result) {
+            return false;
+          }
 
-            // Figure out if the drop zone will accept the draggable
-            return self.accepts(result.draggable, draggables);
-          },
-          drop: function (event, ui) {
-            var $this = $(this);
-            // JR
-            if (self.single) {
-              for (var i = 0; i < draggables.length; i++) {
-                if (draggables[i] && draggables[i].isInDropZone(self.id)) {
-                  var currentDraggable = draggables[i];
-                  var isMultiple = currentDraggable.multiple;
-                  // TODO if currentDraggable is multiple just do not accept another one.
-                  if (!isMultiple) {
-                    currentDraggable.resetPosition();
-                  }
-                  continue;
+          // Figure out if the drop zone will accept the draggable
+          return self.accepts(result.draggable, draggables);
+        },
+        drop: function (event, ui) {
+          const $this = $(this);
+          if (self.single) {
+            for (let i = 0; i < draggables.length; i++) {
+              if (draggables[i] && draggables[i].isInDropZone(self.id)) {
+                const currentDraggable = draggables[i];
+                const isMultiple = currentDraggable.multiple;
+                // TODO if currentDraggable is multiple just do not accept another one.
+                if (!isMultiple) {
+                  currentDraggable.resetPosition();
                 }
+                continue;
               }
             }
-            //DragUtils.setOpacity($this.removeClass('h5p-over'), 'background', self.backgroundOpacity);
-            var opacity = self.backgroundOpacity / 100;
-            var style = self.background;
-            style = DragUtils.setAlphas(style, 'rgba(', opacity); // Update rgba
-            style = DragUtils.setAlphas(style, 'rgb(', opacity); // Convert rgb
-            $this.css({
-              backgroundColor: style
-            });
-
-            ui.draggable.data('addToZone', self.id);
-
-            if (self.getIndexOf(ui.draggable) === -1) {
-              // Add to alignables
-              self.alignables.push(ui.draggable);
-            }
-
-            if (self.autoAlignable.enabled) {
-              // Trigger alignment
-              self.autoAlign();
-            }
-          },
-          over: function () {
-            DragUtils.setOpacity($(this).addClass('h5p-over'), 'background', self.backgroundOpacity);
-          },
-          out: function () {
-            DragUtils.setOpacity($(this).removeClass('h5p-over'), 'background', self.backgroundOpacity);
           }
-        })
-        .end()
+          //DragUtils.setOpacity($this.removeClass('h5p-over'), 'background', self.backgroundOpacity);
+          const opacity = self.backgroundOpacity / 100;
+          let style = self.background;
+          style = DragUtils.setAlphas(style, 'rgba(', opacity); // Update rgba
+          style = DragUtils.setAlphas(style, 'rgb(', opacity); // Convert rgb
+          $this.css({
+            backgroundColor: style
+          });
+
+          ui.draggable.data('addToZone', self.id);
+
+          if (self.getIndexOf(ui.draggable) === -1) {
+            // Add to alignables
+            self.alignables.push(ui.draggable);
+          }
+
+          if (self.autoAlignable.enabled) {
+            // Trigger alignment
+            self.autoAlign();
+          }
+        },
+        over: function () {
+          DragUtils.setOpacity($(this).addClass('h5p-over'), 'background', self.backgroundOpacity);
+        },
+        out: function () {
+          DragUtils.setOpacity($(this).removeClass('h5p-over'), 'background', self.backgroundOpacity);
+        }
+      })
+      .end()
       .focus(function () {
         if ($tip instanceof H5P.jQuery) {
           $tip.attr('tabindex', '0');
@@ -161,7 +159,7 @@ export default class DropZone {
       });
 
     // Add tip after setOpacity(), so this does not get background opacity:
-    var $tip = H5P.JoubelUI.createTip(self.tip, {
+    const $tip = H5P.JoubelUI.createTip(self.tip, {
       tipLabel: self.l10n.tipLabel,
       tabcontrol: true
     });
@@ -176,7 +174,7 @@ export default class DropZone {
     }
 
     draggables.forEach(function (draggable) {
-      var dragEl = draggable.element.$;
+      const dragEl = draggable.element.$;
 
       // Add to alignables
       if (draggable.isInDropZone(self.id) && self.getIndexOf(dragEl) === -1) {
@@ -206,7 +204,7 @@ export default class DropZone {
    * Help determine if the drop zone can accept this draggable
    */
   accepts(draggable, draggables) {
-    var self = this;
+    const self = this;
     if (!draggable.hasDropZone(self.id)) {
       // Doesn't belong in this drop zone
       return false;
@@ -214,18 +212,18 @@ export default class DropZone {
     // JR if SINGLE dropzone is occupied AND option resetSingleDraggables AND current draggable is NOT multiple, then accept new one (for swapping).
     if (self.single) {
       // Find out if dropzone is currently occupied.
-      for (var i = 0; i < draggables.length; i++) {
+      for (let i = 0; i < draggables.length; i++) {
         if (draggables[i] && draggables[i].isInDropZone(self.id)) {
-          // This drop zone is occupied.
-          var currentDraggable = draggables[i];
-          var isCorrect = false;
+        // This drop zone is occupied.
+          const currentDraggable = draggables[i];
+          let isCorrect = false;
           currentDraggable.elements.forEach(element => {
             if (element.$.hasClass('h5p-correct')) {
               isCorrect = true;
-            };
+            }
           });
           // Do not allow to drag an element in the zone it actually occupies!
-          if (!self.resetSingleDraggables || currentDraggable.multiple || isCorrect || draggable.id == currentDraggable.id) {
+          if (!self.resetSingleDraggables || currentDraggable.multiple || isCorrect || draggable.id ===      currentDraggable.id) {
             return false;
           }
         }
@@ -241,9 +239,9 @@ export default class DropZone {
    * @return {number}
    */
   getIndexOf($alignable) {
-    var self = this;
+    const self = this;
 
-    for (var i = 0; i < self.alignables.length; i++) {
+    for (let i = 0; i < self.alignables.length; i++) {
       if (self.alignables[i][0] === $alignable[0]) {
         return i;
       }
@@ -258,10 +256,10 @@ export default class DropZone {
    * @param {jQuery} $alignable
    */
   removeAlignable($alignable) {
-    var self = this;
+    const self = this;
 
     // Find alignable index
-    var index = self.getIndexOf($alignable);
+    const index = self.getIndexOf($alignable);
     if (index !== -1) {
 
       // Remove alignable
@@ -281,41 +279,44 @@ export default class DropZone {
    * Auto-align alignable elements inside drop zone.
    */
   autoAlign() {
-    var self = this;
+    const self = this;
     // Determine container size in order to calculate percetages
     // TODO JR does not work as expected in contracts (i.e. drag & drop activity within Course Presentation or Quiz)
-    var containerSize = self.$dropZone.parent()[0].getBoundingClientRect();
+    const containerSize = self.$dropZone.parent()[0].getBoundingClientRect();
 
     // Calcuate borders and spacing values in percetage
-    var spacing = {
+    const spacing = {
       x: (self.autoAlignable.spacing / self.autoAlignable.size.width) * 100,
       y: (self.autoAlignable.spacing / self.autoAlignable.size.height) * 100
     };
-    
+
     // Determine coordinates for first 'spot'
-    var pos = {
+    const pos = {
       x: self.x + spacing.x,
       y: self.y + spacing.y
     };
 
     // Determine space inside drop zone
-    var dropZoneSize = self.$dropZone[0].getBoundingClientRect();
-    var space = {
+    const dropZoneSize = self.$dropZone[0].getBoundingClientRect();
+    const space = {
       x: dropZoneSize.width - (spacing.x * 2),
       y: dropZoneSize.height - (spacing.y * 2)
     };
 
     // Set current space left inside drop zone
-    var spaceLeft = {
+    const spaceLeft = {
       x: space.x,
       y: space.y
     };
 
     // Set height for the active row of elements
-    var currentRowHeight = 0;
+    let currentRowHeight = 0;
 
-    // Current alignable element and it's size
-    var $alignable, alignableSize;
+    // Current alignable element and its size
+    //const $alignable;
+    //let alignableSize;
+    let $alignable;
+    let alignableSize;
 
     /**
      * Helper doing the actual positioning of the element + recalculating
@@ -323,7 +324,7 @@ export default class DropZone {
      *
      * @private
      */
-    var alignElement = function () {
+    const alignElement = function () {
       // Position element at current spot
       $alignable.css({
         left: pos.x + '%',
@@ -332,12 +333,12 @@ export default class DropZone {
       self.trigger('elementaligned', $alignable);
 
       // Update horizontal space left + next position
-      var spaceDiffX = (alignableSize.width + self.autoAlignable.spacing);
+      const spaceDiffX = (alignableSize.width + self.autoAlignable.spacing);
       spaceLeft.x -= spaceDiffX;
       pos.x += (spaceDiffX / containerSize.width) * 100;
-      
+
       // Keep track of the highest element in this row
-      var spaceDiffY = (alignableSize.height + self.autoAlignable.spacing);
+      const spaceDiffY = (alignableSize.height + self.autoAlignable.spacing);
       if (spaceDiffY > currentRowHeight) {
         currentRowHeight = spaceDiffY;
       }
@@ -345,7 +346,7 @@ export default class DropZone {
 
     // Try to order and align the alignables inside the drop zone
     // (in the order they were added)
-    for (var i = 0; i < self.alignables.length; i++) {
+    for (let i = 0; i < self.alignables.length; i++) {
       // Determine alignable size
       $alignable = self.alignables[i];
       alignableSize = $alignable[0].getBoundingClientRect();
@@ -398,31 +399,33 @@ export default class DropZone {
   markResult(status) {
     this.$dropZone.children('.h5p-inner').addClass('h5p-dropzone-' + status + '-answer');
   }
-  
+
   /**
    * REmove the current drop zone correct mark.
    */
   unmarkResult(status, keepCorrectAnswers, disableCompletedDropZones, forceReset) {
-  
-  	// Status true = dropzone is correct ; status false = dropzone is incorrect.
-  	if (status == false) {
-    	this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-wrong-answer');
-    	this.$dropZone.removeClass('h5p-dropzone-completed-answer');
-    } else if (keepCorrectAnswers && disableCompletedDropZones) {
-			// If dropzone is correct, then disable it, no more drops allowed!
-			this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", true );
-		} else {
-			// TODO
-			//this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer');
-		};
-		if (forceReset) {
-			this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer h5p-dropzone-wrong-answer');
-			// Re-enable dropzones droppable
-			this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", false );
-			this.$dropZone.removeClass('h5p-dropzone-completed-answer');
-		};
-  }  
-	
+
+    // Status true = dropzone is correct ; status false = dropzone is incorrect.
+    if (status === false) {
+      this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-wrong-answer');
+      this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+    }
+    else if (keepCorrectAnswers && disableCompletedDropZones) {
+      // If dropzone is correct, then disable it, no more drops allowed!
+      this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", true );
+    }
+    else {
+      // TODO
+      //this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer');
+    }
+    if (forceReset) {
+      this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer h5p-dropzone-wrong-answer');
+      // Re-enable dropzones droppable
+      this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", false );
+      this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+    }
+  }
+
   /**
    * Mark the current drop zone completed.
    */
@@ -434,39 +437,37 @@ export default class DropZone {
   }
 
   getCompletedStatus() {
-    var completed = this.$dropZone.hasClass('h5p-dropzone-completed-answer');
+    const completed = this.$dropZone.hasClass('h5p-dropzone-completed-answer');
     return completed;
   }
 
-/**
+  /**
    * JR enableDroppedQuantity Calculate score for this dropzone.
    *
    * @param {Array} draggables
    * @param {Array} solutions
-   * @param {H5P.Question.ScorePoints} scorePoints
    * @returns {number}
    */
-  
-  results(draggables, solutions, scorePoints) {
-    var self = this;
-    var points = 0;
-    var nbDraggablesInZone = 0;
-    var nbPlacedDraggables = 0;
-    var totalValue = 0;
-    var completed = false;
-    var acceptedNumber = self.acceptedNumber;
-    var acceptedValue = self.acceptedValue;
-    var dropZoneId = self.id;
-    var solutions = solutions[dropZoneId];
-    var oknb = false;
-    var okval = false;
-    
-    for (var i = 0; i < draggables.length; i++) {
-      var draggable = draggables[i];
+
+  results(draggables, solutions) {
+    const self = this;
+    let nbDraggablesInZone = 0;
+    let nbPlacedDraggables = 0;
+    let totalValue = 0;
+    let completed = false;
+    const acceptedNumber = self.acceptedNumber;
+    const acceptedValue = self.acceptedValue;
+    const dropZoneId = self.id;
+    const currSolutions = solutions[dropZoneId];
+    let oknb = false;
+    let okval = false;
+
+    for (let i = 0; i < draggables.length; i++) {
+      const draggable = draggables[i];
       if (draggable === undefined) {
         continue;
       }
-      var element = draggable.elements[0];
+      const element = draggable.elements[0];
       // Draggable not in dropZone
       // SEPT 2021 in Interactive Book papi Jo throws error "element is undefined" if click Summary &submit before any action.
       if (!element) {
@@ -476,57 +477,58 @@ export default class DropZone {
         continue;
       }
       nbDraggablesInZone ++;
-      var dragId = draggable.id;
-      var dragVal = draggable.value;
-      var dragOkDZ = $.inArray(dragId, solutions);
-      var oknb = false;                      
+      const dragId = draggable.id;
+      const dragVal = draggable.value;
+      const dragOkDZ = $.inArray(dragId, currSolutions);
+      oknb = false;
       if (nbPlacedDraggables > acceptedNumber) {
         continue;
       }
       if (dragOkDZ !== -1) {
         nbPlacedDraggables ++;
         totalValue += dragVal;
-      }   
-      if (acceptedNumber == undefined && totalValue == acceptedValue) {
-        oknb = true;                                                                                                                                  
       }
-      if (acceptedValue === undefined && nbPlacedDraggables == acceptedNumber) {
-        okval = true; 
-      }              
-			// In this use case, accept any number/value except empty number.         
-      if (acceptedNumber == undefined && acceptedValue === undefined && nbDraggablesInZone) {
-				oknb = true;
-				okval = true;
-			}
-      if (dragOkDZ !== -1 && (nbPlacedDraggables == acceptedNumber || oknb) && (totalValue === acceptedValue || okval) ) {
+      if (acceptedNumber === undefined && totalValue === acceptedValue) {
+        oknb = true;
+      }
+      if (acceptedValue === undefined && nbPlacedDraggables === acceptedNumber) {
+        okval = true;
+      }
+      // In this use case, accept any number/value except empty number.
+      if (acceptedNumber === undefined && acceptedValue === undefined && nbDraggablesInZone) {
+        oknb = true;
+        okval = true;
+      }
+      if (dragOkDZ !== -1 && (nbPlacedDraggables === acceptedNumber || oknb) && (totalValue === acceptedValue || okval) ) {
         completed = true;
-        self.markCompleted();                
-      } else {                                      
+        self.markCompleted();
+      }
+      else {
         completed = false;
-        self.unMarkCompleted();                                                                                              
-      }   
-    } 
-    // Use case of empty dropZone expecting 0 or undefined draggables AND 0 or undefined total value!   
-    if (nbDraggablesInZone === 0 && acceptedNumber === 0 && !acceptedValue) {
-			self.markCompleted();
-      return 1;                                                                                              
-    } 
-    
-    if (nbDraggablesInZone === 0 && acceptedNumber === undefined && acceptedValue !== undefined) {
-      return 0;                                                                                              
-    } 
-    
-    if (acceptedNumber == undefined && acceptedValue == undefined) {
-			self.markCompleted();
-			completed = true;                                                    
+        self.unMarkCompleted();
+      }
     }
-		                                           
-    for (var i = 0; i < draggables.length; i++) {
-      var draggable = draggables[i];
+    // Use case of empty dropZone expecting 0 or undefined draggables AND 0 or undefined total value!
+    if (nbDraggablesInZone === 0 && acceptedNumber === 0 && !acceptedValue) {
+      self.markCompleted();
+      return 1;
+    }
+
+    if (nbDraggablesInZone === 0 && acceptedNumber === undefined && acceptedValue !== undefined) {
+      return 0;
+    }
+
+    if (acceptedNumber === undefined && acceptedValue === undefined) {
+      self.markCompleted();
+      completed = true;
+    }
+
+    for (let i = 0; i < draggables.length; i++) {
+      const draggable = draggables[i];
       if (draggable === undefined) {
         continue;
-      }                                           
-      var element = draggable.elements[0];
+      }
+      const element = draggable.elements[0];
       // Draggable not in dropZone
       if (element.dropZone !== dropZoneId) {
         // Just in case it was previously added and element was moved away from dz!
@@ -536,19 +538,21 @@ export default class DropZone {
         continue;
       }
       element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
-      if (completed == true) {
+      if (completed === true) {
         element.$.addClass('h5p-correct-quantity');
-      } else if (completed == false) {
+      }
+      else if (completed === false) {
         element.$.addClass('h5p-incorrect-quantity');
       }
     }
-    
+
     if (completed === undefined) {
       self.unmarkResult();
-    }                   
-    if (completed === true) {                  
-      return 1;      
-    } else {                       
+    }
+    if (completed === true) {
+      return 1;
+    }
+    else {
       return 0;
     }
   }
