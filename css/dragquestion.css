@@ -344,11 +344,11 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   cursor: pointer;
 }
 /* JUNE 2023 */
+
 .h5p-dragquestion .h5p-question-solution:not(.h5p-correct) {
-  background-color: #d4f6e6!important;
-  color: black!important;
   border: 1px #255c41 dashed!important;
 }
+
 .h5p-dragquestion .h5p-wrong.h5p-question-solution:after {
   content: none!important;
 }

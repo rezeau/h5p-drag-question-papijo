@@ -1222,6 +1222,10 @@ C.prototype.showSolution = function () {
     }
     let z = 0;
     draggable.elements.forEach(element => {
+      let correct = element.$.hasClass('h5p-correct');
+      if (!correct) {
+        element.$.removeClass('h5p-wrong');
+      }
       // Remove display of possible +1 / -1 score suffix from element; only keep the correct check mark.
       if (element.$suffix) {
         element.$suffix.remove();
