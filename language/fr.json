@@ -1,28 +1,20 @@
 {
   "semantics": [
     {
-      "label": "Tutoriel & Exemples: <a href=\"http://www.h5p.rezeau.org\" target=\"_blank\" rel=\"noopener\">Papi Jo's H5P Moodle site</a></span>",
-      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
-    },
-    {
       "label": "Bouton \"Vérifier\"",
       "default": "Vérifier"
+    },
+    {
+      "label": "Submit answer button",
+      "default": "Submit"
     },
     {
       "label": "Bouton \"Recommencer\"",
       "default": "Recommencer"
     },
     {
-      "label": "Bouton \"Voir la solution\"",
-      "default": "Voir la solution"
-    },
-    {
       "label": "Texte d'explication du score",
-      "default": "Réponses correctes : +1 point. Réponses incorrectes : -1 point. Le score le plus bas possible est 0."
-    },
-    {
-      "label": "Texte d'explication des scores pour les zones de dépôt avec une quantité ou une valeur fixée.",
-      "default": "Les zones de dépôt correctement remplies ont une bordure verte et donnent 1 point. Les zones de dépôt incorrectement remplies ont une bordure rouge."
+      "default": "Les réponses correctes donnent droit à +1 point. Les réponses incorrectes à -1 point. Le score le plus bas possible est 0."
     },
     {
       "fields": [
@@ -30,48 +22,18 @@
           "label": "Réglages",
           "fields": [
             {
-              "label": "Titre de l'activité",
-              "default": "Glisser-déposer",
-              "description": "Utilisé dans les résumés, statistiques, etc."
-            },
-            {
-              "label": "Afficher le titre",
-              "description": "Décochez cette option si vous ne voulez pas que le titre de cette question s'affiche. Ce titre sera quand même affiché dans les résumés, les statistiques, etc. "
-            },
-            {
-              "label": "Consigne",
-              "default": "",
-              "font": {}
-            },
-            {
               "label": "Image d'arrière-plan",
               "description": "Sélectionnez une image d'arrière-plan pour votre activité (facultatif)."
             },
             {
-              "label": "Couleur de l'arrière-plan",
-              "description": "Couleur de l'arrière-plan de cette activité (s'il n'y a pas d'image d'arrière-plan).",
-              "default": "rgba(0, 0, 0, 0)",
-              "spectrum": {
-                "togglePaletteMoreText": "Voir plus",
-                "togglePaletteLessText": "Voir moins",                    
-                "chooseText": "Choisir cette couleur",
-                "cancelText": "Annuler"
-              }
-            },
-            {
               "label": "Taille de la zone de l'activité",
-              "description": "Spécifiez la hauteur et la largeur (en pixels) de la zone de l'activité.",
-              "default": {},
-              "fields": [
-                {},
-                {}
-              ]
+              "description": "Spécifiez la largeur et la hauteur (en pixels) de la zone de l'activité."
             }
           ]
         },
         {
           "label": "Éléments de l'activité",
-          "description": "Commencez par créer vos zones de dépôt.<br/>Ensuite, créez les éléments à glisser-déposer (texte ou image) et cochez la ou les zone(s) où ils pourront être glissés.<br/>Enfin, éditez de nouveau vos zones de dépôt et cochez les éléments qui devront y être <em>correctement</em> placées.",
+          "description": "Commencez par créer vos zones de dépôt.<br />Ensuite, créez les étiquettes à glisser en cochant la/les zone(s) où elles pourront être glissées.<br />Enfin, éditez de nouveau vos zones de dépôt et cochez les étiquettes qui devront y être correctement placées.",
           "fields": [
             {
               "label": "Eléments",
@@ -90,20 +52,12 @@
                     "label": "Sélectionnez les zones de dépôt"
                   },
                   {
-                    "label": "Opacité"
+                    "label": "Opacité",
+                    "description": "Reducing the opacity may result in an insufficient contrast and make the content not accessible."
                   },
                   {
                     "label": "Nombre illimité d'instances pour cet élément",
                     "description": "Cloner cet élément de sorte qu'il puisse être déposé dans plusieurs zones."
-                  },
-                  {
-                    "label": "Valeur",
-                    "description": "Définir une valeur pour cet élément glissable. Les valeurs négatives sont acceptées.",
-                    "showWhen": {
-                      "rules": [
-                        {}
-                      ]
-                    }
                   }
                 ]
               }
@@ -115,7 +69,8 @@
                 "label": "Zone de dépôt",
                 "fields": [
                   {
-                    "label": "Étiquette"
+                    "label": "Etiquette",
+                    "description": "The label is used by assistive technologies."
                   },
                   {
                     "label": "Afficher l'étiquette"
@@ -129,18 +84,7 @@
                   },
                   {
                     "label": "Opacité",
-                    "description": "Opacité de l'arrière-plan de cette zone"
-                  },
-                  {
-                    "label": "Couleur de la bordure",
-                    "description": "Couleur de la bordure de cette zone (si elle est activée)",
-                    "default": "rgb(102, 102, 102)",
-                    "spectrum": {
-                      "togglePaletteMoreText": "Voir plus",
-                      "togglePaletteLessText": "Voir moins",                    
-                      "chooseText": "Choisir cette couleur",
-                      "cancelText": "Annuler"
-                    }
+                    "description": "Reducing the opacity may result in an insufficient contrast and make the content not accessible."
                   },
                   {
                     "label": "Aides et commentaires",
@@ -149,59 +93,18 @@
                         "label": "Indice"
                       },
                       {
-                        "label": "Message qui apparaît si l'association des éléments est correcte (ou si la zone de dépôt est correctement remplie).",
-                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé correctement (ou si la zone de dépôt est correctement remplie)."
+                        "label": "Message qui apparaît si l'association des éléments est correcte",
+                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé correctement."
                       },
                       {
-                        "label": "Message qui apparaît si l'association des éléments est incorrecte (ou si la zone de dépôt est incorrectement remplie)",
-                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé incorrectement. Si l'option Quantité et Valeur des éléments à déposer est activée, ce message s'affichera si la zone de dépôt est incorrectement remplie. Dans ce cas, ce message peut être remplacé par les deux messages suivants, affichés en cas de nombre incorrect OU de valeur totale incorrecte."
-                      },
-                      {
-                        "label": "Message affiché pour un nombre incorrect",
-                        "description": "Ce message apparaîtra au-dessous de \"Vérifier\" si la zone de dépôt contient un nombre incorrect d'éléments. Vous pouvez utiliser les variables @requirednumber et @selectednumber dans votre message, par exemple : \"Désolé, vous avez sélectionné @selectednumber éléments, ce n'est pas correct. Vous auriez dû sélectionner @requirednumber\"",
-                        "showWhen": {
-                          "rules": [
-                            {}
-                          ]
-                        }
-                      },
-                      {
-                        "label": "Message affiché pour une valeur totale incorrecte",
-                        "description": "Ce message apparaîtra au-dessous de  \"Vérifier\" si la zone de dépôt contient une valeur totale incorrecte. Vous pouvez utiliser les variables @requiredvalue et @totalvalue dans votre message, par exemple : \"Désolé, les éléments que vous avez sélectionnés totalisent une valeur de @totalvalue ; leur somme devrait être égale à @requiredvalue\". Vous pouvez également utiliser les variables @oppositerequiredvalue et @oppositetotalvalue si nécessaire.",
-                        "showWhen": {
-                          "rules": [
-                            {}
-                          ]
-                        }
+                        "label": "Message qui apparaît si l'association des éléments est incorrecte",
+                        "description": "Ce message apparaîtra au-dessous de \"vérifier\" si l'élément est placé incorrectement."
                       }
                     ]
                   },
                   {
                     "label": "Cette zone de dépôt ne peut contenir qu'un seul élément",
-                    "description": "Assurez-vous qu'il n'existe qu'une seule bonne réponse pour cette zone",
-                    "showWhen": {
-                      "rules": [
-                        {}
-                      ]
-                    }
-                  },
-                  {
-                    "label": "Combien d'éléments cette zone de dépôt doit-elle contenir ?",
-                    "description": "Nombre exact d'éléments à glisser-déposer prévus dans cette zone de dépôt.",
-                    "showWhen": {
-                      "rules": [
-                        {}
-                      ]
-                    }
-                  },
-                  {
-                    "label": "Valeur totale des éléments déposés",
-                    "description": "Indiquez la valeur totale des éléments déposés dans cette zone",
-                    "showWhen": {
-                      "rules": [
-                        {}
-                      ]
-                    }
+                    "description": "Assurez-vous qu'il n'existe qu'une seule bonne réponse pour cette zone"
                   },
                   {
                     "label": "Activer l'alignement automatique des éléments déplacés",
@@ -215,7 +118,7 @@
       ]
     },
     {
-      "label": "Feedback global",
+      "label": "Feedback général",
       "fields": [
         {
           "widgets": [
@@ -224,14 +127,14 @@
             }
           ],
           "label": "Définissez le feedback pour chaque intervalle de scores",
-          "description": "Cliquez sur le bouton \"Ajouter un intervalle\" pour ajouter autant d'intervalles de score que vous le souhaitez. Exemple: 0-20% Mauvais score, 21-91% Score moyen, 91-100% Score excellent !",
-          "entity": "un intervalle",
+          "description": "Cliquez sur le bouton \"Ajouter Intervalle\" pour ajouter autant d'intervalles de score que vous le souhaitez. Exemple: 0-20% Mauvais score, 21-91% Score moyen, 91-100% Score excellent !",
+          "entity": "intervalle",
           "field": {
             "fields": [
               {
-                "label": "Intervalles"
+                "label": "Intervalle des scores"
               },
-              {"warning":"do not delete or translate this bracketed element!"},
+              {},
               {
                 "label": "Feedback pour un intervalle de scores défini",
                 "placeholder": "Remplissez le feedback"
@@ -242,30 +145,14 @@
       ]
     },
     {
-      "label": "Options générales",
-      "description": "Ces options vous permettent de contrôler le déroulement de cette activité.",
+      "label": "Paramètres comportementaux",
+      "description": "Ces options vous permettent de contrôler le déroulement de vos activités.",
       "fields": [
         {
           "label": "Activer le bouton \"Recommencer\""
         },
         {
-          "label": "Activer la quantité (ou la valeur totale) des éléments à faire glisser dans les zones de dépôt.",
-          "description": "Cochez cette option pour afficher les champs 'Nombre exact' et 'Valeur totale' des éléments qui peuvent être déposés dans chaque zone de dépôt."
-        },
-        {
-          "label": "Activer le bouton \"Montrer la solution\""
-        },
-        {
-          "label": "Obliger l'utilisateur à saisir une réponse avant de pouvoir afficher la correction.",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
-        },
-        {
-          "label": "Supprimer les styles 'correct' et 'incorrect'.",
-          "description": "Supprimer les styles 'correct' et 'incorrect' sur les éléments à glisser-déposer peut être utile lorsqu'on affiche un puzzle entièrement achevé."
+          "label": "Activer le bouton \"Vérifier\""
         },
         {
           "label": "Donner un point pour la question dans sa globalité",
@@ -277,77 +164,15 @@
         },
         {
           "label": "Activer les explications du score",
-          "description": "Montrer l'explication du score aux utilisateurs en vérifiant leurs réponses (si l'option 'Appliquer les pénalités' a été sélectionnée).",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
+          "description": "Montrer l'explication du score aux utilisateurs en vérifiant leurs réponses (si l'option 'Appliquer les pénalités' a été séléctionné)."
         },
         {
-          "label": "Activer les explications du score.",
-          "description": "Activer l'explication de score pour le mode Quantité/Valeur totale des éléments à glisser-déposer.",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
-        },
-        {
-          "label": "Conserver les réponses correctes",
-          "description": "Cochez cette option si vous voulez conserver les éléments de glisser-déposer correctement placés lorsque vous cliquez le bouton  \"Recommencer\"."
-        },
-        {
-          "label": "Désactiver les zones de dépôt",
-          "description": "Cochez cette option si vous voulez qu'il soit interdit de faire glisser des éléments à l'intérieur ou à l'extérieur des zones de dépôt correctement remplies.",
-          "showWhen": {
-            "rules": [
-              {}
-            ]
-          }
-        },
-        {
-          "label": "Afficher les éléments à glisser-déposer dans le désordre.",
-          "description": "Cochez cette option pour mélanger l'ordre d'affichage des éléments à chaque nouvelle tentative (sauf pour ceux à affichage multiple)."
-        },
-        {
-          "label": "Renvoyer les éléments à glisser-déposer à leur place de départ.",
-          "description": "Cochez cette option pour Renvoyer les éléments à glisser-déposer à leur place de départ lors du dépôt d'un nouvel élément (ne fonctionne qu'avec les zones ne pouvant comporter qu'un seul élément)."
-        },
-        {
-          "label": "Opacité des éléments déplaçables",
-          "description": "Si ce champ est défini, l'opacité définie individuellement sur tous les éléments déplaçables sera annulée. Cette valeur doit être un nombre compris entre 0 et 100, 0 signifiant transparence totale et 100 signifiant absence de transparence."
-        },
-        {
-          "label": "Opacité des zones de dépôt",
-          "description": "Si ce champ est défini, l'opacité définie individuellement sur toutes les zones de dépôt sera annulée. Cette valeur doit être un nombre compris entre 0 and 100, où 0 correspond à une transparence absolue and 100 à une opacité complète."
-        },
-        {
-          "label": "Couleur d'arrière-plan des zones de dépôt",
-          "description": "La couleur de fond des zones de dépôt. La valeur par défaut est rgb (245, 245, 245)",
-          "default": "rgb(245, 245, 245)",
-          "spectrum": {
-            "togglePaletteMoreText": "Voir plus",
-            "togglePaletteLessText": "Voir moins",                    
-            "chooseText": "Choisir cette couleur",
-            "cancelText": "Annuler"
-          }
-        },
-        {
-          "label": "Couleur de la bordure des zones de dépôt",
-          "description": "Si cette couleur est définie, elle remplacera la couleur individuelle des bordures des zones de dépôt. Pour désactiver la couleur de remplacement, sélectionnez le premier paramètre de palette, rgba (0,0,0,0,).",
-          "default": "rgba(0, 0, 0, 0)",
-          "spectrum": {
-            "togglePaletteMoreText": "Voir plus",
-            "togglePaletteLessText": "Voir moins",                    
-            "chooseText": "Choisir cette couleur",
-            "cancelText": "Annuler"
-          }
+          "label": "Opacité des étiquettes",
+          "description": "Si vous remplissez ce champ, la valeur d'opacité choisie enlevera la valeur de l'opacité paramétrée avant pour toutes les étiquettes. Cette valeur doit être un nombre compris entre 0 and 100, où 0 correspond à une transparence absolue and 100 à une opacité complète."
         },
         {
           "label": "Mise en évidence de la zone de dépôt",
           "description": "Choisissez quand mettre en évidence la zone de dépôt.",
-          "default": "dragging",
           "options": [
             {
               "label": "Lors du glisser-déposer"
@@ -368,17 +193,21 @@
           "description": "Cochez cette option pour autoriser le mode Plein écran."
         },
         {
-          "label": "Afficher les points obtenus",
+          "label": "Montrer les points de votre score",
           "description": "Afficher les points obtenus pour chaque réponse. Indisponible quand l'option 'Donner un point pour la question dans sa globalité' est activée."
         },
         {
-          "label": "Afficher les icônes Correct/Incorrect et les scores horizontalement",
-          "description": "Cochez cette option pour afficher les icônes correct/incorrect et les points marqués <em>horizontalement</em> au lieu de verticalement par défaut."
+          "label": "Afficher le titre",
+          "description": "Décochez cette option si vous ne voulez pas que ce titre soit affiché. Le titre ne sera affiché que dans les résumés, les statistiques, etc."
+        },
+        {
+          "label": "Montrer les Poignées de Déplacement (nouveau look uniquement)",
+          "description": "Change l'état de visibilité des poignées permettant de déplacer des éléments sur le canevas"
         }
       ]
-    },  
+    },
     {
-      "label": "Traduction de l'interface",
+      "label": "Localiser",
       "fields": [
         {
           "label": "Texte pour ouvrir en plein écran",
@@ -391,73 +220,56 @@
       ]
     },
     {
-      "label": "Préfixe",
+      "label": "Grabbable prefix",
       "default": "Eléments déplaçables {num} de {total}."
     },
     {
-      "label": "Suffixe",
-      "default": "Déposé dans la zone {num}."
+      "label": "Grabbable suffix",
+      "default": "Placed in dropzone {num}."
     },
     {
-      "label": "Préfixe de la zone de Dépôt",
-      "default": "Zone {num} sur {total}."
+      "label": "Préfix de la zone de Dépôt",
+      "default": "Dropzone {num} of {total}."
     },
     {
-      "label": "Pas d'étiquette pour la sélection de la zone de dépôt",
+      "label": "Pas d'étiquette pour la séléction de la zone de dépôt",
       "default": "Pas de zone de dépôt."
     },
     {
-      "label": "Étiquette pour montrer le bouton d'indice",
+      "label": "Etiquette pour montrer le bouton d'indice",
       "default": "Montrer l'indice."
     },
     {
-      "label": "Étiquette pour l'indice disponible",
+      "label": "Etiquette pour l'indice disponible",
       "default": "Indice disponible"
     },
     {
-      "label": "Étiquette pour une bonne réponse",
+      "label": "Etiquette pour une bonne réponse",
       "default": "Bonne réponse"
     },
     {
-      "label": "Étiquette pour une mauvaise réponse",
+      "label": "Etiquette pour une mauvaise réponse",
       "default": "Réponse incorrecte"
     },
     {
-      "label": "Étiquette pour un nombre correct d'éléments déposés dans une zone",
-      "default": "Éléments corrects :&nbsp;"
-    },
-    {
-      "label": "Étiquette pour un nombre incorrect d'éléments déposés dans une zone",
-      "default": "Éléments incorrects :&nbsp;"
-    },
-    {
-      "label": "Étiquette pour la valeur totale correcte des éléments déposés dans une zone",
-      "default": "Valeur totale correcte :&nbsp;"
-    },
-    {
-      "label": "Étiquette pour une valeur totale incorrecte des éléments déposés dans une zone",
-      "default": "Valeur totale incorrecte :&nbsp;"
-    },
-    {
       "label": "Intitulé de l'espace contenant des feedbacks pour des réponses correctes/incorrectes",
-      "default": "Feedback"
+      "default": "Commentaire de retour"
     },
     {
       "label": "Représentation textuelle du panneau du score pour les utilisateurs des outils de la vocalisation (comme ReadSpeaker)",
-      "default": "Vous avez obtenu un total de :num sur :points"
+      "default": "Vous avez :num out de :points au total"
     },
     {
-      "label": "Représentation textuelle de l'explication du bouton de score",
-      "default": "Montrer l'explication du score"
+      "label": "Représentation textuelle du bouton de l'explication de votre score",
+      "default": "Montrer l'explication de votre score"
     },
     {
-      "label": "Description de l'affichage de la solution",
-      "default": "L'activité a été mise à jour pour afficher la solution.",
-      "description": "Ce texte indique à l'utilisateur que l'activité a été mise à jour avec l'affichage de la solution."
+      "label": "Assistive technology label for \"Check\" button",
+      "default": "Check the answers. The responses will be marked as correct, incorrect, or unanswered."
     },
     {
-      "label": "Texte pour le message \"Réponse requise\"",
-      "default": "Veuillez répondre avant de voir la solution"
+      "label": "Vignette de technologie fonctionnelle pour la touche « Réessayer »",
+      "default": "Réessayer la tâche. Réinitialiser toutes les réponses et recommencer la tâche."
     }
   ]
 }

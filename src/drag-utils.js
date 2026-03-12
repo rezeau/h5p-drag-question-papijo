@@ -2,18 +2,6 @@
 export default class DragUtils {
 
   /**
-   * Makes element background transparent.
-   *
-   * @param {jQuery} $element
-   * @param {Number} opacity
-   */
-  static setElementOpacity($element, opacity) {
-    DragUtils.setOpacity($element, 'borderColor', opacity);
-    DragUtils.setOpacity($element, 'boxShadow', opacity);
-    DragUtils.setOpacity($element, 'background', opacity);
-  }
-
-  /**
    * Makes element background, border and shadow transparent.
    *
    * @param {jQuery} $element
@@ -29,7 +17,6 @@ export default class DragUtils {
     }
 
     opacity = (opacity === undefined ? 1 : opacity / 100);
-    let properties = {};
 
     // Private. Get css properties objects.
     function getProperties(property, value) {
@@ -41,35 +28,60 @@ export default class DragUtils {
             borderBottomColor: value,
             borderLeftColor: value
           };
+
         default:
+          var properties = {};
           properties[property] = value;
           return properties;
       }
     }
 
-    let original = $element.css(property);
+    var original = $element.css(property);
 
     // Reset css to be sure we're using CSS and not inline values.
-    properties = getProperties(property, '');
+    var properties = getProperties(property, '');
     $element.css(properties);
 
     // Determine prop and assume all props are the same and use the first.
-    let prop;
-    for (prop in properties) {
+    for (var prop in properties) {
       break;
     }
 
     // Get value from css
-    let style = $element.css(prop);
+    var style = $element.css(prop);
     if (style === '' || style === 'none') {
       // No value from CSS, fall back to original
       style = original;
     }
 
+    style = DragUtils.convertSrgbToRgba(style); // Convert srgb to rgba
     style = DragUtils.setAlphas(style, 'rgba(', opacity); // Update rgba
     style = DragUtils.setAlphas(style, 'rgb(', opacity); // Convert rgb
 
     $element.css(getProperties(property, style));
+  }
+
+  /**
+   * Convert color(srgb ...) format to rgba format.
+   * @param {string} srgbColor Color string in srgb format
+   * @returns {string} Color string in rgba format
+   */
+  static convertSrgbToRgba(srgbColor) {
+    if (!srgbColor) {
+      return srgbColor;
+    }
+
+    const srgbPattern = /color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\s*\)/;
+    const match = srgbColor.match(srgbPattern);
+
+    if (!match) {
+      return srgbColor;
+    }
+
+    const [, r, g, b, a] = match;
+    const alpha = (a !== undefined) ? parseFloat(a) : 1;
+
+    return `rgba(${Math.round(parseFloat(r) * 255)}, ${Math.round(parseFloat(g) * 255)}, ${Math.round(parseFloat(b) * 255)}, ${alpha})`;
   }
 
   /**
@@ -84,11 +96,11 @@ export default class DragUtils {
     if (!style) {
       return;
     }
-    let colorStart = style.indexOf(prefix);
+    var colorStart = style.indexOf(prefix);
 
     while (colorStart !== -1) {
-      let colorEnd = style.indexOf(')', colorStart);
-      let channels = style.substring(colorStart + prefix.length, colorEnd).split(',');
+      var colorEnd = style.indexOf(')', colorStart);
+      var channels = style.substring(colorStart + prefix.length, colorEnd).split(',');
 
       // Set alpha channel
       channels[3] = (channels[3] !== undefined ? parseFloat(channels[3]) * alpha : alpha);
@@ -110,11 +122,11 @@ export default class DragUtils {
    * @param {Element} element
    */
   static elementToDraggable(draggables, element) {
-    for (let i = 0; i < draggables.length; i++) {
+    for (var i = 0; i < draggables.length; i++) {
       if (!draggables[i]) {
         continue;
       }
-      let result = draggables[i].findElement(element);
+      var result = draggables[i].findElement(element);
       if (result) {
         result.draggable = draggables[i];
         return result;
@@ -130,7 +142,7 @@ export default class DragUtils {
    * @param {Element} element
    */
   static elementToDropZone(dropZones, element) {
-    for (let i = 0; i < dropZones.length; i++) {
+    for (var i = 0; i < dropZones.length; i++) {
       if (dropZones[i].$dropZone.is(element)) {
         return dropZones[i];
       }
@@ -181,7 +193,7 @@ export default class DragUtils {
    * @return {string}
    */
   static strip(html) {
-    let tmp = document.createElement('div');
+    var tmp = document.createElement('div');
     tmp.innerHTML = html;
     return tmp.textContent || tmp.innerText || '';
   }
