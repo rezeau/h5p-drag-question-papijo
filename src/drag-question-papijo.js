@@ -180,10 +180,12 @@ function C(options, contentId, contentData) {
       }
     });
     draggable.on('focus', function (event) {
-      //self.controls.drag.moveFocus(event.data);
+      self.controls.drag.moveFocus(event.data);
+      
       if (self.controls.drag && typeof self.controls.drag.moveFocus === "function") {
-  self.controls.drag.moveFocus();
-}
+      ///  self.controls.drag.moveFocus(event.data);
+      }
+      
     });
     draggable.on('dragstart', function (event) {
       if (highlightDropZones) {
