@@ -437,6 +437,27 @@ export default class Draggable extends H5P.EventDispatcher {
   }
 
   /**
+   * Shuffles the position of the draggables.
+   */
+
+  shufflePosition(shuffle, x, y) {
+    this.x = x;
+    this.y = y;
+    const self = this;
+    if (!shuffle) {
+      return;
+    }
+    this.elements.forEach(function (draggable) {
+      const element = draggable.$;
+      element.animate({
+        left: self.x + '%',
+        top: self.y + '%'
+      }, function () {
+      });
+    });
+  }
+
+  /**
    * Look for the given DOM element inside this draggable.
    *
    * @param {Element} element

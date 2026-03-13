@@ -67,7 +67,8 @@ function C(options, contentId, contentData) {
       autoAlignSpacing: 2,
       showScorePoints: true,
       showTitle: false,
-      dragHandleVisibility: true
+      dragHandleVisibility: true,      
+      randomizeDraggables: false,
     },
     a11yCheck: 'Check the answers. The responses will be marked as correct, incorrect, or unanswered.',
     a11yRetry: 'Retry the task. Reset all responses and start the task over again.',
@@ -595,6 +596,9 @@ C.prototype.registerButtons = function () {
   }
 
   this.addRetryButton();
+  if (this.options.behaviour.randomizeDraggables) {
+    this.shuffleDraggables();
+  }
 };
 
 /**
@@ -1056,6 +1060,40 @@ C.prototype.getTitle = function () {
   return H5P.createTitle((this.contentData && this.contentData.metadata && this.contentData.metadata.title) ? this.contentData.metadata.title : 'Drag and drop');
 };
 
+C.prototype.shuffleDraggables = function () {
+  // IF SHUFFLE/RANDOMIZE DRAGGABLES POSITIONS
+  let draggablePositions = [];
+  // Put current draggables coordinates into an array.
+  // Check that the draggable does have elements, exclude distracters.
+  // Do not shuffle the multiple draggables if content state has been saved at least once.
+  this.draggables.forEach(draggable => {
+    //if (draggable.elements && !draggable.multiple) {
+    if (draggable.elements && !(draggable.multiple && this.hasSavedState)) {
+      draggablePositions.push([draggable.x, draggable.y]);
+    }
+  });
+  // Shuffle the array of coordinates.
+  draggablePositions = H5P.shuffleArray(draggablePositions);
+  let skipIt = 0;
+  for (let i = 0; i < this.draggables.length; i++) {
+    const draggable = this.draggables[i];
+    // Do not shuffle the multiple draggables if content state has been saved at least once.
+    if (draggable === undefined || (draggable.multiple && this.hasSavedState)) {
+      skipIt++;
+      continue;
+    }
+    const element = draggable.elements[0];
+    // If keep correct answers and draggable is in its correct dropzone, set shuffled draggable coordinates but do not actually shuffle it.
+    let shuffle = true;
+    // Deal with enableDroppedQuantity option
+    if (element.$.hasClass('h5p-dropped')) {
+      shuffle = false;
+    }
+    let x = draggablePositions[i - skipIt][0];
+    let y = draggablePositions[i - skipIt][1];
+    draggable.shufflePosition(shuffle, x, y);
+  }
+};
 /**
  * Initialize controls to improve a11Y.
  *
