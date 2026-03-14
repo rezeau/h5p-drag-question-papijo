@@ -67,8 +67,9 @@ function C(options, contentId, contentData) {
       autoAlignSpacing: 2,
       showScorePoints: true,
       showTitle: false,
-      dragHandleVisibility: true,      
+      dragHandleVisibility: true,
       randomizeDraggables: false,
+      removeCorrectWrongStyles: false,
     },
     a11yCheck: 'Check the answers. The responses will be marked as correct, incorrect, or unanswered.',
     a11yRetry: 'Retry the task. Reset all responses and start the task over again.',
@@ -88,7 +89,10 @@ function C(options, contentId, contentData) {
   this.blankIsCorrect = true;
 
   this.backgroundOpacity = (this.options.behaviour.backgroundOpacity === undefined || this.options.behaviour.backgroundOpacity.trim() === '') ? undefined : this.options.behaviour.backgroundOpacity;
-
+this.solutionViewed = false;
+  this.answerChecked = false;
+  this.scoreViewed = false;
+  this.maxScoreReached = false;
   // Additional dropzone that is added for keyboard users to be able to "unplace" a draggable
   self.$noDropZone = $('<div class="h5p-dq-no-dz" role="button" style="display:none;"><span class="h5p-hidden-read">' + self.options.noDropzone + '</span></div>');
 
@@ -605,27 +609,57 @@ C.prototype.registerButtons = function () {
  * Add solution button to our container.
  */
 C.prototype.addSolutionButton = function () {
-  var that = this;
-
+  console.log('addSolutionButton');
+  const that = this;
+  this.maxScoreReached = false;
   this.addButton('check-answer', this.options.scoreShow, function () {
-    that.answered = true;
+    that.answerChecked = true;
     that.showAllSolutions();
     that.showScore();
-    that.addExplanation();
-    var xAPIEvent = that.createXAPIEventTemplate('answered');
+    if (!that.options.behaviour.enableDroppedQuantity) {
+      that.addExplanation();
+    }
+    else {
+      that.addExplanationDroppedQuantity();
+    }
+    // Just in case question-explanation has been hidden by showsolution
+    $( '.h5p-question-explanation').show();
+    const xAPIEvent = that.createXAPIEventTemplate('answered');
     that.addQuestionToXAPI(xAPIEvent);
     that.addResponseToXAPI(xAPIEvent);
     that.trigger(xAPIEvent);
-
+    // Hide potential remaining multiple draggables
+    if (that.maxScoreReached) {
+      that.draggables.forEach(draggable => {
+        if (draggable.multiple) {
+          draggable.elements.forEach(element => {
+            if (!element.$.hasClass('h5p-correct')) {
+              element.$.addClass('h5p-dragquestion h5p-question-hidden');
+            }
+          });
+        }
+      });
+    }
+    console.log('that.options.behaviour.removeCorrectWrongStyles'
+      +  '\nthat.maxScoreReached = ' + that.maxScoreReached
+      );
+    if (that.options.behaviour.removeCorrectWrongStyles && that.maxScoreReached) {
+      console.log('removeCorrectWrongStyles');
+      that.draggables.forEach(draggable => {
+        draggable.elements.forEach(element => {
+          if (element.$.hasClass('h5p-correct')) {
+            element.$
+              .removeClass('h5p-correct');
+          }
+          if (element.$suffix) {
+            element.$suffix.remove();
+          }
+        });
+      });
+    }
     // Focus top of task for better focus and read-speaker flow
-    var $nextFocus = that.$introduction ? that.$introduction : that.$container.children().first();
+    const $nextFocus = that.$introduction ? that.$introduction : that.$container.children().first();
     $nextFocus.focus();
-  }, true, {
-    'aria-label': this.options.a11yCheck,
-  }, {
-    contentData: this.contentData,
-    textIfSubmitting: this.options.submit,
-    icon: 'check',
   });
 };
 
@@ -825,7 +859,7 @@ C.prototype.enableDraggables = function () {
 C.prototype.showAllSolutions = function (skipVisuals) {
   this.points = 0;
   this.rawPoints = 0;
-
+console.log('showAllSolutions');
   // One correct point for each "no solution" dropzone if there are no solutions
   if (this.blankIsCorrect) {
     this.points = 1;
@@ -870,7 +904,9 @@ C.prototype.showAllSolutions = function (skipVisuals) {
   if (this.options.behaviour.enableRetry && !skipVisuals) {
     this.showButton('try-again');
   }
-
+  if (this.points === this.getMaxScore()) {
+    this.maxScoreReached = true;
+  }
   if (this.hasButton('check-answer') && (this.options.behaviour.enableRetry === false || this.points === this.getMaxScore())) {
     // Max score reached, or the user cannot try again.
     this.hideButton('try-again');
