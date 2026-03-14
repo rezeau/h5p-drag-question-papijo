@@ -31,6 +31,7 @@ function C(options, contentId, contentData) {
   this.options = $.extend(true, {}, {
     scoreShow: 'Check',
     tryAgain: 'Retry',
+    showSolutionButton: "Show solution",
     grabbablePrefix: 'Grabbable {num} of {total}.',
     grabbableSuffix: 'Placed in dropzone {num}.',
     dropzonePrefix: 'Dropzone {num} of {total}.',
@@ -56,20 +57,22 @@ function C(options, contentId, contentData) {
       }
     },
     overallFeedback: [],
-    behaviour: {
-      enableRetry: true,
-      enableCheckButton: true,
-      preventResize: false,
-      singlePoint: false,
+    behaviour: {      
       applyPenalties: true,
-      enableScoreExplanation: true,
-      dropZoneHighlighting: 'dragging',
       autoAlignSpacing: 2,
-      showScorePoints: true,
-      showTitle: false,
       dragHandleVisibility: true,
+      dropZoneHighlighting: 'dragging',
+      enableCheckButton: true,
+      enableRetry: true,
+      enableScoreExplanation: true,
+      enableSolutionButton: false,
+      preventResize: false,
       randomizeDraggables: false,
       removeCorrectWrongStyles: false,
+      showScorePoints: true,
+      showTitle: false,
+      singlePoint: false,
+      showSolutionsRequiresInput: true,
     },
     a11yCheck: 'Check the answers. The responses will be marked as correct, incorrect, or unanswered.',
     a11yRetry: 'Retry the task. Reset all responses and start the task over again.',
@@ -600,8 +603,13 @@ C.prototype.registerButtons = function () {
   }
 
   this.addRetryButton();
-  if (this.options.behaviour.randomizeDraggables) {
-    this.shuffleDraggables();
+    if (this.oneDropzonesHasCorrectElement() ) {
+    if (!this.options.behaviour.enableDroppedQuantity) {
+      this.addShowSolutionButton();
+    }
+    if (this.options.behaviour.randomizeDraggables) {
+      this.shuffleDraggables();
+    }
   }
 };
 
@@ -609,7 +617,6 @@ C.prototype.registerButtons = function () {
  * Add solution button to our container.
  */
 C.prototype.addSolutionButton = function () {
-  console.log('addSolutionButton');
   const that = this;
   this.maxScoreReached = false;
   this.addButton('check-answer', this.options.scoreShow, function () {
@@ -640,11 +647,8 @@ C.prototype.addSolutionButton = function () {
         }
       });
     }
-    console.log('that.options.behaviour.removeCorrectWrongStyles'
-      +  '\nthat.maxScoreReached = ' + that.maxScoreReached
-      );
+    
     if (that.options.behaviour.removeCorrectWrongStyles && that.maxScoreReached) {
-      console.log('removeCorrectWrongStyles');
       that.draggables.forEach(draggable => {
         draggable.elements.forEach(element => {
           if (element.$.hasClass('h5p-correct')) {
@@ -734,21 +738,67 @@ C.prototype.addExplanation = function () {
  * Add retry button to our container.
  */
 C.prototype.addRetryButton = function () {
-  var that = this;
-
+  const that = this;
   this.addButton('try-again', this.options.tryAgain, function () {
-    that.resetTask();
+    let forceReset = false;
+    if (that.solutionViewed) {
+      forceReset = true;
+      that.solutionViewed = false;
+    }
+    if (that.maxScoreReached) {
+      forceReset = true;
+      that.maxScoreReached = false;
+    }
+    that.reTry(forceReset);
     that.showButton('check-answer');
     that.hideButton('try-again');
-  }, false, {
-    'aria-label': this.options.a11yRetry,
-  },
-  {
-    styleType: 'secondary',
-    icon: 'retry',
-  });
+    that.hideButton('show-solution');
+  }, false);
 };
-
+/**
+ * Determine if all of the draggables has been dropped somewhere.
+ * Show solution will only be allowed if that is true.
+ *
+ * @return {boolean}
+ */
+C.prototype.isAnswerSelected = function () {
+  const selected = (this.$container.find('.h5p-dropped').length) >= this.draggables.length;
+  return selected;
+};
+/**
+ * Determine if at least one dropzone has at least one correct draggable element.
+ *
+ * @return {boolean}
+ */
+C.prototype.oneDropzonesHasCorrectElement = function () {
+  const task = this.options.question.task;
+  for (let i = 0; i < task.dropZones.length; i++) {
+    if (task.dropZones[i].correctElements.length !== 0) {
+      return true;
+    }
+  }
+  return false;
+};
+/**
+ * Add show solution button to our container.
+ */
+C.prototype.addShowSolutionButton = function () {
+  const that = this;
+  this.addButton('show-solution', this.options.showSolutionButton, function () {
+    if (that.options.behaviour.showSolutionsRequiresInput && !that.isAnswerSelected()) {
+      // Require answer before solution can be viewed
+      that.updateFeedbackContent(that.options.noInput);
+      that.read(that.options.noInput);
+      that.hideButton('show-solution');
+      return;
+    }
+    that.showSolution();
+    that.hideButton('check-answer');
+    that.hideButton('show-solution');
+    that.showButton('try-again');
+    that.read(that.options.displaySolutionDescription);
+  }, false);
+};
 /**
  * Add element/drop zone to task.
  *
@@ -859,7 +909,7 @@ C.prototype.enableDraggables = function () {
 C.prototype.showAllSolutions = function (skipVisuals) {
   this.points = 0;
   this.rawPoints = 0;
-console.log('showAllSolutions');
+
   // One correct point for each "no solution" dropzone if there are no solutions
   if (this.blankIsCorrect) {
     this.points = 1;
@@ -900,6 +950,9 @@ console.log('showAllSolutions');
   if (!skipVisuals) {
     this.hideButton('check-answer');
   }
+  if (this.options.behaviour.enableSolutionButton && !skipVisuals) {
+    this.showButton('show-solution');
+  }
 
   if (this.options.behaviour.enableRetry && !skipVisuals) {
     this.showButton('try-again');
@@ -919,16 +972,124 @@ console.log('showAllSolutions');
  * @public
  */
 C.prototype.showSolutions = function () {
-  this.showAllSolutions();
-  this.showScore();
+// TODO JR does not work quite ok in contracts
+  // If the contracts showSolutions has already been viewed, do not do anything.
+  if (this.solutionViewed /*&& !this.answerChecked*/) {
+    return;
+  }
+  if (!this.answerChecked) {
+    this.showAllSolutions();
+  }
+  if (!this.scoreViewed) {
+    this.showScore();
+  }
+  this.showSolution();
   //Hide solution button:
   this.hideButton('check-answer');
   this.hideButton('try-again');
-
-  //Disable dragging during "solution" mode
-  this.disableDraggables();
 };
+/**
+ * Resets the task but keeps correct answers if required.
+ * @public
+ */
+C.prototype.reTry = function (forceReset) {
+  const self = this;
+  this.points = 0;
+  this.rawPoints = 0;
+  this.answered = false;
+  // Used in contracts (by showsolutions)
+  this.solutionViewed = false;
+  this.answerChecked = false;
+  this.scoreViewed = false;
+  let nbCorrectDropZones = 0;
+  let totalDropZones = 0;
 
+  // The "h5p-question-hidden" class may need to be removed from elements.
+  this.draggables.forEach(draggable => {
+    draggable.elements.forEach(element => {
+      if (element.$.hasClass('h5p-question-hidden')) {
+        element.$.removeClass('h5p-question-hidden');
+      }
+    });
+  });
+  //Enables Draggables
+  this.enableDraggables();
+
+  //Only reset position and feedback if we are not keeping the correct answers.
+  // Do not reset positions if previous state is being restored. WHY NOT? dove
+  if (this.options.behaviour.enableDroppedQuantity) {
+    const task = this.options.question.task;
+    task.dropZones.forEach((dropZone) => {
+      if (dropZone.status !== 'none') {
+        totalDropZones ++;
+      }
+      if (dropZone.status === 'correct') {
+        nbCorrectDropZones ++;
+      }
+    });
+  }
+  this.draggables.forEach(function (draggable) {
+    if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
+      let isMultiple = draggable.multiple;
+      const element = draggable.elements[0];
+      let correctClass = 'h5p-correct';
+      let isCorrect = false;
+      if (self.options.behaviour.enableDroppedQuantity) {
+        if (element.$.hasClass('h5p-correct-quantity')) {
+          element.$.addClass(correctClass);
+          isCorrect = true;
+        }
+        correctClass += '-quantity';
+      }
+      // Deal with multiple draggables.
+      if (isMultiple) {
+        draggable.elements.forEach(element => {
+          if (element.$.hasClass(correctClass) && element.$.hasClass('h5p-dropped')) {
+            isCorrect = true;
+          }
+          return;
+        });
+      }
+      else {
+        if (element.$.hasClass(correctClass)) {
+          isCorrect = true;
+        }
+      }
+      if (isCorrect) {
+        draggable.resetPosition(self.correctDZs[draggable.id], correctClass);
+      }
+      else {
+        draggable.resetPosition();
+      }
+    }
+    else {
+      draggable.resetPosition();
+    }
+  });
+  if (this.options.behaviour.enableDroppedQuantity) {
+    if (nbCorrectDropZones === totalDropZones) {
+      //Enables Draggables
+      this.enableDraggables();
+      this.draggables.forEach(function (draggable) {
+        draggable.resetPosition();
+      });
+    }
+  }
+  this.hasSavedState = false;
+  if (this.options.behaviour.enableDroppedQuantity) {
+    const $dropZones = self.dropZones; // DOM objects
+    for (let i = 0; i < $dropZones.length; i++) {
+      const $dropZone = $dropZones[i];
+      const status = $dropZone.getCompletedStatus();
+      $dropZone.unmarkResult(status, self.options.behaviour.keepCorrectAnswers, self.options.behaviour.disableCompletedDropZones, forceReset);
+    }
+  }
+  //Show solution button
+  this.showButton('check-answer');
+  this.hideButton('try-again');
+  this.removeFeedback();
+  this.setExplanation();
+};
 /**
  * Resets the task.
  * Used in contracts.
@@ -975,7 +1136,217 @@ C.prototype.resetTask = function () {
   this.removeFeedback();
   this.setExplanation();
 };
-
+/**
+ * Moves all draggables to their correct dropZones.
+ * NOT to be confused with showSolutions (note the plural ending!) routine used by contracts.
+ * MARCH 2018 by Joseph Rezeau aka "papijo"
+ * @public
+ */
+C.prototype.showSolution = function () {
+  
+  const self = this;
+  self.solutionViewed = true;
+  const dropZones = self.dropZones;
+  // Reset all dropzones alignables to empty. ???
+  for (let i = 0; i < dropZones.length; i++) {
+    const dropZone = dropZones[i];
+    dropZone.autoAlign();
+    dropZone.alignables = [];
+  }
+  const correctDZs = [];
+  for (let i = 0; i < this.draggables.length; i++) {
+    const draggable = this.draggables[i];
+    if (draggable === undefined) {
+      continue;
+    }
+    correctDZs[draggable.id] = this.correctDZs[i];
+  }
+  const mustCloneElement = [];
+  let oneIsMultiple = false;
+  for (let i = 0; i < this.draggables.length; i++) {
+    const draggable = this.draggables[i];
+    if (draggable === undefined) {
+      continue;
+    }
+    if (draggable.multiple) {
+      oneIsMultiple = true;
+      const dragId = draggable.id;
+      const correctDZ = correctDZs[dragId];
+      // If this draggable is not accepted by any dropZone, do not clone it.
+      if (correctDZ) {
+        mustCloneElement[dragId] = correctDZ.length;
+        // When using Retry after ShowSolution, we may need to remove NULL elements from draggable.elements array.
+        draggable.elements = draggable.elements.filter(function (n) {
+          return n !== undefined;
+        });
+        // Needed if keepstate is ON and user has moved away and back.
+        // Otherwise showSolution does not work if first dropZone is undefined.
+        const element = draggable.elements[0];
+        if (element.dropZone === undefined) {
+          const ary = draggable.elements;
+          ary.push(ary.shift());
+        }
+        for (let j = 0; j < draggable.elements.length; j++) {
+          const element = draggable.elements[j];
+          // If element is correct we need to clone one less element.
+          const isCorrect = element.$.hasClass('h5p-correct');
+          if (isCorrect) {
+            mustCloneElement[dragId]--;
+          }
+        }
+      }
+    }
+  }
+  if (oneIsMultiple) {
+    for (let i = 0; i < this.draggables.length; i++) {
+      const draggable = this.draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }
+      const dragId = draggable.id;
+      if (draggable.multiple) {
+        for (let j = 0; j < mustCloneElement[dragId]; j++) {
+          const element = draggable.elements[j];
+          if (element !== undefined) {
+            element.clone();
+          }
+        }
+      }
+    }
+  }
+  this.draggables.forEach(draggable => {
+    const dragId = draggable.id;
+    const correctDZ = correctDZs[dragId];
+    const remainingCorrectDZ = [];
+    // Initialize and Copy correctDZ elements to remainingCorrectDZ array
+    // in order to be able to remove the correctly placed elements later on
+    // to avoid double display in dropzone.
+    // TODO JR check that this is the cause for wrong solutions with multiple after using F5!
+    const isMultiple = draggable.multiple;
+    if (isMultiple && correctDZ) {
+      for (let i = 0; i < correctDZ.length; i++) {
+        remainingCorrectDZ.push(correctDZ[i]);
+      }
+    }
+    let z = 0;
+    draggable.elements.forEach(element => {
+      let correct = element.$.hasClass('h5p-correct');
+      if (!correct) {
+        element.$.removeClass('h5p-wrong');
+      }
+      // Remove display of possible +1 / -1 score suffix from element; only keep the correct check mark.
+      if (element.$suffix) {
+        element.$suffix.remove();
+      }
+      if (correctDZ) {
+        // Hide away multiple elements incorrectly placed, including remaining multiple draggage FIXED JR 31 OCT 2020!
+        if (isMultiple && element.$.hasClass('h5p-wrong')) {
+          element.$.addClass('h5p-dragquestion h5p-question-hidden');
+        }
+        if (!isMultiple) {
+          for (let i = 0; i < correctDZ.length; i++) {
+            // JR No, because a draggable can have the dropped class even if it has been removed from its drop zone!
+            //if (!element.$.hasClass('h5p-dropped')) {
+            element.$.addClass('h5p-question-solution');
+            //};
+            let dropZone = dropZones[correctDZ[i]];
+            if (dropZone !== undefined) {
+              draggable.addToDropZone(0, element, dropZone.id);
+              // Set position in case DZ is full (auto align doesn't work)
+              element.$.css({
+                left: dropZone.x + '%',
+                top: dropZone.y + '%',
+              });
+              if (element.$.hasClass('h5p-wrong')) {
+                element.$.addClass('h5p-question-solution');
+              }
+              // Add to alignables
+              if (dropZone.getIndexOf(element.$) === -1) {
+                dropZone.alignables.push(element.$);
+              }
+              // maybe not needed ? dove
+              dropZone.autoAlign();
+            }
+          }
+        }
+        else {
+          // If element is correctly placed, leave it there but remove it from array of remainingCorrectDZ.
+          if (element.$.hasClass('h5p-correct')) {
+            const index = remainingCorrectDZ.indexOf(element.dropZone);
+            const elDZ = element.dropZone;
+            let dropZone = dropZones[elDZ];
+            if (dropZone.getIndexOf(element.$) === -1) {
+              dropZone.alignables.push(element.$);
+            }
+            // TODO ???
+            dropZone.autoAlign();
+            remainingCorrectDZ.splice(index, 1);
+          }
+          else {
+            // If multiple element is wrongly placed then leave it in place and continue.
+            if (!element.$.hasClass('h5p-wrong')) {
+              // If multiple element has not yet been dropped into any correct dropzone then move it there.
+              if (!element.$.hasClass('h5p-dropped')) {
+                let dropZone = dropZones[remainingCorrectDZ[z]];
+                if (dropZone !== undefined) {
+                  element.$.addClass('h5p-question-solution');
+                  element.dropZone = dropZone.id;
+                  draggable.updatePlacement(element);
+                  // Set position in case DZ is full (auto align doesn't work)
+                  element.$.css({
+                    left: dropZone.x + '%',
+                    top: dropZone.y + '%',
+                  });
+                  // Add to alignables
+                  if (dropZone.getIndexOf(element.$) === -1) {
+                    dropZone.alignables.push(element.$);
+                    // dove not needed?
+                    dropZone.autoAlign();
+                  }
+                  // Now remove element.dropzone so that this element is NOT saved to currentState.
+                  element.dropZone = '';
+                  z++;
+                }
+              }
+            }
+          }
+        }
+      }
+      else {
+        // This draggable is not accepted by any dropZone. It's a so-called "distracter".
+        // If it has been dropped, hide it away.
+        if (element.$.hasClass('h5p-dropped')) {
+          element.$.addClass('h5p-question-hidden');
+        }
+      }
+    });
+  });
+  // Hide "unused" draggables. Maybe there is a better option.
+  for (let i = 0; i < this.draggables.length; i++) {
+    const draggable = this.draggables[i];
+    if (draggable === undefined) {
+      continue;
+    }
+    for (let j = 0; j < draggable.elements.length; j++) {
+      const element = draggable.elements[j];
+      if (!element.$.hasClass('h5p-correct') && !element.$.hasClass('h5p-question-solution')) {
+        element.$.addClass('h5p-question-hidden');
+      }
+    }
+  }
+  // Reset all dropzones alignables to empty. WHY ???
+  // Align all dropzones
+  for (let i = 0; i < dropZones.length; i++) {
+    const dropZone = dropZones[i];
+    dropZone.autoAlign();
+  }
+  this.disableDraggables();
+  //Show solution button
+  this.showButton('try-again');
+  this.hideButton('show-solution');
+  // remove feedback/explanation h5p-question-explanation
+  $( '.h5p-question-explanation').hide();
+};
 /**
  * Calculates the real max score.
  *

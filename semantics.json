@@ -397,10 +397,10 @@
         "default": true,
         "widget": "showWhen",
         "showWhen": {
-          "rules": [
+          "rules": [            
             {
-              "field": "enableDroppedQuantity",
-              "equals": false
+              "field": "enableSolutionButton",
+              "equals": true
             }
           ]
         }
