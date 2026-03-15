@@ -84,6 +84,19 @@ export default class DropZone {
         },
         handleDropEvent: (event, ui) => {
           const $this = this.$dropZone;
+          if (self.single) {
+            for (let i = 0; i < draggables.length; i++) {
+              if (draggables[i] && draggables[i].isInDropZone(self.id)) {
+                const currentDraggable = draggables[i];
+                const isMultiple = currentDraggable.multiple;
+                // TODO if currentDraggable is multiple just do not accept another one.
+                if (!isMultiple) {
+                  currentDraggable.resetPosition();
+                }
+                continue;
+              }
+            }
+          }
           DragUtils.setOpacity($this.children('.h5p-inner').removeClass('h5p-over'), 'background', this.backgroundOpacity);
           ui.draggable.data('addToZone', this.id);
 
