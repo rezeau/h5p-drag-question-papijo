@@ -464,6 +464,23 @@
         "default": false
       },
       {
+        "name": "resetSingleDraggables",
+        "type": "boolean",
+        "label": "Reset the position of a dropped draggable element.",
+        "description": "Check this option if you want to reset the position of a dropped draggable element when dropping a new one onto the drop zone (only works in drop zones which can only contain a single element).",
+        "importance": "low",
+        "default": false,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": false
+            }
+          ]
+        }
+      },
+      {
         "name": "backgroundOpacity",
         "type": "text",
         "label": "Background opacity for draggables",

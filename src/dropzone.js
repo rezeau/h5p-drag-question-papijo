@@ -34,6 +34,7 @@ export default class DropZone {
       behaviour.dropZoneHighlighting === 'dragging';
     self.alignables = [];
     self.l10n = l10n;
+    self.resetSingleDraggables = dropZone.resetSingleDraggables;
   }
 
   /**
@@ -177,16 +178,31 @@ export default class DropZone {
       return false;
     }
 
+    // JR if SINGLE dropzone is occupied AND option resetSingleDraggables AND current draggable is NOT multiple, then accept new one (for swapping).
     if (self.single) {
-      // Make sure no other draggable is placed here
-      for (var i = 0; i < draggables.length; i++) {
+      console.log('accepts self single');
+      // Find out if dropzone is currently occupied.
+      for (let i = 0; i < draggables.length; i++) {
         if (draggables[i] && draggables[i].isInDropZone(self.id)) {
-          // This drop zone is occupied
-          return false;
+        // This drop zone is occupied.
+          const currentDraggable = draggables[i];
+          const isMultiple = currentDraggable.multiple;
+          if (!isMultiple) {
+            ///currentDraggable.resetPosition();
+          }
+          let isCorrect = false;
+          currentDraggable.elements.forEach(element => {
+            if (element.$.hasClass('h5p-correct')) {
+              isCorrect = true;
+            }
+          });
+          // Do not allow to drag an element in the zone it actually occupies!
+          if (!self.resetSingleDraggables || currentDraggable.multiple || isCorrect || draggable.id === currentDraggable.id) {
+            return false;
+          }
         }
       }
     }
-
     return true;
   }
 

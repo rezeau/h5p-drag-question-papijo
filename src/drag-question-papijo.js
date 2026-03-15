@@ -57,7 +57,7 @@ function C(options, contentId, contentData) {
       }
     },
     overallFeedback: [],
-    behaviour: {      
+    behaviour: {
       applyPenalties: true,
       autoAlignSpacing: 2,
       dragHandleVisibility: true,
@@ -69,6 +69,7 @@ function C(options, contentId, contentData) {
       preventResize: false,
       randomizeDraggables: false,
       removeCorrectWrongStyles: false,
+      resetSingleDraggables: false,
       showScorePoints: true,
       showTitle: false,
       singlePoint: false,
@@ -85,18 +86,32 @@ function C(options, contentId, contentData) {
   if (this.options.behaviour.singlePoint) {
     this.options.behaviour.enableScoreExplanation = false;
   }
-
   this.draggables = [];
   this.dropZones = [];
-  this.answered = (contentData && contentData.previousState !== undefined && contentData.previousState.answers !== undefined && contentData.previousState.answers.length);
+  this.nbDraggables = []; // Used by enableDroppedQuantity option.
+  this.nbPlacedDraggables = []; // Used by enableDroppedQuantity option.
+  // Initialize these arrays.
+  const task = this.options.question.task;
+  for (let i = 0; i < task.dropZones.length; i++) {
+    this.nbDraggables[i] = 0;
+    this.nbPlacedDraggables[i] = 0;
+  }
+  this.answered = (contentData !== undefined
+    && contentData.previousState !== undefined
+    && contentData.previousState.answers !== undefined
+    && contentData.previousState.answers.length !== 0);
+  this.hasSavedState = this.answered;
   this.blankIsCorrect = true;
-
-  this.backgroundOpacity = (this.options.behaviour.backgroundOpacity === undefined || this.options.behaviour.backgroundOpacity.trim() === '') ? undefined : this.options.behaviour.backgroundOpacity;
-this.solutionViewed = false;
+  this.backgroundOpacity = (this.options.behaviour.backgroundOpacity === undefined || this.options.behaviour.backgroundOpacity === '') ? undefined : this.options.behaviour.backgroundOpacity;
+  this.backgroundColor = (this.options.question.settings.backgroundColor === "rgba(255, 255, 255, 0)") ? undefined : this.options.question.settings.backgroundColor;
+  this.backgroundOpacityDropZones = this.options.behaviour.backgroundOpacityDropZones === undefined || this.options.behaviour.backgroundOpacityDropZones === '' ? undefined : this.options.behaviour.backgroundOpacityDropZones;
+  this.overrideBorderColor = (this.options.behaviour.overrideBorderColor === "rgba(0, 0, 0, 0)") ? undefined : this.options.behaviour.overrideBorderColor;
+  this.dropZonesBackgroundColor = (this.options.behaviour.dropZonesBackgroundColor === undefined) ? "rgb(245, 245, 245)" : this.options.behaviour.dropZonesBackgroundColor;
+  // Used in contracts (by showsolutions)
+  this.solutionViewed = false;
   this.answerChecked = false;
   this.scoreViewed = false;
   this.maxScoreReached = false;
-  // Additional dropzone that is added for keyboard users to be able to "unplace" a draggable
   self.$noDropZone = $('<div class="h5p-dq-no-dz" role="button" style="display:none;"><span class="h5p-hidden-read">' + self.options.noDropzone + '</span></div>');
 
   // Initialize controls for good a11y
@@ -118,7 +133,7 @@ this.solutionViewed = false;
   var dropZonesWithoutElements = [];
 
   // Create map over correct drop zones for elements
-  var task = this.options.question.task;
+  ///let task = this.options.question.task;
   this.correctDZs = [];
   for (i = 0; i < task.dropZones.length; i++) {
     dropZonesWithoutElements.push(true); // All true by default
@@ -242,7 +257,7 @@ this.solutionViewed = false;
     if (this.blankIsCorrect && dropZone.correctElements.length) {
       this.blankIsCorrect = false;
     }
-
+    dropZone.resetSingleDraggables = this.options.behaviour.resetSingleDraggables;
     dropZone.autoAlign = {
       enabled: dropZone.autoAlign,
       spacing: self.options.behaviour.autoAlignSpacing,
@@ -559,7 +574,7 @@ C.prototype.createQuestionContent = function () {
     this.$container.css('backgroundImage', 'url("' + H5P.getPath(this.options.question.settings.background.path, this.id) + '")');
   }
 
-  var task = this.options.question.task;
+  let task = this.options.question.task;
 
   // Add elements (static and draggable)
   for (i = 0; i < task.elements.length; i++) {
@@ -1631,13 +1646,14 @@ var getControls = function (draggables, dropZones, noDropzone) {
     if (!selected) {
       return;
     }
+    
     if (event.element === noDropzone) {
       // Reset position
-
       if (selected.element.dropZone !== undefined) {
         selected.element.reset();
       }
-      if (selected !== undefined) { // Equals draggable.multiple === false
+      // BUG mentioned on the H5P forum on March 29th 2018.
+      if (!selected.draggable.multiple) {
         selected.element.$.css({
           left: selected.draggable.x + '%',
           top: selected.draggable.y + '%',
@@ -1645,20 +1661,32 @@ var getControls = function (draggables, dropZones, noDropzone) {
           height: selected.draggable.height + 'em'
         });
         selected.draggable.updatePlacement(selected.element);
-        selected.element.$[0].setAttribute('aria-grabbed', 'false');
-        deselect();
       }
+      selected.element.$[0].setAttribute('aria-grabbed', 'false');
+      deselect();
       return;
     }
-
-    var dropZone = DragUtils.elementToDropZone(dropZones, event.element);
-
-    var mustCopyElement = selected.draggable.mustCopyElement(selected.element);
+    const dropZone = DragUtils.elementToDropZone(dropZones, event.element);
+    const mustCopyElement = selected.draggable.mustCopyElement(selected.element);
     if (mustCopyElement) {
       // Leave a new element for next drag
       selected.element.clone();
     }
-
+    // JR added possibility to reset draggables in single zones (except for multiples)
+    if (dropZone.resetSingleDraggables && dropZone.single) {
+      console.log('ok--------------------------------------');
+      for (let i = 0; i < draggables.length; i++) {
+        if (draggables[i] && draggables[i].isInDropZone(dropZone.id)) {
+          const currentDraggable = draggables[i];
+          const isMultiple = currentDraggable.multiple;
+          // TODO if currentDraggable is multiple just do not accept another one.
+          if (!isMultiple) {
+            currentDraggable.resetPosition();
+          }
+          continue;
+        }
+      }
+    }
     // Add draggable to drop zone
     selected.draggable.addToDropZone(selected.index, selected.element, dropZone.id);
 
