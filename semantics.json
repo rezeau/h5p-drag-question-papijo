@@ -528,6 +528,14 @@
         "default": false
       },
       {
+        "name": "showScoreInline",
+        "type": "boolean",
+        "label": "Display correct/wrong and scorepoints horizontally",
+        "importance": "low",
+        "description": "Check this option to display the correct/wrong ticks and the score points horizontally (inline) instead of the default vertical display.",
+        "default": false
+      },
+      {
         "name": "showScorePoints",
         "type": "boolean",
         "label": "Show score points",

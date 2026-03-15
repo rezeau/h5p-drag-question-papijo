@@ -319,3 +319,15 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   border: 2px dashed var(--h5p-theme-contrast-cta-white);
   border-style: dashed;
 }
+
+.h5p-question-score-normal {
+  top: -0.15em;
+  right: -0.15em;
+}
+
+.h5p-question-score-inline {
+  top: 0;
+  bottom: 0;
+  right: -1.4em;
+  margin: auto;
+}

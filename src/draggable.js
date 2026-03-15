@@ -534,9 +534,10 @@ export default class Draggable extends H5P.EventDispatcher {
    * @param {boolean} skipVisuals
    * @param {Array} solutions
    * @param {H5P.Question.ScorePoints} scorePoints
+   * @param {H5P.Question.scoreInline} scoreInline
    * @returns {number}
    */
-  results(skipVisuals, solutions, scorePoints) {
+  results(skipVisuals, solutions, scorePoints, scoreInline) {
     var self = this;
     var i,
       j,
@@ -552,7 +553,7 @@ export default class Draggable extends H5P.EventDispatcher {
         if (element !== undefined && element.dropZone !== undefined) {
           // ... but we are!
           if (skipVisuals !== true) {
-            self.markElement(element, 'wrong', scorePoints);
+            self.markElement(element, 'wrong', scorePoints, scoreInline);
           }
           points--;
         }
@@ -573,7 +574,7 @@ export default class Draggable extends H5P.EventDispatcher {
         if (element.dropZone === solutions[j]) {
           // Yepp!
           if (skipVisuals !== true) {
-            self.markElement(element, 'correct', scorePoints);
+            self.markElement(element, 'correct', scorePoints, scoreInline);
           }
           correct = true;
           self.rawPoints++;
@@ -585,7 +586,7 @@ export default class Draggable extends H5P.EventDispatcher {
       if (!correct) {
         // Nope, we're in another zone
         if (skipVisuals !== true) {
-          self.markElement(element, 'wrong', scorePoints);
+          self.markElement(element, 'wrong', scorePoints, scoreInline);
         }
         points--;
       }
@@ -601,7 +602,7 @@ export default class Draggable extends H5P.EventDispatcher {
    * @param {string} status 'correct' or 'wrong'
    * @param {H5P.Question.ScorePoints} scorePoints
    */
-  markElement(element, status, scorePoints) {
+  markElement(element, status, scorePoints, scoreInline) {
     var $elementResult = $('<span/>', {
       class: 'h5p-hidden-read',
       html: this.l10n[status + 'Answer'] + '. ',
@@ -612,8 +613,18 @@ export default class Draggable extends H5P.EventDispatcher {
       );
     }
     element.$suffix = element.$suffix.add($elementResult);
+    /*
     element.$.addClass('h5p-' + status).append($elementResult);
     element.$[0].setContentOpacity(this.backgroundOpacity);
+    */
+    if (scoreInline === true) {
+      element.$suffix.addClass('h5p-question-score-inline');
+      element.$.addClass('h5p-' + status + ' h5p-dg-inline').append($elementResult);
+    }
+    else {
+      element.$suffix.addClass('h5p-question-score-normal');
+      element.$.addClass('h5p-' + status + ' h5p-dg-normal').append($elementResult);
+    }
   }
 
   /**

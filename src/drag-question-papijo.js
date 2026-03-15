@@ -70,7 +70,8 @@ function C(options, contentId, contentData) {
       randomizeDraggables: false,
       removeCorrectWrongStyles: false,
       resetSingleDraggables: false,
-      showScorePoints: true,
+      showScoreInline: false,
+      showScorePoints: true, 
       showTitle: false,
       singlePoint: false,
       showSolutionsRequiresInput: true,
@@ -935,7 +936,9 @@ C.prototype.showAllSolutions = function (skipVisuals) {
   if (!skipVisuals && this.options.behaviour.showScorePoints && !this.options.behaviour.singlePoint && this.options.behaviour.applyPenalties) {
     scorePoints = new H5P.Question.ScorePoints();
   }
-
+  
+  this.scoreInline = this.options.behaviour.showScoreInline;
+  
   for (var i = 0; i < this.draggables.length; i++) {
     var draggable = this.draggables[i];
     if (draggable === undefined) {
@@ -948,7 +951,7 @@ C.prototype.showAllSolutions = function (skipVisuals) {
     }
 
     // Find out where we are.
-    this.points += draggable.results(skipVisuals, this.correctDZs[i], scorePoints);
+    this.points += draggable.results(skipVisuals, this.correctDZs[i], scorePoints, this.scoreInline);
     this.rawPoints += draggable.rawPoints;
   }
 
