@@ -44,7 +44,7 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 .h5p-dragquestion .h5p-question-content > .h5p-inner {
   position: relative;
   background-repeat: no-repeat;
-  background-position: center top;
+  ///background-position: center top;
   background-size: 100% 100%;
   margin: 0 auto;
   overflow: hidden;
@@ -137,7 +137,7 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 .h5p-dragquestion .h5p-draggable p,
 .h5p-dragquestion .h5p-draggable span {
   display: inline-block;
-  align-content: center;
+  ///align-content: center;
   width: 100%;
   margin: auto;
   color: var(--h5p-theme-text-primary);
@@ -234,7 +234,7 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 .h5p-dragquestion .h5p-my-fullscreen-button-enter,
 .h5p-dragquestion .h5p-my-fullscreen-button-exit {
   display: flex;
-  align-items: center;
+  ///align-items: center;
   position: absolute;
   right: 10px;
   top: 10px;
@@ -330,4 +330,30 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   bottom: 0;
   right: -1.4em;
   margin: auto;
+}
+
+.h5peditor-dragquestion .h5p-draggable.h5p-draggable.h5p-advanced-text:before {
+  left: 8px:
+}
+
+.h5p-theme .h5p-draggable {
+  --opacity: 1;
+  --padding: 0px;
+  --handle-width: var(--h5p-theme-spacing-s); /* May be used by component parent */
+  --border-width: 2px; /* May be used by component parent */
+
+  align-items: center;
+  background: hsl(from var(--h5p-theme-alternative-base) h s l / var(--content-opacity, 1));
+  border: solid var(--border-width) hsl(from var(--h5p-theme-alternative-base) h s l / var(--content-opacity, 1));
+  border-bottom-color: hsl(from var(--h5p-theme-alternative-dark) h s l / var(--content-opacity, 1));
+  border-radius: var(--h5p-theme-border-radius-medium);
+  box-shadow: 0px 1px 0em 0px hsl(from var(--h5p-theme-alternative-dark) h s l / var(--content-opacity, 1));
+  display: flex;
+  font-weight: 600;
+  line-height: var(--h5p-theme-spacing-s);
+  opacity: var(--opacity);
+  padding: var(--padding);
+  text-align: center;
+  vertical-align: top;
+  z-index: 3;
 }

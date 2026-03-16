@@ -71,6 +71,7 @@ function C(options, contentId, contentData) {
       enableRetry: true,
       enableScoreExplanation: true,
       enableSolutionButton: false,
+      keepCorrectAnswers: false,
       preventResize: false,
       randomizeDraggables: false,
       removeCorrectWrongStyles: false,
@@ -209,7 +210,7 @@ function C(options, contentId, contentData) {
       self.controls.drag.moveFocus(event.data);
       
       if (self.controls.drag && typeof self.controls.drag.moveFocus === "function") {
-      ///  self.controls.drag.moveFocus(event.data);
+        self.controls.drag.moveFocus(event.data);
       }
       
     });
@@ -1271,46 +1272,10 @@ C.prototype.reTry = function (forceReset) {
  * @public
  */
 C.prototype.resetTask = function () {
-  this.points = 0;
-  this.rawPoints = 0;
-  this.answered = false;
-
-  // If DOM loaded - reset it
-  if (this.$container) {
-    this.dropZones.forEach(function (dropzone) {
-      dropzone.reset();
-    });
-
-    // Enables Draggables
-    this.enableDraggables();
-
-    //Reset position and feedback.
-    this.draggables.forEach(function (draggable) {
-      draggable.resetPosition();
-    });
-  }
-  else {
-    // Reset actual position values
-    for (let i = 0; i < this.draggables.length; i++) {
-      if (this.draggables[i] !== undefined) {
-        for (let j = 0; j < this.draggables[i].elements.length; j++) {
-          if (this.draggables[i].elements[j] !== undefined) {
-            this.draggables[i].elements[j].dropZone = undefined;
-            this.draggables[i].elements[j].position = undefined;
-          }
-        }
-      }
-    }
-  }
-
-  this.controls.drag.setTabbableByIndex(0);
-
-  //Show solution button
-  this.showButton('check-answer');
-  this.hideButton('try-again');
-  this.removeFeedback();
-  this.setExplanation();
+  const forceReset = true;
+  this.reTry(forceReset);
 };
+
 /**
  * Moves all draggables to their correct dropZones.
  * NOT to be confused with showSolutions (note the plural ending!) routine used by contracts.
@@ -1923,7 +1888,6 @@ var getControls = function (draggables, dropZones, noDropzone) {
     }
     // JR added possibility to reset draggables in single zones (except for multiples)
     if (dropZone.resetSingleDraggables && dropZone.single) {
-      console.log('ok--------------------------------------');
       for (let i = 0; i < draggables.length; i++) {
         if (draggables[i] && draggables[i].isInDropZone(dropZone.id)) {
           const currentDraggable = draggables[i];

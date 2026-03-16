@@ -368,8 +368,10 @@ export default class Draggable extends H5P.EventDispatcher {
       element.$suffix = $('<span class="h5p-hidden-read"></span>')
         .text(this.l10n.suffix.replace('{num}', dropZoneLabel))
         .appendTo(element.$);
-    } else {
-      element.$.removeClass('h5p-dropped')
+    } 
+    else {
+      element.$
+      .removeClass('h5p-dropped')
         .removeClass('h5p-wrong')
         .removeClass('h5p-correct')
         .css({
@@ -384,9 +386,10 @@ export default class Draggable extends H5P.EventDispatcher {
   /**
    * Resets the position of the draggable to its' original position.
    */
-  resetPosition() {
+  resetPosition(correctDZs, correctClass) {
     var self = this;
-
+    let oneIsCorrect = false;
+    const keepCorrectAnswers = (correctDZs !== undefined) ? true : false;
     this.elements.forEach(function (draggable) {
       if (draggable.$feedback) {
         draggable.$feedback.remove();
@@ -395,9 +398,18 @@ export default class Draggable extends H5P.EventDispatcher {
 
       //If the draggable is in a dropzone reset its' position and feedback.
       if (draggable.dropZone !== undefined) {
-        var element = draggable.$;
-
+        
+// If keepCorrectAnswers and draggable is in the right DZ, then disable the draggable and stop.
         //Revert the button to initial position and then remove it.
+        let element = self.elements[self.elements.indexOf(draggable)];
+        const ok = element.$.hasClass(correctClass);
+        if (keepCorrectAnswers && $.inArray(draggable.dropZone, correctDZs) !== -1 && ok === true) {
+          oneIsCorrect = true;
+          const element = self.elements[self.elements.indexOf(draggable)];
+          element.$.draggable('disable');
+          return;
+        }
+        element = draggable.$;
         element.animate(
           {
             left: self.x + '%',
@@ -424,7 +436,7 @@ export default class Draggable extends H5P.EventDispatcher {
       }
     });
 
-    if (self.element) {
+      if (oneIsCorrect === false) {
       // Draggable removed from dropzone.
       if (self.element.dropZone !== undefined) {
         self.trigger('leavingDropZone', self.element);
