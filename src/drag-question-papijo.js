@@ -111,9 +111,7 @@ function C(options, contentId, contentData) {
   this.backgroundOpacity = (this.options.behaviour.backgroundOpacity === undefined || this.options.behaviour.backgroundOpacity === '') ? undefined : this.options.behaviour.backgroundOpacity;
   this.backgroundColor = (this.options.question.settings.backgroundColor === "rgba(255, 255, 255, 0)") ? undefined : this.options.question.settings.backgroundColor;
   this.backgroundOpacityDropZones = this.options.behaviour.backgroundOpacityDropZones === undefined || this.options.behaviour.backgroundOpacityDropZones === '' ? undefined : this.options.behaviour.backgroundOpacityDropZones;
-  this.overrideBorderColor = (this.options.behaviour.overrideBorderColor === "rgba(0, 0, 0, 0)") ? undefined : this.options.behaviour.overrideBorderColor;
-  this.dropZonesBackgroundColor = (this.options.behaviour.dropZonesBackgroundColor === undefined) ? "rgb(245, 245, 245)" : this.options.behaviour.dropZonesBackgroundColor;
-  // Used in contracts (by showsolutions)
+    // Used in contracts (by showsolutions)
   this.solutionViewed = false;
   this.answerChecked = false;
   this.scoreViewed = false;
@@ -148,11 +146,7 @@ function C(options, contentId, contentData) {
         this.correctDZs[correctElement] = [];
       }
       this.correctDZs[correctElement].push(i);
-    }
-    if (this.overrideBorderColor !== undefined) {
-      task.dropZones[i].bordercolor = this.overrideBorderColor;
-    }
-    task.dropZones[i].background = this.dropZonesBackgroundColor;
+    };
   }
   this.weight = 1;
 
@@ -600,8 +594,16 @@ C.prototype.createQuestionContent = function () {
   // might have done so before.
 
   this.$container = $('<div class="h5p-inner" role="application" aria-labelledby="dq-intro-' + numInstances + '"></div>');
+  /*
   if (this.options.question.settings.background !== undefined) {
     this.$container.css('backgroundImage', 'url("' + H5P.getPath(this.options.question.settings.background.path, this.id) + '")');
+  }
+  */
+  if (this.options.question.settings.background !== undefined) {
+    this.$container.css('backgroundImage', 'url("' + H5P.getPath(this.options.question.settings.background.path, this.id) + '")');
+  }
+  else if (this.backgroundColor !== undefined) {
+    this.$container.css('background-color', this.backgroundColor);
   }
 
   let task = this.options.question.task;
