@@ -31,11 +31,29 @@
     "optional": true
   },
   {
+    "name": "showSolutionButton",
+    "type": "text",
+    "label": "Show solution button",
+    "importance": "low",
+    "default": "Show solution",
+    "common": true,
+    "optional": true
+  },
+  {
     "label": "Score explanation text",
     "importance": "low",
     "name": "scoreExplanation",
     "type": "text",
     "default": "Correct answers give +1 point. Incorrect answers give -1 point. The lowest possible score is 0.",
+    "common": true,
+    "optional": true
+  },
+  {
+    "label": "Score explanation text for drop zones with a fixed quantity",
+    "importance": "low",
+    "name": "scoreExplanationQuantity",
+    "type": "text",
+    "default": "Correctly filled drop zones have a green border and give 1 point. Incorrectly filled drop zones have a red border.",
     "common": true,
     "optional": true
   },
@@ -52,12 +70,139 @@
         "importance": "high",
         "fields": [
           {
+            "name": "questionTitle",
+            "type": "text",
+            "label": "The title of this question",
+            "importance": "high",
+            "default": "Drag and Drop",
+            "description": "Used in summaries, statistics etc."
+          },
+          {
+            "name": "description",
+            "type": "text",
+            "widget": "html",
+            "label": "Task description",
+            "importance": "medium",
+            "default": "",
+            "optional": true,
+            "tags": [
+              "strong",
+              "em",
+              "u",
+              "a",
+              "ul",
+              "ol",
+              "h2",
+              "h3",
+              "h4",
+              "h5",
+              "hr"
+            ],
+            "font": {
+              "size": true,
+              "color": true,
+              "background": true
+            }
+          },
+          {
             "name": "background",
             "type": "image",
             "label": "Background image",
             "importance": "low",
             "optional": true,
             "description": "Optional. Select an image to use as background for your drag and drop task."
+          },
+          {
+            "name": "backgroundColor",
+            "type": "text",
+            "label": "Task Background color",
+            "importance": "low",
+            "description": "The color of the task background (if no image)",
+            "default": "rgba(0, 0, 0, 0)",
+            "optional": true,
+            "widget": "colorSelector",
+            "spectrum": {
+              "showInput": true,
+              "showAlpha": true,
+              "preferredFormat": "rgb",
+              "showPalette": true,
+              "palette": [
+                [
+                  "rgba(0, 0, 0, 0)"
+                ],
+                [
+                  "rgb(67, 67, 67)",
+                  "rgb(102, 102, 102)",
+                  "rgb(204, 204, 204)",
+                  "rgb(217, 217, 217)",
+                  "rgb(255, 255, 255)"
+                ],
+                [
+                  "rgb(152, 0, 0)",
+                  "rgb(255, 0, 0)",
+                  "rgb(255, 153, 0)",
+                  "rgb(255, 255, 0)",
+                  "rgb(0, 255, 0)",
+                  "rgb(0, 255, 255)",
+                  "rgb(74, 134, 232)",
+                  "rgb(0, 0, 255)",
+                  "rgb(153, 0, 255)",
+                  "rgb(255, 0, 255)"
+                ],
+                [
+                  "rgb(230, 184, 175)",
+                  "rgb(244, 204, 204)",
+                  "rgb(252, 229, 205)",
+                  "rgb(255, 242, 204)",
+                  "rgb(217, 234, 211)",
+                  "rgb(208, 224, 227)",
+                  "rgb(201, 218, 248)",
+                  "rgb(207, 226, 243)",
+                  "rgb(217, 210, 233)",
+                  "rgb(234, 209, 220)",
+                  "rgb(221, 126, 107)",
+                  "rgb(234, 153, 153)",
+                  "rgb(249, 203, 156)",
+                  "rgb(255, 229, 153)",
+                  "rgb(182, 215, 168)",
+                  "rgb(162, 196, 201)",
+                  "rgb(164, 194, 244)",
+                  "rgb(159, 197, 232)",
+                  "rgb(180, 167, 214)",
+                  "rgb(213, 166, 189)",
+                  "rgb(204, 65, 37)",
+                  "rgb(224, 102, 102)",
+                  "rgb(246, 178, 107)",
+                  "rgb(255, 217, 102)",
+                  "rgb(147, 196, 125)",
+                  "rgb(118, 165, 175)",
+                  "rgb(109, 158, 235)",
+                  "rgb(111, 168, 220)",
+                  "rgb(142, 124, 195)",
+                  "rgb(194, 123, 160)",
+                  "rgb(166, 28, 0)",
+                  "rgb(204, 0, 0)",
+                  "rgb(230, 145, 56)",
+                  "rgb(241, 194, 50)",
+                  "rgb(106, 168, 79)",
+                  "rgb(69, 129, 142)",
+                  "rgb(60, 120, 216)",
+                  "rgb(61, 133, 198)",
+                  "rgb(103, 78, 167)",
+                  "rgb(166, 77, 121)",
+                  "rgb(91, 15, 0)",
+                  "rgb(102, 0, 0)",
+                  "rgb(120, 63, 4)",
+                  "rgb(127, 96, 0)",
+                  "rgb(39, 78, 19)",
+                  "rgb(12, 52, 61)",
+                  "rgb(28, 69, 135)",
+                  "rgb(7, 55, 99)",
+                  "rgb(32, 18, 77)",
+                  "rgb(76, 17, 48)"
+                ]
+              ]
+            }
           },
           {
             "name": "size",
@@ -159,7 +304,35 @@
                   "label": "Infinite number of element instances",
                   "importance": "low",
                   "description": "Clones this element so that it can be dragged to multiple drop zones.",
-                  "default": false
+                  "default": false,
+                  "optional": true,
+                  "widget": "showWhen",
+                  "showWhen": {
+                    "rules": [
+                      {
+                        "field": "../../behaviour/enableDroppedQuantity",
+                        "equals": false
+                      }
+                    ]
+                  }
+                },                                
+                {
+                  "name": "value",
+                  "type": "number",
+                  "label": "Value",
+                  "importance": "low",
+                  "description": "Please set a value for this draggable element. Negative values accepted.",
+                  "default": 0,
+                  "optional": false,
+                  "widget": "showWhen",
+                  "showWhen": {
+                    "rules": [
+                      {
+                        "field": "../../behaviour/enableDroppedQuantity",
+                        "equals": true
+                      }
+                    ]
+                  }
                 }
               ]
             }
@@ -237,6 +410,98 @@
                   "optional": true
                 },
                 {
+                  "name": "bordercolor",
+                  "type": "text",
+                  "label": "Border color",
+                  "importance": "low",
+                  "description": "The border color of this dropzone (when highlighted)",
+                  "default": "rgb(102, 102, 102)",
+                  "optional": true,
+                  "widget": "colorSelector",
+                  "spectrum": {
+                    "showInput": true,
+                    "showAlpha": true,
+                    "preferredFormat": "rgb",
+                    "showPalette": true,
+                    "palette": [
+                      [
+                        "rgb(102, 102, 102)"
+                      ],
+                      [
+                        "rgb(67, 67, 67)",
+                        "rgb(102, 102, 102)",
+                        "rgb(204, 204, 204)",
+                        "rgb(217, 217, 217)",
+                        "rgb(255, 255, 255)"
+                      ],
+                      [
+                        "rgb(152, 0, 0)",
+                        "rgb(255, 0, 0)",
+                        "rgb(255, 153, 0)",
+                        "rgb(255, 255, 0)",
+                        "rgb(0, 255, 0)",
+                        "rgb(0, 255, 255)",
+                        "rgb(74, 134, 232)",
+                        "rgb(0, 0, 255)",
+                        "rgb(153, 0, 255)",
+                        "rgb(255, 0, 255)"
+                      ],
+                      [
+                        "rgb(230, 184, 175)",
+                        "rgb(244, 204, 204)",
+                        "rgb(252, 229, 205)",
+                        "rgb(255, 242, 204)",
+                        "rgb(217, 234, 211)",
+                        "rgb(208, 224, 227)",
+                        "rgb(201, 218, 248)",
+                        "rgb(207, 226, 243)",
+                        "rgb(217, 210, 233)",
+                        "rgb(234, 209, 220)",
+                        "rgb(221, 126, 107)",
+                        "rgb(234, 153, 153)",
+                        "rgb(249, 203, 156)",
+                        "rgb(255, 229, 153)",
+                        "rgb(182, 215, 168)",
+                        "rgb(162, 196, 201)",
+                        "rgb(164, 194, 244)",
+                        "rgb(159, 197, 232)",
+                        "rgb(180, 167, 214)",
+                        "rgb(213, 166, 189)",
+                        "rgb(204, 65, 37)",
+                        "rgb(224, 102, 102)",
+                        "rgb(246, 178, 107)",
+                        "rgb(255, 217, 102)",
+                        "rgb(147, 196, 125)",
+                        "rgb(118, 165, 175)",
+                        "rgb(109, 158, 235)",
+                        "rgb(111, 168, 220)",
+                        "rgb(142, 124, 195)",
+                        "rgb(194, 123, 160)",
+                        "rgb(166, 28, 0)",
+                        "rgb(204, 0, 0)",
+                        "rgb(230, 145, 56)",
+                        "rgb(241, 194, 50)",
+                        "rgb(106, 168, 79)",
+                        "rgb(69, 129, 142)",
+                        "rgb(60, 120, 216)",
+                        "rgb(61, 133, 198)",
+                        "rgb(103, 78, 167)",
+                        "rgb(166, 77, 121)",
+                        "rgb(91, 15, 0)",
+                        "rgb(102, 0, 0)",
+                        "rgb(120, 63, 4)",
+                        "rgb(127, 96, 0)",
+                        "rgb(39, 78, 19)",
+                        "rgb(12, 52, 61)",
+                        "rgb(28, 69, 135)",
+                        "rgb(7, 55, 99)",
+                        "rgb(32, 18, 77)",
+                        "rgb(76, 17, 48)"
+                      ]
+                    ]
+                  }
+                },
+                {
                   "name": "tipsAndFeedback",
                   "type": "group",
                   "label": "Tips and feedback",
@@ -261,18 +526,52 @@
                     {
                       "name": "feedbackOnCorrect",
                       "type": "text",
-                      "label": "Message displayed on correct match",
+                      "label": "Message displayed on correct match or drop zone",
                       "importance": "low",
-                      "description": "Message will appear below the task on \"check\" if correct droppable is matched.",
+                      "description": "Message will appear below the task on \"check\" if correct droppable is matched. If the Draggables Quantity and Value option is enabled, this message will appear if the drop zone is correctly filled.",
                       "optional": true
                     },
                     {
                       "name": "feedbackOnIncorrect",
                       "type": "text",
-                      "label": "Message displayed on incorrect match",
+                      "label": "Message displayed on incorrect match or drop zone",
                       "importance": "low",
-                      "description": "Message will appear below the task on \"check\" if the match is incorrect.",
+                      "description": "Message will appear below the task on \"check\" if the match is incorrect. If the Draggables Quantity and Value option is enabled, this message will appear if the drop zone is incorrectly filled. In this case, this message may be replaced by the next two messages, displayed on incorrect number OR incorrect total value.",
                       "optional": true
+                    },
+                    {
+                      "name": "feedbackOnIncorrectNumber",
+                      "type": "text",
+                      "label": "Message displayed on incorrect number",
+                      "importance": "low",
+                      "description": "Message will appear below the task on \"check\" if drop zone contains an incorrect number of items. You can use the variables @requirednumber and @selectednumber in your message, for example \"Sorry, you selected @selectednumber items, that's not correct. You should have selected @requirednumber\"",
+                      "optional": true,
+                      "widget": "showWhen",
+                      "showWhen": {
+                        "rules": [
+                          {
+                            "field": "../../../behaviour/enableDroppedQuantity",
+                            "equals": true
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "name": "feedbackOnIncorrectValue",
+                      "type": "text",
+                      "label": "Message displayed on incorrect total value",
+                      "importance": "low",
+                      "description": "Message will appear below the task on \"check\" if drop zone contains an incorrect total value. You can use the variables @requiredvalue and @totalvalue in your message, for example \"Sorry, the items you selected make up a total value of @totalvalue; they should add up to @requiredvalue\". You can also use the variables @oppositerequiredvalue and @oppositetotalvalue is needed.",
+                      "optional": true,
+                      "widget": "showWhen",
+                      "showWhen": {
+                        "rules": [
+                          {
+                            "field": "../../../behaviour/enableDroppedQuantity",
+                            "equals": true
+                          }
+                        ]
+                      }
                     }
                   ]
                 },
@@ -282,7 +581,53 @@
                   "label": "This drop zone can only contain one element",
                   "description": "Make sure there is only one correct answer for this dropzone",
                   "importance": "low",
-                  "default": false
+                  "default": false,
+                  "optional": true,
+                  "widget": "showWhen",
+                  "showWhen": {
+                    "rules": [
+                      {
+                        "field": "../../behaviour/enableDroppedQuantity",
+                        "equals": false
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "acceptedNumber",
+                  "type": "number",
+                  "min": 0,
+                  "max": 100,
+                  "label": "How many elements MUST this drop zone contain?",
+                  "description": "Exact number of draggables expected in this drop zone",
+                  "importance": "low",                  
+                  "optional": true,
+                  "widget": "showWhen",
+                  "showWhen": {
+                    "rules": [
+                      {
+                        "field": "../../behaviour/enableDroppedQuantity",
+                        "equals": true
+                      }
+                    ]
+                  }
+                },                                
+                {
+                  "name": "acceptedValue",
+                  "type": "number",
+                  "label": "Total draggables value",
+                  "importance": "low",
+                  "description": "Enter the expected total value of the draggables dropped in this zone",                  
+                  "optional": true,
+                  "widget": "showWhen",
+                  "showWhen": {
+                    "rules": [
+                      {
+                        "field": "../../behaviour/enableDroppedQuantity",
+                        "equals": true
+                      }
+                    ]
+                  }
                 },
                 {
                   "name": "autoAlign",
@@ -405,8 +750,8 @@
         "showWhen": {
           "rules": [            
             {
-              "field": "enableSolutionButton",
-              "equals": true
+              "field": "enableDroppedQuantity",
+              "equals": false
             }
           ]
         }
@@ -462,6 +807,50 @@
         }
       },
       {
+        "name": "enableScoreExplanationQuantity",
+        "type": "boolean",
+        "label": "Enable score explanation for Quantity",
+        "description": "Display a score explanation to user when checking their answers.",
+        "importance": "low",
+        "default": true,
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": true
+            }
+          ]
+        }
+      },
+      {
+        "name": "keepCorrectAnswers",
+        "type": "boolean",
+        "label": "Keep correct answers",
+        "description": "Check this option if you want to keep the draggable elements dropped in the correct drop zones after pressing 'Retry'.",
+        "importance": "low",
+        "default": false
+      },
+      {
+        "name": "disableCompletedDropZones",
+        "type": "boolean",
+        "label": "Disable completed Drop Zones",
+        "description": "Check this option if you want to make it impossible to drag draggables into or out of correctly completed Drop Zones.",
+        "importance": "low",
+        "default": false,
+        "optional": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": true
+            }
+          ]
+        }
+      },
+      {
         "name": "randomizeDraggables",
         "type": "boolean",
         "label": "Randomize the position of the draggable elements",
@@ -490,9 +879,207 @@
         "name": "backgroundOpacity",
         "type": "text",
         "label": "Background opacity for draggables",
+        "min": 0,
+        "max": 100,
+        "step": 5,
         "importance": "low",
         "description": "If this field is set, it will override opacity set on all draggable elements. This should be a number between 0 and 100, where 0 means full transparency and 100 means no transparency",
         "optional": true
+      },
+      {
+        "name": "backgroundOpacityDropZones",
+        "type": "number",
+        "label": "Background opacity for drop zones",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "importance": "low",
+        "description": "If this field is set, it will override opacity set on all dropzones. This should be a number between 0 and 100, where 0 means full transparency and 100 means no transparency",
+        "optional": true
+      },
+      {
+        "name": "dropZonesBackgroundColor",
+        "type": "text",
+        "label": "Drop Zones Background color",
+        "importance": "low",
+        "description": "The background color of the Drop Zones. Default value is rgb(245, 245, 245)",
+        "default": "rgb(245, 245, 245)",
+        "optional": true,
+        "widget": "colorSelector",
+        "spectrum": {
+          "showInput": true,
+          "showAlpha": true,
+          "preferredFormat": "rgb",
+          "showPalette": true,
+          "palette": [
+            [
+              "rgb(245, 245, 245)"
+            ],
+            [
+              "rgb(67, 67, 67)",
+              "rgb(102, 102, 102)",
+              "rgb(204, 204, 204)",
+              "rgb(217, 217, 217)",
+              "rgb(255, 255, 255)"
+            ],
+            [
+              "rgb(152, 0, 0)",
+              "rgb(255, 0, 0)",
+              "rgb(255, 153, 0)",
+              "rgb(255, 255, 0)",
+              "rgb(0, 255, 0)",
+              "rgb(0, 255, 255)",
+              "rgb(74, 134, 232)",
+              "rgb(0, 0, 255)",
+              "rgb(153, 0, 255)",
+              "rgb(255, 0, 255)"
+            ],
+            [
+              "rgb(230, 184, 175)",
+              "rgb(244, 204, 204)",
+              "rgb(252, 229, 205)",
+              "rgb(255, 242, 204)",
+              "rgb(217, 234, 211)",
+              "rgb(208, 224, 227)",
+              "rgb(201, 218, 248)",
+              "rgb(207, 226, 243)",
+              "rgb(217, 210, 233)",
+              "rgb(234, 209, 220)",
+              "rgb(221, 126, 107)",
+              "rgb(234, 153, 153)",
+              "rgb(249, 203, 156)",
+              "rgb(255, 229, 153)",
+              "rgb(182, 215, 168)",
+              "rgb(162, 196, 201)",
+              "rgb(164, 194, 244)",
+              "rgb(159, 197, 232)",
+              "rgb(180, 167, 214)",
+              "rgb(213, 166, 189)",
+              "rgb(204, 65, 37)",
+              "rgb(224, 102, 102)",
+              "rgb(246, 178, 107)",
+              "rgb(255, 217, 102)",
+              "rgb(147, 196, 125)",
+              "rgb(118, 165, 175)",
+              "rgb(109, 158, 235)",
+              "rgb(111, 168, 220)",
+              "rgb(142, 124, 195)",
+              "rgb(194, 123, 160)",
+              "rgb(166, 28, 0)",
+              "rgb(204, 0, 0)",
+              "rgb(230, 145, 56)",
+              "rgb(241, 194, 50)",
+              "rgb(106, 168, 79)",
+              "rgb(69, 129, 142)",
+              "rgb(60, 120, 216)",
+              "rgb(61, 133, 198)",
+              "rgb(103, 78, 167)",
+              "rgb(166, 77, 121)",
+              "rgb(91, 15, 0)",
+              "rgb(102, 0, 0)",
+              "rgb(120, 63, 4)",
+              "rgb(127, 96, 0)",
+              "rgb(39, 78, 19)",
+              "rgb(12, 52, 61)",
+              "rgb(28, 69, 135)",
+              "rgb(7, 55, 99)",
+              "rgb(32, 18, 77)",
+              "rgb(76, 17, 48)"
+            ]
+          ]
+        }
+      },
+      {
+        "name": "overrideBorderColor",
+        "type": "text",
+        "label": "Border color for drop zones",
+        "importance": "low",
+        "description": "If this color is set, it will override the color of the individual dropzones borders. To UNSET this override color, select the first palette setting, rgba(0,0,0,0,).",
+        "default": "rgba(0, 0, 0, 0)",
+        "optional": true,
+        "widget": "colorSelector",
+        "spectrum": {
+          "showInput": true,
+          "showAlpha": true,
+          "preferredFormat": "rgb",
+          "showPalette": true,
+          "palette": [
+            [
+              "rgba(0, 0, 0, 0)"
+            ],
+            [
+              "rgb(67, 67, 67)",
+              "rgb(102, 102, 102)",
+              "rgb(204, 204, 204)",
+              "rgb(217, 217, 217)",
+              "rgb(255, 255, 255)"
+            ],
+            [
+              "rgb(152, 0, 0)",
+              "rgb(255, 0, 0)",
+              "rgb(255, 153, 0)",
+              "rgb(255, 255, 0)",
+              "rgb(0, 255, 0)",
+              "rgb(0, 255, 255)",
+              "rgb(74, 134, 232)",
+              "rgb(0, 0, 255)",
+              "rgb(153, 0, 255)",
+              "rgb(255, 0, 255)"
+            ],
+            [
+              "rgb(230, 184, 175)",
+              "rgb(244, 204, 204)",
+              "rgb(252, 229, 205)",
+              "rgb(255, 242, 204)",
+              "rgb(217, 234, 211)",
+              "rgb(208, 224, 227)",
+              "rgb(201, 218, 248)",
+              "rgb(207, 226, 243)",
+              "rgb(217, 210, 233)",
+              "rgb(234, 209, 220)",
+              "rgb(221, 126, 107)",
+              "rgb(234, 153, 153)",
+              "rgb(249, 203, 156)",
+              "rgb(255, 229, 153)",
+              "rgb(182, 215, 168)",
+              "rgb(162, 196, 201)",
+              "rgb(164, 194, 244)",
+              "rgb(159, 197, 232)",
+              "rgb(180, 167, 214)",
+              "rgb(213, 166, 189)",
+              "rgb(204, 65, 37)",
+              "rgb(224, 102, 102)",
+              "rgb(246, 178, 107)",
+              "rgb(255, 217, 102)",
+              "rgb(147, 196, 125)",
+              "rgb(118, 165, 175)",
+              "rgb(109, 158, 235)",
+              "rgb(111, 168, 220)",
+              "rgb(142, 124, 195)",
+              "rgb(194, 123, 160)",
+              "rgb(166, 28, 0)",
+              "rgb(204, 0, 0)",
+              "rgb(230, 145, 56)",
+              "rgb(241, 194, 50)",
+              "rgb(106, 168, 79)",
+              "rgb(69, 129, 142)",
+              "rgb(60, 120, 216)",
+              "rgb(61, 133, 198)",
+              "rgb(103, 78, 167)",
+              "rgb(166, 77, 121)",
+              "rgb(91, 15, 0)",
+              "rgb(102, 0, 0)",
+              "rgb(120, 63, 4)",
+              "rgb(127, 96, 0)",
+              "rgb(39, 78, 19)",
+              "rgb(12, 52, 61)",
+              "rgb(28, 69, 135)",
+              "rgb(7, 55, 99)",
+              "rgb(32, 18, 77)",
+              "rgb(76, 17, 48)"
+            ]
+          ]
+        }
       },
       {
         "name": "dropZoneHighlighting",
@@ -534,20 +1121,29 @@
         "default": false
       },
       {
+        "name": "showScorePoints",
+        "type": "boolean",
+        "label": "Show score points",
+        "description": "Show points earned for each answer. Not available when the 'Give one point for the whole task' option is enabled.",
+        "importance": "low",
+        "default": true,
+        "widget": "showWhen",
+        "showWhen": {
+          "rules": [
+            {
+              "field": "enableDroppedQuantity",
+              "equals": false
+            }
+          ]
+        }
+      },
+      {
         "name": "showScoreInline",
         "type": "boolean",
         "label": "Display correct/wrong and scorepoints horizontally",
         "importance": "low",
         "description": "Check this option to display the correct/wrong ticks and the score points horizontally (inline) instead of the default vertical display.",
         "default": false
-      },
-      {
-        "name": "showScorePoints",
-        "type": "boolean",
-        "label": "Show score points",
-        "description": "Show points earned for each answer. Not available when the 'Give one point for the whole task' option is enabled.",
-        "importance": "low",
-        "default": true
       },
       {
         "name": "showTitle",
@@ -652,6 +1248,38 @@
     "common": true
   },
   {
+    "name": "correctNumber",
+    "type": "text",
+    "label": "Label for correct number",
+    "importance": "low",
+    "default": "Correct number:&nbsp;",
+    "common": true
+  },
+  {
+    "name": "inCorrectNumber",
+    "type": "text",
+    "label": "Label for incorrect number",
+    "importance": "low",
+    "default": "Incorrect number:&nbsp;",
+    "common": true
+  },
+  {
+    "name": "correctValue",
+    "type": "text",
+    "label": "Label for correct  total value",
+    "importance": "low",
+    "default": "Correct total value:&nbsp;",
+    "common": true
+  },
+  {
+    "name": "inCorrectValue",
+    "type": "text",
+    "label": "Label for incorrect  total value",
+    "importance": "low",
+    "default": "Incorrect total value:&nbsp;",
+    "common": true
+  },
+  {
     "name": "feedbackHeader",
     "type": "text",
     "label": "Header for panel containing feedback for correct/incorrect answers",
@@ -689,6 +1317,14 @@
     "label": "Assistive technology label for \"Retry\" button",
     "default": "Retry the task. Reset all responses and start the task over again.",
     "importance": "low",
+    "common": true
+  },
+  {
+    "label": "Text for \"Requires answer\" message",
+    "importance": "low",
+    "name": "noInput",
+    "type": "text",
+    "default": "Please answer before viewing the solution",
     "common": true
   }
 ]

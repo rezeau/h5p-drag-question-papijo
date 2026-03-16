@@ -40,6 +40,10 @@ function C(options, contentId, contentData) {
     tipAvailable: 'Tip available',
     correctAnswer: 'Correct answer',
     wrongAnswer: 'Wrong answer',
+    correctNumber: 'Correct number: ',
+    inCorrectNumber: 'Incorrect number: ',
+    correctValue: 'Correct total value: ',
+    inCorrectValue: 'Incorrect total value: ',
     feedbackHeader: 'Feedback',
     scoreBarLabel: 'You got :num out of :total points',
     scoreExplanationButtonLabel: 'Show score explanation',
@@ -63,6 +67,7 @@ function C(options, contentId, contentData) {
       dragHandleVisibility: true,
       dropZoneHighlighting: 'dragging',
       enableCheckButton: true,
+      enableDroppedQuantity: false,
       enableRetry: true,
       enableScoreExplanation: true,
       enableSolutionButton: false,
@@ -131,24 +136,24 @@ function C(options, contentId, contentData) {
   };
 
   // List of drop zones that has no elements, i.e. not used for the task
-  var dropZonesWithoutElements = [];
-
+  const dropZonesWithoutElements = [];
   // Create map over correct drop zones for elements
-  ///let task = this.options.question.task;
   this.correctDZs = [];
-  for (i = 0; i < task.dropZones.length; i++) {
+  for (let i = 0; i < task.dropZones.length; i++) {
     dropZonesWithoutElements.push(true); // All true by default
-
-    var correctElements = task.dropZones[i].correctElements;
-    for (j = 0; j < correctElements.length; j++) {
-      var correctElement = correctElements[j];
+    const correctElements = task.dropZones[i].correctElements;
+    for (let j = 0; j < correctElements.length; j++) {
+      const correctElement = correctElements[j];
       if (this.correctDZs[correctElement] === undefined) {
         this.correctDZs[correctElement] = [];
       }
       this.correctDZs[correctElement].push(i);
     }
+    if (this.overrideBorderColor !== undefined) {
+      task.dropZones[i].bordercolor = this.overrideBorderColor;
+    }
+    task.dropZones[i].background = this.dropZonesBackgroundColor;
   }
-
   this.weight = 1;
 
   const isDraggable = element => {
@@ -165,7 +170,10 @@ function C(options, contentId, contentData) {
   let draggableNum = 1; // Human readable label (a11y)
   for (i = 0; i < task.elements.length; i++) {
     var element = task.elements[i];
-
+    // Just in case a draggable was created multiple BEFORE enableDroppedQuantity was set.
+    if (this.options.behaviour.enableDroppedQuantity) {
+      element.multiple = false;
+    }
     if (!isDraggable(element)) {
       continue; // Not a draggable
     }
@@ -237,7 +245,22 @@ function C(options, contentId, contentData) {
       dropZonesWithoutElements[element.dropZones[j]] = false;
     }
   }
-
+ // Create map over correct draggables for dropzones (if enableDroppedQuantity)
+  if (this.options.behaviour.enableDroppedQuantity) {
+    this.correctDraggables = [];
+    for (let i = 0; i < task.dropZones.length; i++) {
+      this.correctDraggables[i] = [];
+      for (let j = 0; j < this.correctDZs.length; j++) {
+        if (this.correctDZs[j] === undefined) {
+          continue;
+        }
+        const dragOkDZ = $.inArray(i, this.correctDZs[j]);
+        if (dragOkDZ !== -1) {
+          this.correctDraggables[i].push(j);
+        }
+      }
+    }
+  }
   // Create a count to subtrack from score
   this.numDropZonesWithoutElements = 0;
 
@@ -250,13 +273,19 @@ function C(options, contentId, contentData) {
   // Add drop zones
   for (i = 0; i < task.dropZones.length; i++) {
     var dropZone = task.dropZones[i];
-
+    // Just in case it was previously set to true.
+    if (this.options.behaviour.enableDroppedQuantity) {
+      dropZone.single = false;
+    }
     if (dropZonesWithoutElements[i] === true) {
       this.numDropZonesWithoutElements += 1;
     }
 
     if (this.blankIsCorrect && dropZone.correctElements.length) {
       this.blankIsCorrect = false;
+    }
+    if (this.backgroundOpacityDropZones !== undefined) {
+      dropZone.backgroundOpacity = this.backgroundOpacityDropZones;
     }
     dropZone.resetSingleDraggables = this.options.behaviour.resetSingleDraggables;
     dropZone.autoAlign = {
@@ -755,7 +784,103 @@ C.prototype.addExplanation = function () {
     this.setExplanation(explanations, this.options.feedbackHeader);
   }
 };
-
+/**
+ * Add explanation/feedback (the part on the bottom part) FOR contents with enableDroppedQuantity.
+ */
+C.prototype.addExplanationDroppedQuantity = function () {
+  const task = this.options.question.task;
+  const self = this;
+  let explanations = [];
+  // todo remove const $dropZones = self.dropZones; // DOM objects
+  let i = 0;
+  const $dropZones = self.dropZones; // DOM objects
+  // Go through all dropzones, and find correct/incorrect feedback and current status.
+  task.dropZones.forEach((dropZone, dropZoneId) => {
+    // Init labels.
+    let fb = '';
+    let correctValueLabel = '';
+    let correctNumberLabel = '';
+    let inCorrectNumberLabel = '';
+    let inCorrectValueLabel = '';
+    const feedback = {
+      correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
+      incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect,
+      incorrectNumber:dropZone.tipsAndFeedback.feedbackOnIncorrectNumber,
+      incorrectValue: dropZone.tipsAndFeedback.feedbackOnIncorrectValue
+    };
+    const $dropZone = $dropZones[i];
+    const dropZoneLabel = DragUtils.strip(dropZone.label);
+    // Calculate number of draggables in current zone and their total value.
+    let nbDraggablesInZone = 0;
+    let totalValueInZone = 0;
+    this.draggables.forEach(draggable => {
+      draggable.elements.forEach(dz => {
+        if (dz.dropZone === dropZoneId) {
+          nbDraggablesInZone++;
+          totalValueInZone += draggable.value;
+        }
+      });
+    });
+    if (dropZone.acceptedNumber !== undefined) {
+      if (nbDraggablesInZone === dropZone.acceptedNumber) {
+        correctNumberLabel = this.options.correctNumber + dropZone.acceptedNumber + '<br />';
+      }
+      else {
+        inCorrectNumberLabel = this.options.inCorrectNumber + nbDraggablesInZone + '<br />';
+        if (feedback.incorrectNumber) {
+          fb = feedback.incorrectNumber
+            .replace('@requirednumber', dropZone.acceptedNumber)
+            .replace('@selectednumber', nbDraggablesInZone);
+        }
+      }
+    }
+    if (dropZone.acceptedValue !== undefined) {
+      if (totalValueInZone === dropZone.acceptedValue) {
+        correctValueLabel = this.options.correctValue + dropZone.acceptedValue + '<br />';
+      }
+      else {
+        if (dropZone.acceptedValue !== undefined) {
+          if (fb === '') {
+            inCorrectValueLabel = this.options.inCorrectValue + totalValueInZone + '<br />' ;
+          }
+          if (fb === '' && feedback.incorrectValue) {
+            fb += feedback.incorrectValue
+              .replace('@requiredvalue', dropZone.acceptedValue)
+              .replace('@totalvalue', totalValueInZone)
+              .replace('@oppositerequiredvalue', - dropZone.acceptedValue)
+              .replace('@oppositetotalvalue', - totalValueInZone);
+          }
+        }
+      }
+    }
+    let status = $dropZone.getCompletedStatus();
+    if (status === true) {
+      status = 'correct';
+      fb = feedback.correct;
+    }
+    else if (dropZone.acceptedNumber === undefined && dropZone.acceptedValue === undefined) {
+      status = 'none';
+    }
+    else {
+      status = 'incorrect';
+      if (fb === '' && feedback.incorrect) {
+        fb = feedback.incorrect;
+      }
+    }
+    if (status !== 'none') {
+      explanations.push({
+        correct: dropZoneLabel + '<br />' + correctNumberLabel + correctValueLabel,
+        wrong: inCorrectNumberLabel + inCorrectValueLabel,
+        text: fb
+      });
+    }
+    $dropZone.markResult(status);
+    i++;
+  });
+  if (explanations.length !== 0) {
+    this.setExplanation(explanations, this.options.feedbackHeader);
+  }
+};
 /**
  * Add retry button to our container.
  */
@@ -943,36 +1068,48 @@ C.prototype.enableDraggables = function () {
 C.prototype.showAllSolutions = function (skipVisuals) {
   this.points = 0;
   this.rawPoints = 0;
-
+  this.allSolutionsViewed = true;
   // One correct point for each "no solution" dropzone if there are no solutions
   if (this.blankIsCorrect) {
     this.points = 1;
     this.rawPoints = 1;
   }
-
-  var scorePoints;
+  let scorePoints;
   if (!skipVisuals && this.options.behaviour.showScorePoints && !this.options.behaviour.singlePoint && this.options.behaviour.applyPenalties) {
     scorePoints = new H5P.Question.ScorePoints();
   }
-  
   this.scoreInline = this.options.behaviour.showScoreInline;
-  
-  for (var i = 0; i < this.draggables.length; i++) {
-    var draggable = this.draggables[i];
+  this.maxScoreReached = false;
+  for (let i = 0; i < this.draggables.length; i++) {
+    const draggable = this.draggables[i];
     if (draggable === undefined) {
       continue;
     }
-
     //Disable all draggables in check mode.
     if (!skipVisuals) {
       draggable.disable();
     }
-
-    // Find out where we are.
-    this.points += draggable.results(skipVisuals, this.correctDZs[i], scorePoints, this.scoreInline);
-    this.rawPoints += draggable.rawPoints;
   }
 
+  // Normal mode
+  if (!this.options.behaviour.enableDroppedQuantity) {
+    for (let i = 0; i < this.draggables.length; i++) {
+      const draggable = this.draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }
+      // Find out where we are.
+      this.points += draggable.results(skipVisuals, this.correctDZs[i], scorePoints, this.scoreInline);
+      this.rawPoints += draggable.rawPoints;
+    }
+  }
+  else { // enableDroppedQuantity Mode.
+    for (let i = 0; i < this.dropZones.length; i++) {
+      const dropzone = this.dropZones[i];
+      this.points += dropzone.results(this.draggables, this.correctDraggables, scorePoints);
+      this.rawPoints = this.points;
+    }
+  }
   if (this.points < 0) {
     this.points = 0;
   }
@@ -982,23 +1119,23 @@ C.prototype.showAllSolutions = function (skipVisuals) {
   if (this.options.behaviour.singlePoint) {
     this.points = (this.points === this.calculateMaxScore() ? 1 : 0);
   }
-
   if (!skipVisuals) {
     this.hideButton('check-answer');
   }
-  if (this.options.behaviour.enableSolutionButton && !skipVisuals) {
-    this.showButton('show-solution');
-  }
-
   if (this.options.behaviour.enableRetry && !skipVisuals) {
     this.showButton('try-again');
+  }
+  if (this.options.behaviour.enableSolutionButton && !skipVisuals) {
+    this.showButton('show-solution');
   }
   if (this.points === this.getMaxScore()) {
     this.maxScoreReached = true;
   }
   if (this.hasButton('check-answer') && (this.options.behaviour.enableRetry === false || this.points === this.getMaxScore())) {
     // Max score reached, or the user cannot try again.
-    this.hideButton('try-again');
+    // DEV JR allow retry even after Max score reached see H5P forum at ???
+    //this.hideButton('try-again');
+    this.hideButton('show-solution');
   }
 };
 
@@ -1389,29 +1526,65 @@ C.prototype.showSolution = function () {
  * @returns {Number} Max points
  */
 C.prototype.calculateMaxScore = function () {
-  var max = 0;
-
   if (this.blankIsCorrect) {
     return 1;
   }
-
-  var elements = this.options.question.task.elements;
-  for (var i = 0; i < elements.length; i++) {
-    var correctDropZones = this.correctDZs[i];
-
-    if (correctDropZones === undefined || !correctDropZones.length) {
-      continue;
-    }
-
-    if (elements[i].multiple) {
-      max += correctDropZones.length;
-    }
-    else {
+  if (this.maxScore) {
+    return this.maxScore; // Will never change
+  }
+  if (this.options.behaviour.enableDroppedQuantity) {
+    let max = 0;
+    const dropZones = this.options.question.task.dropZones;
+    for (let i = 0; i < dropZones.length; i++) {
       max++;
     }
+    return max;
   }
-
-  return max;
+  const that = this;
+  /*
+   * Maximum number of correct elements that could be put into dropzone spots
+   * Could be larger than number of elements that can actually be dragged
+   * if an element could be placed into more than one dropzone, but if
+   * element does not allow to have multiple instances.
+   */
+  const maxScoreDropZones = this.options.question.task.dropZones.reduce(function (max, dropzone) {
+    return max + (dropzone.single ? 1 : dropzone.correctElements.length);
+  }, 0);
+  /*
+   * Maximum number of correct dropzone spots that could be filled by elements
+   * Could be larger than number of actually available dropzone spots if
+   * a dropzone accepts only one element.
+   */
+  let maxScoreDraggables = this.options.question.task.elements.reduce(function (max, element, index) {
+    const correctIn = that.correctDZs[index] ? that.correctDZs[index].length : 0;
+    return max + (element.multiple ? correctIn : Math.min(correctIn, 1));
+  }, 0);
+  /*
+   * There could be elements that are only correct on dropzones that accept
+   * only one element, and there could be more of these elements than dropzones
+   * available.
+   */
+  // Number of dropzones that allow 1 item only
+  const numberSingleDropZones = this.options.question.task.dropZones
+    .filter(function (dropzone) {
+      return dropzone.single;
+    })
+    .length;
+  // Number of elements that can only be put onto dropzones that allow 1 item
+  const numberElementsNeedSingleDZ = that.correctDZs
+    .map(function (dropzones) {
+      dropzones = dropzones || [];
+      return dropzones.every(function (dropzoneId) {
+        return that.options.question.task.dropZones[dropzoneId].single;
+      });
+    })
+    .reduce(function (amount, hasOnlySingleDropzones) {
+      return amount + ((hasOnlySingleDropzones) ? 1 : 0);
+    }, 0);
+  // Account for number of elements that cannot be placed anywhere
+  maxScoreDraggables = maxScoreDraggables - Math.max(0, numberElementsNeedSingleDZ - numberSingleDropZones);
+  this.maxScore = Math.min(maxScoreDropZones, maxScoreDraggables);
+  return this.maxScore;
 };
 
 /**
@@ -1443,23 +1616,76 @@ C.prototype.getScore = function () {
  * @returns {Boolean}
  */
 C.prototype.getAnswerGiven = function () {
-  return this.answered || this.blankIsCorrect;
+  return !this.options.behaviour.showSolutionsRequiresInput || this.answered || this.blankIsCorrect;
 };
 
 /**
  * Shows the score to the user when the score button is pressed.
  */
 C.prototype.showScore = function () {
-  var maxScore = this.calculateMaxScore();
+  const self = this;
+  let maxScore = this.calculateMaxScore();
   if (this.options.behaviour.singlePoint) {
     maxScore = 1;
   }
-  var actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint) ? this.points : this.rawPoints;
-  var scoreText = H5P.Question.determineOverallFeedback(this.options.overallFeedback, actualPoints / maxScore).replace('@score', actualPoints).replace('@total', maxScore);
-  var helpText = (this.options.behaviour.enableScoreExplanation && this.options.behaviour.applyPenalties) ? this.options.scoreExplanation : false;
-  this.setFeedback(scoreText, actualPoints, maxScore, this.options.scoreBarLabel, helpText, undefined, this.options.scoreExplanationButtonLabel);
+  if (this.options.behaviour.enableDroppedQuantity) {
+    const task = this.options.question.task;
+    // Count correctly filled in dropZones and add to score.
+    let i = 0;
+    const $dropZones = self.dropZones; // DOM objects
+    task.dropZones.forEach((dropZone) => {
+      const $dropZone = $dropZones[i];
+      let status = $dropZone.getCompletedStatus();
+      if (status === true) {
+        status = 'correct';
+        dropZone.status = status;
+      }
+      else {
+        status = 'wrong';
+        dropZone.status = status;
+      }
+      if (dropZone.acceptedNumber === undefined && dropZone.acceptedValue === undefined) {
+        //status = 'none';
+        //dropZone.status = status;
+      }
+      $dropZone.markResult(status);
+      i++;
+    });
+    // Enable correct or wrong background-color for the draggables, accounting for their opacity.
+    for (let i = 0; i < this.draggables.length; i++) {
+      const draggable = this.draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }
+      const element = draggable.elements[0];
+      if (this.options.behaviour.enableDroppedQuantity) {
+        if (element.$.hasClass('h5p-correct-quantity')) {
+          element.$.addClass('h5p-correct');
+        }
+        else if (element.$.hasClass('h5p-incorrect-quantity')) {
+          element.$.addClass('h5p-wrong');
+        }
+      }
+      DragUtils.setOpacity(element.$, 'background', draggable.backgroundOpacity);
+    }
+  }
+  this.scoreViewed = true;
+  let helpText = '';
+  const actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint)
+    ? this.points : this.rawPoints;
+  const scoreText = H5P.Question.determineOverallFeedback(this.options.overallFeedback,
+    actualPoints / maxScore).replace('@score', actualPoints).replace('@total', maxScore);
+  if (this.options.behaviour.enableDroppedQuantity) {
+    helpText = (this.options.behaviour.enableScoreExplanationQuantity)
+      ? this.options.scoreExplanationQuantity : false;
+  }
+  else {
+    helpText = (this.options.behaviour.enableScoreExplanation && this.options.behaviour.applyPenalties)
+      ? this.options.scoreExplanation : false;
+  }
+  this.setFeedback(scoreText, actualPoints, maxScore, this.options.scoreBarLabel, helpText, undefined,
+    this.options.scoreExplanationButtonLabel);
 };
-
 /**
  * Packs info about the current state of the task into a object for
  * serialization.
@@ -1478,10 +1704,10 @@ C.prototype.getCurrentState = function () {
     var draggableAnswers = [];
     for (var j = 0; j < draggable.elements.length; j++) {
       var element = draggable.elements[j];
-      if (element === undefined || element.dropZone === undefined) {
+      
+      if ( (element === undefined || element.dropZone === undefined) || element.$.hasClass('h5p-question-solution') || element.$.hasClass('h5p-question-hidden')) {
         continue;
       }
-
       // Store position and drop zone.
       draggableAnswers.push({
         x: element.position ? Number(element.position.left.replace('%', '')) : null,

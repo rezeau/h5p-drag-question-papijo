@@ -48,6 +48,7 @@ export default class Draggable extends H5P.EventDispatcher {
     self.dropZones = element.dropZones;
     self.type = element.type;
     self.multiple = element.multiple;
+    self.value = element.value;
     self.l10n = l10n;
     self.allDropzones = dropZones;
     self.draggableNum = draggableNum;
@@ -562,23 +563,30 @@ export default class Draggable extends H5P.EventDispatcher {
     }
 
     // Are we somewhere we should be?
-    for (i = 0; i < self.elements.length; i++) {
+    for (let i = 0; i < self.elements.length; i++) {
       element = self.elements[i];
 
       if (element === undefined || element.dropZone === undefined) {
         continue; // We have not been placed anywhere, we're neither wrong nor correct.
       }
-
+      // DEV JR QUANTITY do not mark correct if exceeds expected number!
+      // correct only if equals accepted number of elements
       correct = false;
       for (j = 0; j < solutions.length; j++) {
         if (element.dropZone === solutions[j]) {
           // Yepp!
           if (skipVisuals !== true) {
-            self.markElement(element, 'correct', scorePoints, scoreInline);
+            // If keeepCorrectAnswers is enabled, then the current element may already have been marked as correct, so skip the marking.
+            if (element.$suffix.length === 1) {
+              self.markElement(element, 'correct', scorePoints, scoreInline);
+            }
+          }
+          // If element has already been marked as a "missing solution" do not give any points.
+          if (!element.$.hasClass('h5p-question-solution') ) {
+            self.rawPoints++;
+            points++;
           }
           correct = true;
-          self.rawPoints++;
-          points++;
           break;
         }
       }
@@ -588,7 +596,9 @@ export default class Draggable extends H5P.EventDispatcher {
         if (skipVisuals !== true) {
           self.markElement(element, 'wrong', scorePoints, scoreInline);
         }
-        points--;
+        if (!element.$.hasClass('h5p-question-solution') ) {
+          points--;
+        }
       }
     }
 

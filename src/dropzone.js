@@ -28,6 +28,8 @@ export default class DropZone {
     self.backgroundOpacity = dropZone.backgroundOpacity;
     self.tip = dropZone.tipsAndFeedback.tip || '';
     self.single = dropZone.single;
+    self.acceptedNumber = dropZone.acceptedNumber;
+    self.acceptedValue = dropZone.acceptedValue;
     self.autoAlignable = dropZone.autoAlign;
     self.useBackgroundHover =
       behaviour.dropZoneHighlighting === 'always' ||
@@ -389,5 +391,170 @@ export default class DropZone {
     // Remove alignables
     this.alignables = [];
     DragUtils.setOpacity(this.$dropZone.children('.h5p-inner').removeClass('h5p-over'), 'background', this.backgroundOpacity);
+  }
+  
+  /**
+   * Mark the current drop zone correct/wrong.
+   */
+  markResult(status) {
+    this.$dropZone.children('.h5p-inner').addClass('h5p-dropzone-' + status + '-answer');
+  }
+
+  /**
+   * REmove the current drop zone correct mark.
+   */
+  unmarkResult(status, keepCorrectAnswers, disableCompletedDropZones, forceReset) {
+
+    // Status true = dropzone is correct ; status false = dropzone is incorrect.
+    if (status === false) {
+      this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-wrong-answer');
+      this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+    }
+    else if (keepCorrectAnswers && disableCompletedDropZones) {
+      // If dropzone is correct, then disable it, no more drops allowed!
+      this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", true );
+    }
+    else {
+      // TODO
+      //this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer');
+    }
+    if (forceReset) {
+      this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer h5p-dropzone-wrong-answer');
+      // Re-enable dropzones droppable
+      this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", false );
+      this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+    }
+  }
+
+  /**
+   * Mark the current drop zone completed.
+   */
+  markCompleted() {
+    this.$dropZone.addClass('h5p-dropzone-completed-answer');
+  }
+  unMarkCompleted() {
+    this.$dropZone.removeClass('h5p-dropzone-completed-answer');
+  }
+
+  getCompletedStatus() {
+    const completed = this.$dropZone.hasClass('h5p-dropzone-completed-answer');
+    return completed;
+  }
+
+  /**
+   * JR enableDroppedQuantity Calculate score for this dropzone.
+   *
+   * @param {Array} draggables
+   * @param {Array} solutions
+   * @returns {number}
+   */
+
+  results(draggables, solutions) {
+    const self = this;
+    let nbDraggablesInZone = 0;
+    let nbPlacedDraggables = 0;
+    let totalValue = 0;
+    let completed = false;
+    const acceptedNumber = self.acceptedNumber;
+    const acceptedValue = self.acceptedValue;
+    console.log('acceptedValue = ' + acceptedValue);
+    const dropZoneId = self.id;
+    const currSolutions = solutions[dropZoneId];
+    let oknb = false;
+    let okval = false;
+
+    for (let i = 0; i < draggables.length; i++) {
+      const draggable = draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }
+      const element = draggable.elements[0];
+      // Draggable not in dropZone
+      // SEPT 2021 in Interactive Book papi Jo throws error "element is undefined" if click Summary &submit before any action.
+      if (!element) {
+        return 0;
+      }
+      if (element.dropZone !== dropZoneId) {
+        continue;
+      }
+      nbDraggablesInZone ++;
+      const dragId = draggable.id;
+      const dragVal = draggable.value;
+      const dragOkDZ = $.inArray(dragId, currSolutions);
+      oknb = false;
+      if (nbPlacedDraggables > acceptedNumber) {
+        continue;
+      }
+      if (dragOkDZ !== -1) {
+        nbPlacedDraggables ++;
+        totalValue += dragVal;
+      }
+      if (acceptedNumber === undefined && totalValue === acceptedValue) {
+        oknb = true;
+      }
+      if (acceptedValue === undefined && nbPlacedDraggables === acceptedNumber) {
+        okval = true;
+      }
+      // In this use case, accept any number/value except empty number.
+      if (acceptedNumber === undefined && acceptedValue === undefined && nbDraggablesInZone) {
+        oknb = true;
+        okval = true;
+      }
+      if (dragOkDZ !== -1 && (nbPlacedDraggables === acceptedNumber || oknb) && (totalValue === acceptedValue || okval) ) {
+        completed = true;
+        self.markCompleted();
+      }
+      else {
+        completed = false;
+        self.unMarkCompleted();
+      }
+    }
+    // Use case of empty dropZone expecting 0 or undefined draggables AND 0 or undefined total value!
+    if (nbDraggablesInZone === 0 && acceptedNumber === 0 && !acceptedValue) {
+      self.markCompleted();
+      return 1;
+    }
+
+    if (nbDraggablesInZone === 0 && acceptedNumber === undefined && acceptedValue !== undefined) {
+      return 0;
+    }
+
+    if (acceptedNumber === undefined && acceptedValue === undefined) {
+      self.markCompleted();
+      completed = true;
+    }
+
+    for (let i = 0; i < draggables.length; i++) {
+      const draggable = draggables[i];
+      if (draggable === undefined) {
+        continue;
+      }
+      const element = draggable.elements[0];
+      // Draggable not in dropZone
+      if (element.dropZone !== dropZoneId) {
+        // Just in case it was previously added and element was moved away from dz!
+        if (element.dropZone === undefined) {
+          element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
+        }
+        continue;
+      }
+      element.$.removeClass('h5p-correct-quantity h5p-incorrect-quantity');
+      if (completed === true) {
+        element.$.addClass('h5p-correct-quantity');
+      }
+      else if (completed === false) {
+        element.$.addClass('h5p-incorrect-quantity');
+      }
+    }
+
+    if (completed === undefined) {
+      self.unmarkResult();
+    }
+    if (completed === true) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
   }
 }
