@@ -472,7 +472,8 @@ C.prototype.getXAPIDefinition = function () {
   for (var i = 0; i < this.options.question.task.elements.length; i++) {
     var el = this.options.question.task.elements[i];
     if (el.dropZones && el.dropZones.length) {
-      var desc = el.type.params.alt ? el.type.params.alt : el.type.params.text;
+      // Modified by papi Jo OCTOBER 2021 for new audio draggable compativility.
+      const desc = DragUtils.strip(el.type.params.alt || el.type.params.text || el.type.metadata.title) || '?';
 
       definition.source.push({
         'id': '' + i,
@@ -760,7 +761,8 @@ C.prototype.addExplanation = function () {
     // Go through each placed draggable
     Object.keys(placedDraggables).forEach(draggableId => {
       const draggable = placedDraggables[draggableId];
-      const draggableLabel = DragUtils.strip(draggable.instance.type.params.alt || draggable.instance.type.params.text) || '?';
+      // Modified by papi Jo OCT 2021 for new audio draggable compativility.
+      const draggableLabel = DragUtils.strip(draggable.instance.type.params.alt || draggable.instance.type.params.text || draggable.instance.type.metadata.title) || '?';
       const dropZoneLabel = DragUtils.strip(dropZone.label);
 
       if (draggable.correct && feedback.correct) {
@@ -1293,7 +1295,7 @@ C.prototype.showSolution = function () {
     dropZone.autoAlign();
     dropZone.alignables = [];
   }
-  const correctDZs = [];
+  const correctDZs = [];  
   for (let i = 0; i < this.draggables.length; i++) {
     const draggable = this.draggables[i];
     if (draggable === undefined) {

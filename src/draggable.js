@@ -346,6 +346,7 @@ export default class Draggable extends H5P.EventDispatcher {
    * Update the visuals to match the position of the element
    */
   updatePlacement(element) {
+    const self = this;
     if (element.$suffix) {
       // Always remove old a11y text. (drop zone may have changed)
       element.$suffix.remove();
@@ -353,34 +354,23 @@ export default class Draggable extends H5P.EventDispatcher {
 
     if (element.dropZone !== undefined) {
       element.$.addClass('h5p-dropped');
+      ///DragUtils.setElementOpacity(element.$, self.backgroundOpacity);
 
       // Add suffix for good a11y
-
-      // Use dropzone label or dropzone number
-      let dropZoneLabel = this.allDropzones[element.dropZone].label;
-      if (dropZoneLabel) {
-        const labelElement = document.createElement('div');
-        labelElement.innerHTML = dropZoneLabel;
-        dropZoneLabel = labelElement.innerText;
-      } else {
-        dropZoneLabel = element.dropZone + 1;
-      }
-      element.$suffix = $('<span class="h5p-hidden-read"></span>')
-        .text(this.l10n.suffix.replace('{num}', dropZoneLabel))
-        .appendTo(element.$);
-    } 
+      element.$suffix = $('<span class="h5p-hidden-read">' + (this.l10n.suffix.replace('{num}', element.dropZone + 1)) + '. </span>').appendTo(element.$);
+    }
     else {
       element.$
-      .removeClass('h5p-dropped')
+        .removeClass('h5p-dropped')
         .removeClass('h5p-wrong')
         .removeClass('h5p-correct')
+        .removeClass('h5p-question-solution')
         .css({
           border: '',
-          background: '',
+          background: ''
         });
+      ///DragUtils.setElementOpacity(element.$, this.backgroundOpacity);
     }
-
-    element.$[0].setContentOpacity(this.backgroundOpacity);
   }
 
   /**

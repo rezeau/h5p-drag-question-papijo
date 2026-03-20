@@ -195,7 +195,6 @@ export default class DropZone {
 
     // JR if SINGLE dropzone is occupied AND option resetSingleDraggables AND current draggable is NOT multiple, then accept new one (for swapping).
     if (self.single) {
-      console.log('accepts self single');
       // Find out if dropzone is currently occupied.
       for (let i = 0; i < draggables.length; i++) {
         if (draggables[i] && draggables[i].isInDropZone(self.id)) {
@@ -457,7 +456,6 @@ export default class DropZone {
     let completed = false;
     const acceptedNumber = self.acceptedNumber;
     const acceptedValue = self.acceptedValue;
-    console.log('acceptedValue = ' + acceptedValue);
     const dropZoneId = self.id;
     const currSolutions = solutions[dropZoneId];
     let oknb = false;
