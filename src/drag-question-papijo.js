@@ -4,25 +4,24 @@ import AriaDrop from 'h5p-lib-controls/src/scripts/aria/drop';
 import UIKeyboard from 'h5p-lib-controls/src/scripts/ui/keyboard';
 import Mouse from 'h5p-lib-controls/src/scripts/ui/mouse';
 
-import DragUtils from './drag-utils';
-import DropZone from './dropzone';
-import Draggable from './draggable';
+import DragUtils from './drag-utils.js';
+import DropZone from './dropzone.js';
+import Draggable from './draggable.js';
 
 const $ = H5P.jQuery;
 let numInstances = 0;
 
 /**
  * Constructor
- *
  * @class
- * @extends H5P.Question
- * @param {Object} options Run parameters
- * @param {number} id Content identification
- * @param {Object} contentData
+ * @augments H5P.Question
+ * @param {object} options Run parameters
+ * @param contentId
+ * @param {object} contentData
  */
 function C(options, contentId, contentData) {
-  var self = this;
-  var i, j;
+  const self = this;
+  let i, j;
   numInstances++;
   this.id = this.contentId = contentId;
   this.contentData = contentData;
@@ -31,7 +30,7 @@ function C(options, contentId, contentData) {
   this.options = $.extend(true, {}, {
     scoreShow: 'Check',
     tryAgain: 'Retry',
-    showSolutionButton: "Show solution",
+    showSolutionButton: 'Show solution',
     grabbablePrefix: 'Grabbable {num} of {total}.',
     grabbableSuffix: 'Placed in dropzone {num}.',
     dropzonePrefix: 'Dropzone {num} of {total}.',
@@ -52,13 +51,13 @@ function C(options, contentId, contentData) {
         questionTitle: (this.contentData && this.contentData.metadata && this.contentData.metadata.title) ? this.contentData.metadata.title : 'Drag and drop',
         size: {
           width: 620,
-          height: 310
-        }
+          height: 310,
+        },
       },
       task: {
         elements: [],
-        dropZones: []
-      }
+        dropZones: [],
+      },
     },
     overallFeedback: [],
     behaviour: {
@@ -77,14 +76,14 @@ function C(options, contentId, contentData) {
       removeCorrectWrongStyles: false,
       resetSingleDraggables: false,
       showScoreInline: false,
-      showScorePoints: true, 
+      showScorePoints: true,
       showTitle: false,
       singlePoint: false,
       showSolutionsRequiresInput: true,
     },
     a11yCheck: 'Check the answers. The responses will be marked as correct, incorrect, or unanswered.',
     a11yRetry: 'Retry the task. Reset all responses and start the task over again.',
-    submit: 'Submit'
+    submit: 'Submit',
   }, options);
 
   // If single point is enabled, it makes no sense displaying
@@ -110,26 +109,25 @@ function C(options, contentId, contentData) {
   this.hasSavedState = this.answered;
   this.blankIsCorrect = true;
   this.backgroundOpacity = (this.options.behaviour.backgroundOpacity === undefined || this.options.behaviour.backgroundOpacity === '') ? undefined : this.options.behaviour.backgroundOpacity;
-  this.backgroundColor = (this.options.question.settings.backgroundColor === "rgba(255, 255, 255, 0)") ? undefined : this.options.question.settings.backgroundColor;
+  this.backgroundColor = (this.options.question.settings.backgroundColor === 'rgba(255, 255, 255, 0)') ? undefined : this.options.question.settings.backgroundColor;
   this.backgroundOpacityDropZones = this.options.behaviour.backgroundOpacityDropZones === undefined || this.options.behaviour.backgroundOpacityDropZones === '' ? undefined : this.options.behaviour.backgroundOpacityDropZones;
-    // Used in contracts (by showsolutions)
+  // Used in contracts (by showsolutions)
   this.solutionViewed = false;
   this.answerChecked = false;
   this.scoreViewed = false;
   this.maxScoreReached = false;
-  self.$noDropZone = $('<div class="h5p-dq-no-dz" role="button" style="display:none;"><span class="h5p-hidden-read">' + self.options.noDropzone + '</span></div>');
+  self.$noDropZone = $(`<div class="h5p-dq-no-dz" role="button" style="display:none;"><span class="h5p-hidden-read">${  self.options.noDropzone  }</span></div>`);
 
   // Initialize controls for good a11y
   this.controls = getControls(self.draggables, self.dropZones, self.$noDropZone[0]);
 
   /**
    * Update the drop effect for all drop zones accepting this draggable.
-   *
    * @private
    * @param {string} effect
    */
-  var setDropEffect = function (effect) {
-    for (var i = 0; i < self.controls.drop.elements.length; i++) {
+  const setDropEffect = function (effect) {
+    for (let i = 0; i < self.controls.drop.elements.length; i++) {
       self.controls.drop.elements[i].setAttribute('aria-dropeffect', effect);
     }
   };
@@ -151,20 +149,20 @@ function C(options, contentId, contentData) {
   }
   this.weight = 1;
 
-  const isDraggable = element => {
+  const isDraggable = (element) => {
     return !(element.dropZones === undefined || !element.dropZones.length);
   };
 
   // Add draggable elements
-  var grabbablel10n = {
+  const grabbablel10n = {
     prefix: self.options.grabbablePrefix.replace('{total}', task.elements.filter(isDraggable).length),
     suffix: self.options.grabbableSuffix,
     correctAnswer: self.options.correctAnswer,
-    wrongAnswer: self.options.wrongAnswer
+    wrongAnswer: self.options.wrongAnswer,
   };
   let draggableNum = 1; // Human readable label (a11y)
   for (i = 0; i < task.elements.length; i++) {
-    var element = task.elements[i];
+    const element = task.elements[i];
     // Just in case a draggable was created multiple BEFORE enableDroppedQuantity was set.
     if (this.options.behaviour.enableDroppedQuantity) {
       element.multiple = false;
@@ -178,13 +176,13 @@ function C(options, contentId, contentData) {
     }
 
     // Restore answers from last session
-    var answers = null;
+    let answers = null;
     if (contentData && contentData.previousState !== undefined && contentData.previousState.answers !== undefined && contentData.previousState.answers[i] !== undefined) {
       answers = contentData.previousState.answers[i];
     }
 
     // Create new draggable instance
-    var draggable = new Draggable(
+    const draggable = new Draggable(
       element,
       i,
       answers,
@@ -192,10 +190,10 @@ function C(options, contentId, contentData) {
       task.dropZones,
       draggableNum++,
       {
-        dragHandleWanted: self.options.behaviour.dragHandleVisibility
-      }
+        dragHandleWanted: self.options.behaviour.dragHandleVisibility,
+      },
     );
-    var highlightDropZones = (self.options.behaviour.dropZoneHighlighting === 'dragging');
+    const highlightDropZones = (self.options.behaviour.dropZoneHighlighting === 'dragging');
     draggable.on('elementadd', function (event) {
       self.controls.drag.addElement(event.data);
     });
@@ -208,11 +206,11 @@ function C(options, contentId, contentData) {
     });
     draggable.on('focus', function (event) {
       self.controls.drag.moveFocus(event.data);
-      
-      if (self.controls.drag && typeof self.controls.drag.moveFocus === "function") {
+
+      if (self.controls.drag && typeof self.controls.drag.moveFocus === 'function') {
         self.controls.drag.moveFocus(event.data);
       }
-      
+
     });
     draggable.on('dragstart', function (event) {
       if (highlightDropZones) {
@@ -240,7 +238,7 @@ function C(options, contentId, contentData) {
       dropZonesWithoutElements[element.dropZones[j]] = false;
     }
   }
- // Create map over correct draggables for dropzones (if enableDroppedQuantity)
+  // Create map over correct draggables for dropzones (if enableDroppedQuantity)
   if (this.options.behaviour.enableDroppedQuantity) {
     this.correctDraggables = [];
     for (let i = 0; i < task.dropZones.length; i++) {
@@ -259,15 +257,15 @@ function C(options, contentId, contentData) {
   // Create a count to subtrack from score
   this.numDropZonesWithoutElements = 0;
 
-  var dropzonel10n = {
+  const dropzonel10n = {
     prefix: self.options.dropzonePrefix.replace('{total}', task.dropZones.length),
     tipLabel: self.options.tipLabel,
-    tipAvailable: self.options.tipAvailable
+    tipAvailable: self.options.tipAvailable,
   };
 
   // Add drop zones
   for (i = 0; i < task.dropZones.length; i++) {
-    var dropZone = task.dropZones[i];
+    const dropZone = task.dropZones[i];
     // Just in case it was previously set to true.
     if (this.options.behaviour.enableDroppedQuantity) {
       dropZone.single = false;
@@ -286,7 +284,7 @@ function C(options, contentId, contentData) {
     dropZone.autoAlign = {
       enabled: dropZone.autoAlign,
       spacing: self.options.behaviour.autoAlignSpacing,
-      size: self.options.question.settings.size
+      size: self.options.question.settings.size,
     };
 
     dropZone.behaviour = {
@@ -297,16 +295,16 @@ function C(options, contentId, contentData) {
 
     // Update element internal position when aligned
     this.dropZones[i].on('elementaligned', function (event) {
-      let $aligned = event.data;
+      const $aligned = event.data;
 
       for (let i = 0; i < self.draggables.length; i++) {
-        let draggable = self.draggables[i];
+        const draggable = self.draggables[i];
         if (!draggable || !draggable.elements || !draggable.elements.length) {
           continue;
         }
 
         for (let j = 0; j < draggable.elements.length; j++) {
-          let element = draggable.elements[j];
+          const element = draggable.elements[j];
           if (!element || element.$[0] !== $aligned[0]) {
             continue;
           }
@@ -349,17 +347,17 @@ C.prototype.constructor = C;
  * Called from H5P.Question.
  */
 C.prototype.registerDomElements = function () {
-  var self = this;
+  const self = this;
 
   // Register introduction section
   if (self.options.behaviour.showTitle) {
-    self.$introduction = $('<p class="h5p-dragquestion-introduction" id="dq-intro-' + numInstances + '">' + self.options.question.settings.questionTitle + '</p>');
+    self.$introduction = $(`<p class="h5p-dragquestion-introduction" id="dq-intro-${  numInstances  }">${  self.options.question.settings.questionTitle  }</p>`);
     self.setIntroduction(self.$introduction);
   }
 
 
   // Set class if no background
-  var classes = '';
+  let classes = '';
   if (this.options.question.settings.background !== undefined) {
     classes += 'h5p-dragquestion-has-no-background';
   }
@@ -372,7 +370,7 @@ C.prototype.registerDomElements = function () {
 
   // Register task content area
   self.setContent(self.createQuestionContent(), {
-    'class': classes
+    'class': classes,
   });
 
   // First we check if full screen is supported
@@ -380,7 +378,7 @@ C.prototype.registerDomElements = function () {
 
     // We create a function that is used to enter or
     // exit full screen when our button is pressed
-    var toggleFullScreen = function () {
+    const toggleFullScreen = function () {
       if (H5P.isFullscreen) {
         H5P.exitFullScreen(self.$container);
       }
@@ -390,7 +388,7 @@ C.prototype.registerDomElements = function () {
     };
 
     // Create full screen button
-    var $fullScreenButton = $('<div/>', {
+    const $fullScreenButton = $('<div/>', {
       'class': 'h5p-my-fullscreen-button-enter',
       title: this.options.localize.fullscreen,
       role: 'button',
@@ -402,9 +400,9 @@ C.prototype.registerDomElements = function () {
             toggleFullScreen();
             event.preventDefault();
           }
-        }
+        },
       },
-      prependTo: this.$container.parent()
+      prependTo: this.$container.parent(),
     });
 
     // Respond to enter full screen event
@@ -431,56 +429,54 @@ C.prototype.registerDomElements = function () {
 /**
  * Get xAPI data.
  * Contract used by report rendering engine.
- *
  * @see contract at {@link https://h5p.org/documentation/developers/contracts#guides-header-6}
- *
- * @return {Object} xAPI data
+ * @returns {object} xAPI data
  */
 C.prototype.getXAPIData = function () {
-  var xAPIEvent = this.createXAPIEventTemplate('answered');
+  const xAPIEvent = this.createXAPIEventTemplate('answered');
   this.addQuestionToXAPI(xAPIEvent);
   this.addResponseToXAPI(xAPIEvent);
   return {
-    statement: xAPIEvent.data.statement
+    statement: xAPIEvent.data.statement,
   };
 };
 
 /**
  * Add the question itselt to the definition part of an xAPIEvent
+ * @param xAPIEvent
  */
 C.prototype.addQuestionToXAPI = function (xAPIEvent) {
-  var definition = xAPIEvent.getVerifiedStatementValue(['object', 'definition']);
+  const definition = xAPIEvent.getVerifiedStatementValue(['object', 'definition']);
   $.extend(definition, this.getXAPIDefinition());
 };
 
 /**
  * Get object definition for xAPI statement.
- *
- * @return {Object} xAPI object definition
+ * @returns {object} xAPI object definition
  */
 C.prototype.getXAPIDefinition = function () {
-  var definition = {};
+  const definition = {};
   definition.description = {
     // Remove tags, must wrap in div tag because jQuery 1.9 will crash if the string isn't wrapped in a tag.
-    'en-US': $('<div>' + this.options.question.settings.questionTitle + '</div>').text()
+    'en-US': $(`<div>${  this.options.question.settings.questionTitle  }</div>`).text(),
   };
   definition.type = 'http://adlnet.gov/expapi/activities/cmi.interaction';
   definition.interactionType = 'matching';
 
   // Add sources, i.e. draggables
   definition.source = [];
-  for (var i = 0; i < this.options.question.task.elements.length; i++) {
-    var el = this.options.question.task.elements[i];
+  for (let i = 0; i < this.options.question.task.elements.length; i++) {
+    const el = this.options.question.task.elements[i];
     if (el.dropZones && el.dropZones.length) {
       // Modified by papi Jo OCTOBER 2021 for new audio draggable compativility.
       const desc = DragUtils.strip(el.type.params.alt || el.type.params.text || el.type.metadata.title) || '?';
 
       definition.source.push({
-        'id': '' + i,
+        'id': `${  i}`,
         'description': {
           // Remove tags, must wrap in div tag because jQuery 1.9 will crash if the string isn't wrapped in a tag.
-          'en-US': $('<div>' + desc + '</div>').text()
-        }
+          'en-US': $(`<div>${  desc  }</div>`).text(),
+        },
       });
     }
   }
@@ -488,17 +484,17 @@ C.prototype.getXAPIDefinition = function () {
   // Add targets, i.e. drop zones, and the correct response pattern.
   definition.correctResponsesPattern = [''];
   definition.target = [];
-  var firstCorrectPair = true;
+  let firstCorrectPair = true;
   for (i = 0; i < this.options.question.task.dropZones.length; i++) {
     definition.target.push({
-      'id': '' + i,
+      'id': `${  i}`,
       'description': {
         // Remove tags, must wrap in div tag because jQuery 1.9 will crash if the string isn't wrapped in a tag.
-        'en-US': $('<div>' + this.options.question.task.dropZones[i].label + '</div>').text()
-      }
+        'en-US': $(`<div>${  this.options.question.task.dropZones[i].label  }</div>`).text(),
+      },
     });
     if (this.options.question.task.dropZones[i].correctElements) {
-      for (var j = 0; j < this.options.question.task.dropZones[i].correctElements.length; j++) {
+      for (let j = 0; j < this.options.question.task.dropZones[i].correctElements.length; j++) {
         /**
          * NOTE: The editor allows you to turn a draggable that was correct
          * in a dropzone into a non-draggable, but leaves the non-draggable
@@ -517,7 +513,7 @@ C.prototype.getXAPIDefinition = function () {
         if (!firstCorrectPair) {
           definition.correctResponsesPattern[0] += '[,]';
         }
-        definition.correctResponsesPattern[0] += i + '[.]' + task.dropZones[i].correctElements[j];
+        definition.correctResponsesPattern[0] += `${i  }[.]${  task.dropZones[i].correctElements[j]}`;
         firstCorrectPair = false;
       }
     }
@@ -528,25 +524,23 @@ C.prototype.getXAPIDefinition = function () {
 
 /**
  * Add the response part to an xAPI event
- *
  * @param {H5P.XAPIEvent} xAPIEvent
  *  The xAPI event we will add a response to
  */
 C.prototype.addResponseToXAPI = function (xAPIEvent) {
-  var maxScore = this.getMaxScore();
-  var score = this.getScore();
-  var success = score === maxScore ? true : false;
+  const maxScore = this.getMaxScore();
+  const score = this.getScore();
+  const success = score === maxScore ? true : false;
   xAPIEvent.setScoredResult(score, maxScore, this, true, success);
   xAPIEvent.data.statement.result.response = this.getUserXAPIResponse();
 };
 
 /**
  * Get what the user has answered encoded as an xAPI response pattern
- *
- * @return {string} xAPI encoded user response pattern
+ * @returns {string} xAPI encoded user response pattern
  */
 C.prototype.getUserXAPIResponse = function () {
-  var answers = this.getUserAnswers();
+  const answers = this.getUserAnswers();
   if (!answers) {
     return '';
   }
@@ -560,7 +554,7 @@ C.prototype.getUserXAPIResponse = function () {
         .filter(function (element) {
           return element.dropZone !== undefined;
         }).map(function (element) {
-          return element.dropZone + '[.]' + answerMapping.index;
+          return `${element.dropZone  }[.]${  answerMapping.index}`;
         }).join('[,]');
     }).filter(function (pattern) {
       return pattern !== undefined && pattern !== '';
@@ -574,7 +568,7 @@ C.prototype.getUserAnswers = function () {
   return this.draggables.map(function (draggable, index) {
     return {
       index: index,
-      draggable: draggable
+      draggable: draggable,
     };
   }).filter(function (draggableMapping) {
     return draggableMapping.draggable !== undefined &&
@@ -582,7 +576,7 @@ C.prototype.getUserAnswers = function () {
   }).map(function (draggableMapping) {
     return {
       index: draggableMapping.index,
-      elements: draggableMapping.draggable.elements
+      elements: draggableMapping.draggable.elements,
     };
   });
 };
@@ -591,28 +585,28 @@ C.prototype.getUserAnswers = function () {
  * Append field to wrapper.
  */
 C.prototype.createQuestionContent = function () {
-  var i;
+  let i;
   // If reattaching, we no longer show solution. So forget that we
   // might have done so before.
 
-  this.$container = $('<div class="h5p-inner" role="application" aria-labelledby="dq-intro-' + numInstances + '"></div>');
+  this.$container = $(`<div class="h5p-inner" role="application" aria-labelledby="dq-intro-${  numInstances  }"></div>`);
   /*
   if (this.options.question.settings.background !== undefined) {
     this.$container.css('backgroundImage', 'url("' + H5P.getPath(this.options.question.settings.background.path, this.id) + '")');
   }
   */
   if (this.options.question.settings.background !== undefined) {
-    this.$container.css('backgroundImage', 'url("' + H5P.getPath(this.options.question.settings.background.path, this.id) + '")');
+    this.$container.css('backgroundImage', `url("${  H5P.getPath(this.options.question.settings.background.path, this.id)  }")`);
   }
   else if (this.backgroundColor !== undefined) {
     this.$container.css('background-color', this.backgroundColor);
   }
 
-  let task = this.options.question.task;
+  const task = this.options.question.task;
 
   // Add elements (static and draggable)
   for (i = 0; i < task.elements.length; i++) {
-    var element = task.elements[i];
+    const element = task.elements[i];
 
     if (element.dropZones !== undefined && element.dropZones.length !== 0) {
       // Attach draggable elements
@@ -620,13 +614,13 @@ C.prototype.createQuestionContent = function () {
     }
     else {
       // Add static element
-      var $element = this.addElement(element, 'static', i);
+      const $element = this.addElement(element, 'static', i);
       // Use placeholder image if none specified
       if (element.type.library.includes('H5P.Image')) {
         element.type.params.usePlaceholderImage = true;
       }
       H5P.newRunnable(element.type, this.id, $element);
-      var timedOutOpacity = function ($el, el) {
+      const timedOutOpacity = function ($el, el) {
         setTimeout(function () {
           DragUtils.setOpacity($el, 'background', el.backgroundOpacity);
         }, 0);
@@ -652,7 +646,7 @@ C.prototype.registerButtons = function () {
   }
 
   this.addRetryButton();
-    if (this.oneDropzonesHasCorrectElement() ) {
+  if (this.oneDropzonesHasCorrectElement() ) {
     if (!this.options.behaviour.enableDroppedQuantity) {
       this.addShowSolutionButton();
     }
@@ -686,9 +680,9 @@ C.prototype.addSolutionButton = function () {
     that.trigger(xAPIEvent);
     // Hide potential remaining multiple draggables
     if (that.maxScoreReached) {
-      that.draggables.forEach(draggable => {
+      that.draggables.forEach((draggable) => {
         if (draggable.multiple) {
-          draggable.elements.forEach(element => {
+          draggable.elements.forEach((element) => {
             if (!element.$.hasClass('h5p-correct')) {
               element.$.addClass('h5p-dragquestion h5p-question-hidden');
             }
@@ -696,10 +690,10 @@ C.prototype.addSolutionButton = function () {
         }
       });
     }
-    
+
     if (that.options.behaviour.removeCorrectWrongStyles && that.maxScoreReached) {
-      that.draggables.forEach(draggable => {
-        draggable.elements.forEach(element => {
+      that.draggables.forEach((draggable) => {
+        draggable.elements.forEach((element) => {
           if (element.$.hasClass('h5p-correct')) {
             element.$
               .removeClass('h5p-correct');
@@ -713,7 +707,7 @@ C.prototype.addSolutionButton = function () {
     // Focus top of task for better focus and read-speaker flow
     const $nextFocus = that.$introduction ? that.$introduction : that.$container.children().first();
     $nextFocus.focus();
-    }, true, {
+  }, true, {
     'aria-label': this.options.a11yCheck,
   }, {
     contentData: this.contentData,
@@ -728,13 +722,13 @@ C.prototype.addSolutionButton = function () {
 C.prototype.addExplanation = function () {
   const task = this.options.question.task;
 
-  let explanations = [];
+  const explanations = [];
 
   // Go through all dropzones, and find answers:
   task.dropZones.forEach((dropZone, dropZoneId) => {
     const feedback = {
       correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
-      incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect
+      incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect,
     };
     // Don't run this code if feedback is not configured;
     if (feedback.correct === undefined && feedback.incorrect === undefined) {
@@ -745,21 +739,21 @@ C.prototype.addExplanation = function () {
     const correctElements = dropZone.correctElements;
 
     // Find all dragables placed on this dropzone:
-    let placedDraggables = {};
-    this.draggables.forEach(draggable => {
-      draggable.elements.forEach(dz => {
+    const placedDraggables = {};
+    this.draggables.forEach((draggable) => {
+      draggable.elements.forEach((dz) => {
         if (dz.dropZone === dropZoneId) {
           // Save reference to draggable, and mark it as correct/incorrect
           placedDraggables[draggable.id] = {
             instance: draggable,
-            correct: correctElements.indexOf("" + draggable.id) !== -1
+            correct: correctElements.indexOf(`${  draggable.id}`) !== -1,
           };
         }
       });
     });
 
     // Go through each placed draggable
-    Object.keys(placedDraggables).forEach(draggableId => {
+    Object.keys(placedDraggables).forEach((draggableId) => {
       const draggable = placedDraggables[draggableId];
       // Modified by papi Jo OCT 2021 for new audio draggable compativility.
       const draggableLabel = DragUtils.strip(draggable.instance.type.params.alt || draggable.instance.type.params.text || draggable.instance.type.metadata.title) || '?';
@@ -767,17 +761,17 @@ C.prototype.addExplanation = function () {
 
       if (draggable.correct && feedback.correct) {
         explanations.push({
-          correct: dropZoneLabel + ' + ' + draggableLabel,
-          text: feedback.correct
+          correct: `${dropZoneLabel  } + ${  draggableLabel}`,
+          text: feedback.correct,
         });
 
         draggable.instance.setFeedback(feedback.correct, dropZoneId);
       }
       else if (!draggable.correct && feedback.incorrect) {
         explanations.push({
-          correct: dropZoneLabel + ' + ',
+          correct: `${dropZoneLabel  } + `,
           wrong: draggableLabel,
-          text: feedback.incorrect
+          text: feedback.incorrect,
         });
 
         draggable.instance.setFeedback(feedback.incorrect, dropZoneId);
@@ -795,7 +789,7 @@ C.prototype.addExplanation = function () {
 C.prototype.addExplanationDroppedQuantity = function () {
   const task = this.options.question.task;
   const self = this;
-  let explanations = [];
+  const explanations = [];
   // todo remove const $dropZones = self.dropZones; // DOM objects
   let i = 0;
   const $dropZones = self.dropZones; // DOM objects
@@ -811,15 +805,15 @@ C.prototype.addExplanationDroppedQuantity = function () {
       correct: dropZone.tipsAndFeedback.feedbackOnCorrect,
       incorrect: dropZone.tipsAndFeedback.feedbackOnIncorrect,
       incorrectNumber:dropZone.tipsAndFeedback.feedbackOnIncorrectNumber,
-      incorrectValue: dropZone.tipsAndFeedback.feedbackOnIncorrectValue
+      incorrectValue: dropZone.tipsAndFeedback.feedbackOnIncorrectValue,
     };
     const $dropZone = $dropZones[i];
     const dropZoneLabel = DragUtils.strip(dropZone.label);
     // Calculate number of draggables in current zone and their total value.
     let nbDraggablesInZone = 0;
     let totalValueInZone = 0;
-    this.draggables.forEach(draggable => {
-      draggable.elements.forEach(dz => {
+    this.draggables.forEach((draggable) => {
+      draggable.elements.forEach((dz) => {
         if (dz.dropZone === dropZoneId) {
           nbDraggablesInZone++;
           totalValueInZone += draggable.value;
@@ -828,10 +822,10 @@ C.prototype.addExplanationDroppedQuantity = function () {
     });
     if (dropZone.acceptedNumber !== undefined) {
       if (nbDraggablesInZone === dropZone.acceptedNumber) {
-        correctNumberLabel = this.options.correctNumber + dropZone.acceptedNumber + '<br />';
+        correctNumberLabel = `${this.options.correctNumber + dropZone.acceptedNumber  }<br />`;
       }
       else {
-        inCorrectNumberLabel = this.options.inCorrectNumber + nbDraggablesInZone + '<br />';
+        inCorrectNumberLabel = `${this.options.inCorrectNumber + nbDraggablesInZone  }<br />`;
         if (feedback.incorrectNumber) {
           fb = feedback.incorrectNumber
             .replace('@requirednumber', dropZone.acceptedNumber)
@@ -841,12 +835,12 @@ C.prototype.addExplanationDroppedQuantity = function () {
     }
     if (dropZone.acceptedValue !== undefined) {
       if (totalValueInZone === dropZone.acceptedValue) {
-        correctValueLabel = this.options.correctValue + dropZone.acceptedValue + '<br />';
+        correctValueLabel = `${this.options.correctValue + dropZone.acceptedValue  }<br />`;
       }
       else {
         if (dropZone.acceptedValue !== undefined) {
           if (fb === '') {
-            inCorrectValueLabel = this.options.inCorrectValue + totalValueInZone + '<br />' ;
+            inCorrectValueLabel = `${this.options.inCorrectValue + totalValueInZone  }<br />` ;
           }
           if (fb === '' && feedback.incorrectValue) {
             fb += feedback.incorrectValue
@@ -874,9 +868,9 @@ C.prototype.addExplanationDroppedQuantity = function () {
     }
     if (status !== 'none') {
       explanations.push({
-        correct: dropZoneLabel + '<br />' + correctNumberLabel + correctValueLabel,
+        correct: `${dropZoneLabel  }<br />${  correctNumberLabel  }${correctValueLabel}`,
         wrong: inCorrectNumberLabel + inCorrectValueLabel,
-        text: fb
+        text: fb,
       });
     }
     $dropZone.markResult(status);
@@ -916,8 +910,7 @@ C.prototype.addRetryButton = function () {
 /**
  * Determine if all of the draggables has been dropped somewhere.
  * Show solution will only be allowed if that is true.
- *
- * @return {boolean}
+ * @returns {boolean}
  */
 C.prototype.isAnswerSelected = function () {
   const selected = (this.$container.find('.h5p-dropped').length) >= this.draggables.length;
@@ -925,8 +918,7 @@ C.prototype.isAnswerSelected = function () {
 };
 /**
  * Determine if at least one dropzone has at least one correct draggable element.
- *
- * @return {boolean}
+ * @returns {boolean}
  */
 C.prototype.oneDropzonesHasCorrectElement = function () {
   const task = this.options.question.task;
@@ -965,21 +957,21 @@ C.prototype.addShowSolutionButton = function () {
 };
 /**
  * Add element/drop zone to task.
- *
- * @param {Object} element
- * @param {String} type Class
- * @param {Number} id
+ * @param {object} element
+ * @param {string} type Class
+ * @param {number} id
  * @returns {jQuery}
  */
 C.prototype.addElement = function (element, type, id) {
-  return $('<div class="h5p-' + type + '" style="left:' + element.x + '%;top:' + element.y + '%;width:' + element.width + 'em;height:' + element.height + 'em"></div>').appendTo(this.$container).data('id', id);
+  return $(`<div class="h5p-${  type  }" style="left:${  element.x  }%;top:${  element.y  }%;width:${  element.width  }em;height:${  element.height  }em"></div>`).appendTo(this.$container).data('id', id);
 };
 
 /**
  * Set correct height of container
+ * @param e
  */
 C.prototype.resize = function (e) {
-  var self = this;
+  const self = this;
   // Make sure we use all the height we can get. Needed to scale up.
   if (this.$container === undefined || !this.$container.is(':visible')) {
     // Not yet attached or visible – not possible to resize correctly
@@ -993,19 +985,19 @@ C.prototype.resize = function (e) {
   });
 
   // Check if decreasing iframe size
-  var decreaseSize = e && e.data && e.data.decreaseSize;
+  const decreaseSize = e && e.data && e.data.decreaseSize;
   if (!decreaseSize) {
     self.$container.parents('.h5p-standalone.h5p-dragquestion').css('width', '');
   }
 
-  var size = this.options.question.settings.size;
-  var ratio = size.width / size.height;
-  var parentContainer = this.$container.parent();
+  const size = this.options.question.settings.size;
+  const ratio = size.width / size.height;
+  const parentContainer = this.$container.parent();
   // Use parent container as basis for resize.
-  var width = parentContainer.width() - parseFloat(parentContainer.css('margin-left')) - parseFloat(parentContainer.css('margin-right'));
+  let width = parentContainer.width() - parseFloat(parentContainer.css('margin-left')) - parseFloat(parentContainer.css('margin-right'));
 
   // Check if we need to apply semi full screen fix.
-  var $semiFullScreen = self.$container.parents('.h5p-standalone.h5p-dragquestion.h5p-semi-fullscreen');
+  const $semiFullScreen = self.$container.parents('.h5p-standalone.h5p-dragquestion.h5p-semi-fullscreen');
   if ($semiFullScreen.length) {
     // Reset semi fullscreen width
     $semiFullScreen.css('width', '');
@@ -1017,20 +1009,20 @@ C.prototype.resize = function (e) {
 
       // Trigger changes
       setTimeout(function () {
-        self.trigger('resize', {decreaseSize: true});
+        self.trigger('resize', { decreaseSize: true });
       }, 200);
     }
 
     // Set width equal to iframe parent width, since iframe content has not been update yet.
-    var $iframe = $(window.frameElement);
+    const $iframe = $(window.frameElement);
     if ($iframe) {
-      var $iframeParent = $iframe.parent();
+      const $iframeParent = $iframe.parent();
       width = $iframeParent.width();
-      $semiFullScreen.css('width', width + 'px');
+      $semiFullScreen.css('width', `${width  }px`);
     }
   }
 
-  var height = width / ratio;
+  let height = width / ratio;
 
   // Set natural size if no parent width
   if (width <= 0) {
@@ -1039,9 +1031,9 @@ C.prototype.resize = function (e) {
   }
 
   this.$container.css({
-    width: width + 'px',
-    height: height + 'px',
-    fontSize: (16 * (width / size.width)) + 'px'
+    width: `${width  }px`,
+    height: `${height  }px`,
+    fontSize: `${16 * (width / size.width)  }px`,
   });
 };
 
@@ -1068,7 +1060,7 @@ C.prototype.enableDraggables = function () {
 /**
  * Shows the correct solutions on the boxes and disables input and buttons depending on settings.
  * @public
- * @params {Boolean} skipVisuals Skip visual animations.
+ * @param {boolean} skipVisuals Skip visual animations.
  */
 C.prototype.showAllSolutions = function (skipVisuals) {
   this.points = 0;
@@ -1168,6 +1160,7 @@ C.prototype.showSolutions = function () {
 };
 /**
  * Resets the task but keeps correct answers if required.
+ * @param forceReset
  * @public
  */
 C.prototype.reTry = function (forceReset) {
@@ -1183,8 +1176,8 @@ C.prototype.reTry = function (forceReset) {
   let totalDropZones = 0;
 
   // The "h5p-question-hidden" class may need to be removed from elements.
-  this.draggables.forEach(draggable => {
-    draggable.elements.forEach(element => {
+  this.draggables.forEach((draggable) => {
+    draggable.elements.forEach((element) => {
       if (element.$.hasClass('h5p-question-hidden')) {
         element.$.removeClass('h5p-question-hidden');
       }
@@ -1208,7 +1201,7 @@ C.prototype.reTry = function (forceReset) {
   }
   this.draggables.forEach(function (draggable) {
     if (self.options.behaviour.keepCorrectAnswers && !forceReset) {
-      let isMultiple = draggable.multiple;
+      const isMultiple = draggable.multiple;
       const element = draggable.elements[0];
       let correctClass = 'h5p-correct';
       let isCorrect = false;
@@ -1221,7 +1214,7 @@ C.prototype.reTry = function (forceReset) {
       }
       // Deal with multiple draggables.
       if (isMultiple) {
-        draggable.elements.forEach(element => {
+        draggable.elements.forEach((element) => {
           if (element.$.hasClass(correctClass) && element.$.hasClass('h5p-dropped')) {
             isCorrect = true;
           }
@@ -1285,7 +1278,7 @@ C.prototype.resetTask = function () {
  * @public
  */
 C.prototype.showSolution = function () {
-  
+
   const self = this;
   self.solutionViewed = true;
   const dropZones = self.dropZones;
@@ -1295,7 +1288,7 @@ C.prototype.showSolution = function () {
     dropZone.autoAlign();
     dropZone.alignables = [];
   }
-  const correctDZs = [];  
+  const correctDZs = [];
   for (let i = 0; i < this.draggables.length; i++) {
     const draggable = this.draggables[i];
     if (draggable === undefined) {
@@ -1356,7 +1349,7 @@ C.prototype.showSolution = function () {
       }
     }
   }
-  this.draggables.forEach(draggable => {
+  this.draggables.forEach((draggable) => {
     const dragId = draggable.id;
     const correctDZ = correctDZs[dragId];
     const remainingCorrectDZ = [];
@@ -1371,8 +1364,8 @@ C.prototype.showSolution = function () {
       }
     }
     let z = 0;
-    draggable.elements.forEach(element => {
-      let correct = element.$.hasClass('h5p-correct');
+    draggable.elements.forEach((element) => {
+      const correct = element.$.hasClass('h5p-correct');
       if (!correct) {
         element.$.removeClass('h5p-wrong');
       }
@@ -1391,13 +1384,13 @@ C.prototype.showSolution = function () {
             //if (!element.$.hasClass('h5p-dropped')) {
             element.$.addClass('h5p-question-solution');
             //};
-            let dropZone = dropZones[correctDZ[i]];
+            const dropZone = dropZones[correctDZ[i]];
             if (dropZone !== undefined) {
               draggable.addToDropZone(0, element, dropZone.id);
               // Set position in case DZ is full (auto align doesn't work)
               element.$.css({
-                left: dropZone.x + '%',
-                top: dropZone.y + '%',
+                left: `${dropZone.x  }%`,
+                top: `${dropZone.y  }%`,
               });
               if (element.$.hasClass('h5p-wrong')) {
                 element.$.addClass('h5p-question-solution');
@@ -1416,7 +1409,7 @@ C.prototype.showSolution = function () {
           if (element.$.hasClass('h5p-correct')) {
             const index = remainingCorrectDZ.indexOf(element.dropZone);
             const elDZ = element.dropZone;
-            let dropZone = dropZones[elDZ];
+            const dropZone = dropZones[elDZ];
             if (dropZone.getIndexOf(element.$) === -1) {
               dropZone.alignables.push(element.$);
             }
@@ -1429,15 +1422,15 @@ C.prototype.showSolution = function () {
             if (!element.$.hasClass('h5p-wrong')) {
               // If multiple element has not yet been dropped into any correct dropzone then move it there.
               if (!element.$.hasClass('h5p-dropped')) {
-                let dropZone = dropZones[remainingCorrectDZ[z]];
+                const dropZone = dropZones[remainingCorrectDZ[z]];
                 if (dropZone !== undefined) {
                   element.$.addClass('h5p-question-solution');
                   element.dropZone = dropZone.id;
                   draggable.updatePlacement(element);
                   // Set position in case DZ is full (auto align doesn't work)
                   element.$.css({
-                    left: dropZone.x + '%',
-                    top: dropZone.y + '%',
+                    left: `${dropZone.x  }%`,
+                    top: `${dropZone.y  }%`,
                   });
                   // Add to alignables
                   if (dropZone.getIndexOf(element.$) === -1) {
@@ -1491,8 +1484,7 @@ C.prototype.showSolution = function () {
 };
 /**
  * Calculates the real max score.
- *
- * @returns {Number} Max points
+ * @returns {number} Max points
  */
 C.prototype.calculateMaxScore = function () {
   if (this.blankIsCorrect) {
@@ -1558,8 +1550,7 @@ C.prototype.calculateMaxScore = function () {
 
 /**
  * Get maximum score.
- *
- * @returns {Number} Max points
+ * @returns {number} Max points
  */
 C.prototype.getMaxScore = function () {
   return (this.options.behaviour.singlePoint ? this.weight : this.calculateMaxScore());
@@ -1568,12 +1559,11 @@ C.prototype.getMaxScore = function () {
 /**
  * Count the number of correct answers.
  * Only works while showing solution.
- *
- * @returns {Number} Points
+ * @returns {number} Points
  */
 C.prototype.getScore = function () {
   this.showAllSolutions(true);
-  var actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint) ? this.points : this.rawPoints;
+  const actualPoints = (this.options.behaviour.applyPenalties || this.options.behaviour.singlePoint) ? this.points : this.rawPoints;
   delete this.points;
   delete this.rawPoints;
   return actualPoints;
@@ -1581,8 +1571,7 @@ C.prototype.getScore = function () {
 
 /**
  * Checks if all has been answered.
- *
- * @returns {Boolean}
+ * @returns {boolean}
  */
 C.prototype.getAnswerGiven = function () {
   return !this.options.behaviour.showSolutionsRequiresInput || this.answered || this.blankIsCorrect;
@@ -1658,22 +1647,21 @@ C.prototype.showScore = function () {
 /**
  * Packs info about the current state of the task into a object for
  * serialization.
- *
  * @public
  * @returns {object}
  */
 C.prototype.getCurrentState = function () {
-  var state = {answers: []};
-  for (var i = 0; i < this.draggables.length; i++) {
-    var draggable = this.draggables[i];
+  const state = { answers: [] };
+  for (let i = 0; i < this.draggables.length; i++) {
+    const draggable = this.draggables[i];
     if (draggable === undefined) {
       continue;
     }
 
-    var draggableAnswers = [];
-    for (var j = 0; j < draggable.elements.length; j++) {
-      var element = draggable.elements[j];
-      
+    const draggableAnswers = [];
+    for (let j = 0; j < draggable.elements.length; j++) {
+      const element = draggable.elements[j];
+
       if ( (element === undefined || element.dropZone === undefined) || element.$.hasClass('h5p-question-solution') || element.$.hasClass('h5p-question-hidden')) {
         continue;
       }
@@ -1681,7 +1669,7 @@ C.prototype.getCurrentState = function () {
       draggableAnswers.push({
         x: element.position ? Number(element.position.left.replace('%', '')) : null,
         y: element.position ? Number(element.position.top.replace('%', '')) : null,
-        dz: element.dropZone
+        dz: element.dropZone,
       });
     }
 
@@ -1704,7 +1692,7 @@ C.prototype.shuffleDraggables = function () {
   // Put current draggables coordinates into an array.
   // Check that the draggable does have elements, exclude distracters.
   // Do not shuffle the multiple draggables if content state has been saved at least once.
-  this.draggables.forEach(draggable => {
+  this.draggables.forEach((draggable) => {
     //if (draggable.elements && !draggable.multiple) {
     if (draggable.elements && !(draggable.multiple && this.hasSavedState)) {
       draggablePositions.push([draggable.x, draggable.y]);
@@ -1727,38 +1715,36 @@ C.prototype.shuffleDraggables = function () {
     if (element.$.hasClass('h5p-dropped')) {
       shuffle = false;
     }
-    let x = draggablePositions[i - skipIt][0];
-    let y = draggablePositions[i - skipIt][1];
+    const x = draggablePositions[i - skipIt][0];
+    const y = draggablePositions[i - skipIt][1];
     draggable.shufflePosition(shuffle, x, y);
   }
 };
 /**
  * Initialize controls to improve a11Y.
- *
  * @private
  * @param {Draggable[]} draggables
  * @param {DropZone[]} dropZones
  * @param {Element} noDropzone
- * @return {Object<string, Controls>}
+ * @returns {[key: string]: string}
  */
-var getControls = function (draggables, dropZones, noDropzone) {
+const getControls = function (draggables, dropZones, noDropzone) {
   // Initialize controls components
-  var controls = {
+  const controls = {
     drag: new Controls([new UIKeyboard(), new Mouse(), new AriaDrag()]),
-    drop: new Controls([new UIKeyboard(), new Mouse(), new AriaDrop()])
+    drop: new Controls([new UIKeyboard(), new Mouse(), new AriaDrop()]),
   };
   controls.drag.useNegativeTabIndex();
   controls.drop.useNegativeTabIndex();
 
   // Keep track of current selected draggable (selected via keyboard)
-  var selected;
+  let selected;
 
   /**
    * De-selects the currently selected draggable element.
-   *
    * @private
    */
-  var deselect = function () {
+  const deselect = function () {
     selected.draggable.trigger('dragend');
     selected.element.$.removeClass('h5p-draggable-hover');
     selected.element.$[0].setContentOpacity(selected.draggable.backgroundOpacity);
@@ -1767,8 +1753,8 @@ var getControls = function (draggables, dropZones, noDropzone) {
       controls.drop.removeElement(noDropzone);
       noDropzone.style.display = 'none';
     }
-    for (var i = 0; i < dropZones.length; i++) {
-      var dropZone = dropZones[i];
+    for (let i = 0; i < dropZones.length; i++) {
+      const dropZone = dropZones[i];
 
       // Remove highlighting
       dropZone.dehighlight();
@@ -1784,7 +1770,7 @@ var getControls = function (draggables, dropZones, noDropzone) {
     }
     else {
       // Put focus on next draggable element
-      var $next = selected.draggable.elements[selected.draggable.elements.length - 1].$;
+      const $next = selected.draggable.elements[selected.draggable.elements.length - 1].$;
       controls.drag.moveFocus($next[0]);
     }
     selected = undefined;
@@ -1793,7 +1779,7 @@ var getControls = function (draggables, dropZones, noDropzone) {
   // Handle draggable selected through keyboard
   controls.drag.on('select', function (event) {
     controls.drop.removeElement(noDropzone);
-    var result = DragUtils.elementToDraggable(draggables, event.element);
+    const result = DragUtils.elementToDraggable(draggables, event.element);
     if (selected) {
       // De-select
       deselect();
@@ -1817,15 +1803,15 @@ var getControls = function (draggables, dropZones, noDropzone) {
 
     // Position at element position
     noDropzone.style.display = 'block';
-    noDropzone.style.left = selected.draggable.x + '%';
-    noDropzone.style.top = selected.draggable.y + '%';
+    noDropzone.style.left = `${selected.draggable.x  }%`;
+    noDropzone.style.top = `${selected.draggable.y  }%`;
     noDropzone.style.width = `${draggableSize.width}px`;
     noDropzone.style.height = `${draggableSize.height}px`;
 
     // Figure out which drop zones will accept this draggable
-    var $first;
-    for (var i = 0; i < dropZones.length; i++) {
-      var dropZone = dropZones[i];
+    let $first;
+    for (let i = 0; i < dropZones.length; i++) {
+      const dropZone = dropZones[i];
 
       /*
        * Draggable.isInDropzone only compares the draggable number, and
@@ -1862,7 +1848,7 @@ var getControls = function (draggables, dropZones, noDropzone) {
     if (!selected) {
       return;
     }
-    
+
     if (event.element === noDropzone) {
       // Reset position
       if (selected.element.dropZone !== undefined) {
@@ -1871,10 +1857,10 @@ var getControls = function (draggables, dropZones, noDropzone) {
       // BUG mentioned on the H5P forum on March 29th 2018.
       if (!selected.draggable.multiple) {
         selected.element.$.css({
-          left: selected.draggable.x + '%',
-          top: selected.draggable.y + '%',
-          width: selected.draggable.width + 'em',
-          height: selected.draggable.height + 'em'
+          left: `${selected.draggable.x  }%`,
+          top: `${selected.draggable.y  }%`,
+          width: `${selected.draggable.width  }em`,
+          height: `${selected.draggable.height  }em`,
         });
         selected.draggable.updatePlacement(selected.element);
       }
@@ -1907,8 +1893,8 @@ var getControls = function (draggables, dropZones, noDropzone) {
 
     // Set position in case DZ is full (auto align doesn't work)
     selected.element.$.css({
-      left: dropZone.x + '%',
-      top: dropZone.y + '%',
+      left: `${dropZone.x  }%`,
+      top: `${dropZone.y  }%`,
     });
 
     if (dropZone.getIndexOf(selected.element.$) === -1) {

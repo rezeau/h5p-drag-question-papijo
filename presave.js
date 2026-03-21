@@ -3,15 +3,14 @@ var H5PPresave = H5PPresave || {};
 
 /**
  * Resolve the presave logic for the content type Drag Question
- *
  * @param {object} content
  * @param finished
- * @constructor
+ * @class
  */
 H5PPresave['H5P.DragQuestion'] = function (content, finished) {
-  var presave = H5PEditor.Presave;
-  var score = 0;
-  var correctDropZones = [];
+  const presave = H5PEditor.Presave;
+  let score = 0;
+  let correctDropZones = [];
 
   if (isContentInvalid()) {
     throw new presave.exceptions.InvalidContentSemanticsException('Invalid Drag and Drop Error');
@@ -58,11 +57,11 @@ H5PPresave['H5P.DragQuestion'] = function (content, finished) {
 
   presave.validateScore(score);
 
-  finished({maxScore: score});
+  finished({ maxScore: score });
 
   /**
    * Check if required parameters is present
-   * @return {boolean}
+   * @returns {boolean}
    */
   function isContentInvalid() {
     return !presave.checkNestedRequirements(content, 'content.question.task');
@@ -70,7 +69,7 @@ H5PPresave['H5P.DragQuestion'] = function (content, finished) {
 
   /**
    * Check if tasks has drop zones
-   * @return {boolean}
+   * @returns {boolean}
    */
   function hasDropZones() {
     return presave.checkNestedRequirements(content, 'content.question.task.dropZones') && Array.isArray(content.question.task.dropZones);
@@ -78,7 +77,7 @@ H5PPresave['H5P.DragQuestion'] = function (content, finished) {
 
   /**
    * Check if tasks has elements
-   * @return {boolean}
+   * @returns {boolean}
    */
   function hasElements() {
     return presave.checkNestedRequirements(content, 'content.question.task.elements') && Array.isArray(content.question.task.elements);
@@ -86,7 +85,7 @@ H5PPresave['H5P.DragQuestion'] = function (content, finished) {
 
   /**
    * Check if task should give 1 point as score
-   * @return {boolean}
+   * @returns {boolean}
    */
   function isSinglePoint() {
     return presave.checkNestedRequirements(content, 'content.behaviour.singlePoint') && content.behaviour.singlePoint === true;

@@ -1,4 +1,4 @@
-import DragUtils from './drag-utils';
+import DragUtils from './drag-utils.js';
 
 const $ = H5P.jQuery;
 
@@ -15,15 +15,14 @@ export default class Draggable extends H5P.EventDispatcher {
   /**
    * Creates a new draggable instance.
    * Makes it easier to keep track of all instance variables and elements.
-   *
    * @class
-   * @param {Object} element
+   * @param {object} element
    * @param {number} id
    * @param {Array} [answers] from last session
-   * @param {Object.<string, string>} l10n
+   * @param {[key: string]: string} l10n
    * @param {Array} [dropZones] Dropzones for a draggable
    * @param {number} draggableNum Number of this draggable (for a11y)
-   * @param {Object} [options]
+   * @param {object} [options]
    */
   constructor(
     element,
@@ -32,10 +31,10 @@ export default class Draggable extends H5P.EventDispatcher {
     l10n,
     dropZones,
     draggableNum,
-    options = {}
+    options = {},
   ) {
     super();
-    var self = this;
+    const self = this;
 
     self.$ = $(self);
     self.id = id;
@@ -61,12 +60,12 @@ export default class Draggable extends H5P.EventDispatcher {
       }
 
       // Add answers
-      for (var i = 0; i < answers.length; i++) {
+      for (let i = 0; i < answers.length; i++) {
         self.elements.push({
           dropZone: answers[i].dz,
           position: {
-            left: answers[i].x + '%',
-            top: answers[i].y + '%',
+            left: `${answers[i].x  }%`,
+            top: `${answers[i].y  }%`,
           },
         });
       }
@@ -75,18 +74,18 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Insert draggable elements into the given container.
-   *
    * @param {jQuery} $container
-   * @param {Number} contentId
+   * @param {number} contentId
    * @returns {undefined}
    */
   appendTo($container, contentId) {
-    var self = this;
+    const self = this;
 
     if (!self.elements.length) {
       self.attachElement(null, $container, contentId);
-    } else {
-      for (var i = 0; i < self.elements.length; i++) {
+    }
+    else {
+      for (let i = 0; i < self.elements.length; i++) {
         self.attachElement(i, $container, contentId);
       }
     }
@@ -94,22 +93,22 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Attach the given element to the given container.
-   *
-   * @param {Number} index
+   * @param {number} index
    * @param {jQuery} $container
-   * @param {Number} contentId
+   * @param {number} contentId
    * @returns {undefined}
    */
   attachElement(index, $container, contentId) {
-    var self = this;
+    const self = this;
 
-    var element;
+    let element;
     if (index === null) {
       // Create new element
       element = {};
       self.elements.push(element);
       index = self.elements.length - 1;
-    } else {
+    }
+    else {
       // Get old element
       element = self.elements[index];
     }
@@ -152,8 +151,8 @@ export default class Draggable extends H5P.EventDispatcher {
         const $this = $(draggableElement);
 
         $this.data('uiDraggable').originalPosition = {
-          top: self.y + '%',
-          left: self.x + '%',
+          top: `${self.y  }%`,
+          left: `${self.x  }%`,
         };
 
         this.updatePlacement(element);
@@ -201,7 +200,8 @@ export default class Draggable extends H5P.EventDispatcher {
         if (addToZone !== undefined) {
           $this.removeData('addToZone');
           this.addToDropZone(index, element, addToZone);
-        } else {
+        }
+        else {
           element.reset();
         }
       },
@@ -215,10 +215,10 @@ export default class Draggable extends H5P.EventDispatcher {
     draggableElement.addEventListener('touchend', stopPropagation);
 
     $container[0].append(draggableElement);
-    draggableElement.style.left = self.x + '%';
-    draggableElement.style.top = self.y + '%';
-    draggableElement.style.width = self.width + 'em';
-    draggableElement.style.height = self.height + 'em';
+    draggableElement.style.left = `${self.x  }%`;
+    draggableElement.style.top = `${self.y  }%`;
+    draggableElement.style.width = `${self.width  }em`;
+    draggableElement.style.height = `${self.height  }em`;
     draggableElement.style.position = '';
 
     draggableElement.setContentOpacity(self.backgroundOpacity);
@@ -235,9 +235,9 @@ export default class Draggable extends H5P.EventDispatcher {
 
     // Add prefix for good a11y
     $(
-      '<span class="h5p-hidden-read">' +
-        self.l10n.prefix.replace('{num}', self.draggableNum) +
-        '</span>'
+      `<span class="h5p-hidden-read">${
+        self.l10n.prefix.replace('{num}', self.draggableNum)
+      }</span>`,
     ).prependTo(element.$);
 
     // Add suffix for good a11y
@@ -267,8 +267,7 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Determine if element should be copied when tragging, i.e. infinity instances.
-   *
-   * @param {Object} element
+   * @param {object} element
    * @returns {boolean}
    */
   mustCopyElement(element) {
@@ -277,14 +276,13 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Check if this element can be dragged to the given drop zone.
-   *
-   * @param {Number} id
-   * @returns {Boolean}
+   * @param {number} id
+   * @returns {boolean}
    */
   hasDropZone(id) {
-    var self = this;
+    const self = this;
 
-    for (var i = 0; i < self.dropZones.length; i++) {
+    for (let i = 0; i < self.dropZones.length; i++) {
       if (parseInt(self.dropZones[i]) === id) {
         return true;
       }
@@ -295,17 +293,16 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Places the draggable element in the given drop zone.
-   *
    * @param {number} index Internal element index
-   * @param {Object} element
+   * @param {object} element
    * @param {number} addToZone Dropzone index
    */
   addToDropZone(index, element, addToZone) {
-    var self = this;
+    const self = this;
 
     if (self.multiple) {
       // Check that we're the only element here
-      for (var i = 0; i < self.elements.length; i++) {
+      for (let i = 0; i < self.elements.length; i++) {
         if (
           i !== index &&
           self.elements[i] !== undefined &&
@@ -344,6 +341,7 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Update the visuals to match the position of the element
+   * @param element
    */
   updatePlacement(element) {
     const self = this;
@@ -357,7 +355,7 @@ export default class Draggable extends H5P.EventDispatcher {
       ///DragUtils.setElementOpacity(element.$, self.backgroundOpacity);
 
       // Add suffix for good a11y
-      element.$suffix = $('<span class="h5p-hidden-read">' + (this.l10n.suffix.replace('{num}', element.dropZone + 1)) + '. </span>').appendTo(element.$);
+      element.$suffix = $(`<span class="h5p-hidden-read">${  this.l10n.suffix.replace('{num}', element.dropZone + 1)  }. </span>`).appendTo(element.$);
     }
     else {
       element.$
@@ -367,7 +365,7 @@ export default class Draggable extends H5P.EventDispatcher {
         .removeClass('h5p-question-solution')
         .css({
           border: '',
-          background: ''
+          background: '',
         });
       ///DragUtils.setElementOpacity(element.$, this.backgroundOpacity);
     }
@@ -375,9 +373,11 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Resets the position of the draggable to its' original position.
+   * @param correctDZs
+   * @param correctClass
    */
   resetPosition(correctDZs, correctClass) {
-    var self = this;
+    const self = this;
     let oneIsCorrect = false;
     const keepCorrectAnswers = (correctDZs !== undefined) ? true : false;
     this.elements.forEach(function (draggable) {
@@ -388,8 +388,8 @@ export default class Draggable extends H5P.EventDispatcher {
 
       //If the draggable is in a dropzone reset its' position and feedback.
       if (draggable.dropZone !== undefined) {
-        
-// If keepCorrectAnswers and draggable is in the right DZ, then disable the draggable and stop.
+
+        // If keepCorrectAnswers and draggable is in the right DZ, then disable the draggable and stop.
         //Revert the button to initial position and then remove it.
         let element = self.elements[self.elements.indexOf(draggable)];
         const ok = element.$.hasClass(correctClass);
@@ -402,8 +402,8 @@ export default class Draggable extends H5P.EventDispatcher {
         element = draggable.$;
         element.animate(
           {
-            left: self.x + '%',
-            top: self.y + '%',
+            left: `${self.x  }%`,
+            top: `${self.y  }%`,
           },
           function () {
             //Remove the draggable if it is an infinity draggable.
@@ -418,7 +418,7 @@ export default class Draggable extends H5P.EventDispatcher {
               }
               self.trigger('elementremove', element[0]);
             }
-          }
+          },
         );
 
         // Reset element style
@@ -426,7 +426,7 @@ export default class Draggable extends H5P.EventDispatcher {
       }
     });
 
-      if (oneIsCorrect === false) {
+    if (oneIsCorrect === false) {
       // Draggable removed from dropzone.
       if (self.element.dropZone !== undefined) {
         self.trigger('leavingDropZone', self.element);
@@ -453,8 +453,8 @@ export default class Draggable extends H5P.EventDispatcher {
     this.elements.forEach(function (draggable) {
       const element = draggable.$;
       element.animate({
-        left: self.x + '%',
-        top: self.y + '%'
+        left: `${self.x  }%`,
+        top: `${self.y  }%`,
       }, function () {
       });
     });
@@ -462,14 +462,12 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Look for the given DOM element inside this draggable.
-   *
    * @param {Element} element
-   * @returns {Object}
    */
   findElement(element) {
-    var self = this;
+    const self = this;
 
-    for (var i = 0; i < self.elements.length; i++) {
+    for (let i = 0; i < self.elements.length; i++) {
       if (self.elements[i] !== undefined && self.elements[i].$.is(element)) {
         return {
           element: self.elements[i],
@@ -481,14 +479,13 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Detemine if any of our elements is in the given drop zone.
-   *
-   * @param {Number} id
-   * @returns {Boolean}
+   * @param {number} id
+   * @returns {boolean}
    */
   isInDropZone(id) {
-    var self = this;
+    const self = this;
 
-    for (var i = 0; i < self.elements.length; i++) {
+    for (let i = 0; i < self.elements.length; i++) {
       if (self.elements[i] !== undefined && self.elements[i].dropZone === id) {
         return true;
       }
@@ -502,10 +499,10 @@ export default class Draggable extends H5P.EventDispatcher {
    * @public
    */
   disable() {
-    var self = this;
+    const self = this;
 
-    for (var i = 0; i < self.elements.length; i++) {
-      var element = self.elements[i];
+    for (let i = 0; i < self.elements.length; i++) {
+      const element = self.elements[i];
 
       if (element) {
         element.$.draggable('disable');
@@ -519,10 +516,10 @@ export default class Draggable extends H5P.EventDispatcher {
    * @public
    */
   enable() {
-    var self = this;
+    const self = this;
 
-    for (var i = 0; i < self.elements.length; i++) {
-      var element = self.elements[i];
+    for (let i = 0; i < self.elements.length; i++) {
+      const element = self.elements[i];
 
       if (element) {
         element.$.draggable('enable');
@@ -533,7 +530,6 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Calculate score for this draggable.
-   *
    * @param {boolean} skipVisuals
    * @param {Array} solutions
    * @param {H5P.Question.ScorePoints} scorePoints
@@ -541,8 +537,8 @@ export default class Draggable extends H5P.EventDispatcher {
    * @returns {number}
    */
   results(skipVisuals, solutions, scorePoints, scoreInline) {
-    var self = this;
-    var i,
+    const self = this;
+    let i,
       j,
       element,
       correct,
@@ -609,19 +605,19 @@ export default class Draggable extends H5P.EventDispatcher {
 
   /**
    * Marks given element as either correct or wrong
-   *
-   * @param {Object} element
+   * @param {object} element
    * @param {string} status 'correct' or 'wrong'
    * @param {H5P.Question.ScorePoints} scorePoints
+   * @param scoreInline
    */
   markElement(element, status, scorePoints, scoreInline) {
-    var $elementResult = $('<span/>', {
+    let $elementResult = $('<span/>', {
       class: 'h5p-hidden-read',
-      html: this.l10n[status + 'Answer'] + '. ',
+      html: `${this.l10n[`${status  }Answer`]  }. `,
     });
     if (scorePoints) {
       $elementResult = $elementResult.add(
-        scorePoints.getElement(status === 'correct')
+        scorePoints.getElement(status === 'correct'),
       );
     }
     element.$suffix = element.$suffix.add($elementResult);
@@ -631,11 +627,11 @@ export default class Draggable extends H5P.EventDispatcher {
     */
     if (scoreInline === true) {
       element.$suffix.addClass('h5p-question-score-inline');
-      element.$.addClass('h5p-' + status + ' h5p-dg-inline').append($elementResult);
+      element.$.addClass(`h5p-${  status  } h5p-dg-inline`).append($elementResult);
     }
     else {
       element.$suffix.addClass('h5p-question-score-normal');
-      element.$.addClass('h5p-' + status + ' h5p-dg-normal').append($elementResult);
+      element.$.addClass(`h5p-${  status  } h5p-dg-normal`).append($elementResult);
     }
   }
 

@@ -10,7 +10,7 @@ H5PUpgrades['H5P.DragQuestion'] = (function () {
             enableRetry: parameters.enableTryAgain === undefined ? true : parameters.enableTryAgain,
             preventResize: parameters.preventResize === undefined ? true : parameters.preventResize,
             singlePoint: parameters.singlePoint === undefined ? true : parameters.singlePoint,
-            showSolutionsRequiresInput: parameters.showSolutionsRequiresInput === undefined ? true : parameters.showSolutionsRequiresInput
+            showSolutionsRequiresInput: parameters.showSolutionsRequiresInput === undefined ? true : parameters.showSolutionsRequiresInput,
           };
           delete parameters.enableTryAgain;
           delete parameters.preventResize;
@@ -18,7 +18,7 @@ H5PUpgrades['H5P.DragQuestion'] = (function () {
           delete parameters.showSolutionsRequiresInput;
 
           finished(null, parameters);
-        }
+        },
       },
 
       /**
@@ -27,17 +27,18 @@ H5PUpgrades['H5P.DragQuestion'] = (function () {
        *
        * Converts H5P.Text elements into H5P.AdvancedText. This is to support
        * more styling options for text.
-       *
-       * @params {Object} parameters
+       * @params {object} parameters
+       * @param parameters
+       * @param finished
        * @params {function} finished
        */
       4: function (parameters, finished) {
         if (parameters.question !== undefined && parameters.question.task !== undefined && parameters.question.task.elements !== undefined) {
-          var elements = parameters.question.task.elements;
+          const elements = parameters.question.task.elements;
 
           // Go through elements
-          for (var i = 0; i < elements.length; i++) {
-            var element = elements[i];
+          for (let i = 0; i < elements.length; i++) {
+            const element = elements[i];
 
             // Check if element type is text
             if (element && element.type && element.type.library &&
@@ -57,7 +58,6 @@ H5PUpgrades['H5P.DragQuestion'] = (function () {
        * 2. Group tip with feedback
        * 3. Do not show the new score points for old content being upgraded.
        * 4. Relocate fields in the editor
-       *
        * @param {object} parameters
        * @param {function} finished
        */
@@ -69,8 +69,8 @@ H5PUpgrades['H5P.DragQuestion'] = (function () {
             {
               'from': 0,
               'to': 100,
-              'feedback': parameters.feedback
-            }
+              'feedback': parameters.feedback,
+            },
           ];
 
           delete parameters.feedback;
@@ -81,17 +81,17 @@ H5PUpgrades['H5P.DragQuestion'] = (function () {
             parameters.question.task !== undefined &&
             parameters.question.task.dropZones !== undefined ) {
 
-          var dropZones = parameters.question.task.dropZones;
-          for (var i = 0; i < dropZones.length; i++) {
-            var dropZone = dropZones[i];
-            var tip = (dropZone !== undefined && dropZone.tip !== undefined && typeof dropZone.tip === 'string') ? dropZone.tip : '';
+          const dropZones = parameters.question.task.dropZones;
+          for (let i = 0; i < dropZones.length; i++) {
+            const dropZone = dropZones[i];
+            const tip = (dropZone !== undefined && dropZone.tip !== undefined && typeof dropZone.tip === 'string') ? dropZone.tip : '';
 
             // Create the new group-structure
             delete dropZone.tip;
             dropZone.tipsAndFeedback = {
               tip: tip,
               feedbackOnCorrect: '',
-              feedbackOnIncorrect: ''
+              feedbackOnIncorrect: '',
             };
           }
         }
@@ -117,7 +117,7 @@ H5PUpgrades['H5P.DragQuestion'] = (function () {
         finished(null, parameters);
       },
       13: function (parameters, finished, extras) {
-        var metadata = extras.metadata || {};
+        const metadata = extras.metadata || {};
         if (parameters.question && parameters.question.settings) {
           // Set new show title parameter
           if (parameters.behaviour) {
@@ -133,8 +133,8 @@ H5PUpgrades['H5P.DragQuestion'] = (function () {
         extras.metadata = metadata;
 
         finished(null, parameters, extras);
-      }
+      },
 
-    }
+    },
   };
 })();

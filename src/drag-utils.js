@@ -3,10 +3,9 @@ export default class DragUtils {
 
   /**
    * Makes element background, border and shadow transparent.
-   *
    * @param {jQuery} $element
-   * @param {String} property
-   * @param {Number} opacity
+   * @param {string} property
+   * @param {number} opacity
    */
   static setOpacity($element, property, opacity) {
     if (property === 'background') {
@@ -19,6 +18,11 @@ export default class DragUtils {
     opacity = (opacity === undefined ? 1 : opacity / 100);
 
     // Private. Get css properties objects.
+    /**
+     *
+     * @param property
+     * @param value
+     */
     function getProperties(property, value) {
       switch (property) {
         case 'borderColor':
@@ -26,29 +30,30 @@ export default class DragUtils {
             borderTopColor: value,
             borderRightColor: value,
             borderBottomColor: value,
-            borderLeftColor: value
+            borderLeftColor: value,
           };
 
         default:
-          var properties = {};
+          const properties = {};
           properties[property] = value;
           return properties;
       }
     }
 
-    var original = $element.css(property);
+    const original = $element.css(property);
 
     // Reset css to be sure we're using CSS and not inline values.
-    var properties = getProperties(property, '');
+    const properties = getProperties(property, '');
     $element.css(properties);
 
     // Determine prop and assume all props are the same and use the first.
-    for (var prop in properties) {
+    let prop;
+    for (prop in properties) {
       break;
     }
 
     // Get value from css
-    var style = $element.css(prop);
+    let style = $element.css(prop);
     if (style === '' || style === 'none') {
       // No value from CSS, fall back to original
       style = original;
@@ -86,26 +91,25 @@ export default class DragUtils {
 
   /**
    * Updates alpha channel for colors in the given style.
-   *
-   * @param {String} style
-   * @param {String} prefix
-   * @param {Number} alpha
+   * @param {string} style
+   * @param {string} prefix
+   * @param {number} alpha
    */
   static setAlphas(style, prefix, alpha) {
     // Style undefined
     if (!style) {
       return;
     }
-    var colorStart = style.indexOf(prefix);
+    let colorStart = style.indexOf(prefix);
 
     while (colorStart !== -1) {
-      var colorEnd = style.indexOf(')', colorStart);
-      var channels = style.substring(colorStart + prefix.length, colorEnd).split(',');
+      const colorEnd = style.indexOf(')', colorStart);
+      const channels = style.substring(colorStart + prefix.length, colorEnd).split(',');
 
       // Set alpha channel
       channels[3] = (channels[3] !== undefined ? parseFloat(channels[3]) * alpha : alpha);
 
-      style = style.substring(0, colorStart) + 'rgba(' + channels.join(',') + style.substring(colorEnd, style.length);
+      style = `${style.substring(0, colorStart)  }rgba(${  channels.join(',')  }${style.substring(colorEnd, style.length)}`;
 
       // Look for more colors
       colorStart = style.indexOf(prefix, colorEnd);
@@ -116,17 +120,16 @@ export default class DragUtils {
 
   /**
    * Find draggable instance from element
-   *
    * @private
    * @param {Draggable[]} draggables
    * @param {Element} element
    */
   static elementToDraggable(draggables, element) {
-    for (var i = 0; i < draggables.length; i++) {
+    for (let i = 0; i < draggables.length; i++) {
       if (!draggables[i]) {
         continue;
       }
-      var result = draggables[i].findElement(element);
+      const result = draggables[i].findElement(element);
       if (result) {
         result.draggable = draggables[i];
         return result;
@@ -136,13 +139,12 @@ export default class DragUtils {
 
   /**
    * Find draggable instance from element
-   *
    * @private
    * @param {DropZone[]} dropZones
    * @param {Element} element
    */
   static elementToDropZone(dropZones, element) {
-    for (var i = 0; i < dropZones.length; i++) {
+    for (let i = 0; i < dropZones.length; i++) {
       if (dropZones[i].$dropZone.is(element)) {
         return dropZones[i];
       }
@@ -151,23 +153,21 @@ export default class DragUtils {
 
   /**
    * Get css position in percentage.
-   *
    * @param {jQuery} $container
    * @param {jQuery} $element
-   * @returns {Object} CSS position
+   * @returns {object} CSS position
    */
   static positionToPercentage($container, $element) {
     return {
-      top: (parseInt($element.css('top')) * 100 / $container.innerHeight()) + '%',
-      left: (parseInt($element.css('left')) * 100 / $container.innerWidth()) + '%'
+      top: `${parseInt($element.css('top')) * 100 / $container.innerHeight()  }%`,
+      left: `${parseInt($element.css('left')) * 100 / $container.innerWidth()  }%`,
     };
   }
 
   /**
    * Makes sure element gets correct opacity when hovered.
-   *
    * @param {jQuery} $element
-   * @param {Object} element
+   * @param backgroundOpacity
    */
   static addHover($element, backgroundOpacity) {
     $element.hover(function () {
@@ -188,12 +188,11 @@ export default class DragUtils {
 
   /**
    * Stripping away html tags
-   *
    * @param {string} html
-   * @return {string}
+   * @returns {string}
    */
   static strip(html) {
-    var tmp = document.createElement('div');
+    const tmp = document.createElement('div');
     tmp.innerHTML = html;
     return tmp.textContent || tmp.innerText || '';
   }

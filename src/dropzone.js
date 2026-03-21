@@ -1,4 +1,4 @@
-import DragUtils from './drag-utils';
+import DragUtils from './drag-utils.js';
 
 const $ = H5P.jQuery;
 
@@ -6,14 +6,13 @@ export default class DropZone {
   /**
    * Creates a new drop zone instance.
    * Makes it easy to keep track of all instance variables.
-   *
-   * @param {Object} dropZone
-   * @param {Number} id
+   * @param {object} dropZone
+   * @param {number} id
    * @param {string[]} l10n
    * @returns {_L8.DropZone}
    */
   constructor(dropZone, id, l10n) {
-    var self = this;
+    const self = this;
     H5P.EventDispatcher.call(self);
 
     const behaviour = dropZone.behaviour ?? {};
@@ -41,13 +40,12 @@ export default class DropZone {
 
   /**
    * Insert drop zone in the given container.
-   *
    * @param {jQuery} $container
    * @param {Array} draggables
    * @returns {undefined}
    */
   appendTo($container, draggables) {
-    var self = this;
+    const self = this;
 
     self.$dropZone = $(
       H5P.Components.Dropzone({
@@ -122,13 +120,13 @@ export default class DropZone {
             DragUtils.setOpacity(this.$dropZone.children('.h5p-inner').removeClass('h5p-over'), 'background', this.backgroundOpacity);
           }
         },
-      })
+      }),
     )
       .css({
-        left: self.x + '%',
-        top: self.y + '%',
-        width: self.width + 'em',
-        height: self.height + 'em',
+        left: `${self.x  }%`,
+        top: `${self.y  }%`,
+        width: `${self.width  }em`,
+        height: `${self.height  }em`,
       })
       .appendTo($container)
       .focus(function () {
@@ -143,7 +141,7 @@ export default class DropZone {
       });
 
     // Add tip after setOpacity(), so this does not get background opacity:
-    var $tip = H5P.JoubelUI.createTip(self.tip, {
+    const $tip = H5P.JoubelUI.createTip(self.tip, {
       tipLabel: self.l10n.tipLabel,
       tabcontrol: true,
     });
@@ -158,7 +156,7 @@ export default class DropZone {
     }
 
     draggables.forEach(function (draggable) {
-      var dragEl = draggable.element.$;
+      const dragEl = draggable.element.$;
 
       // Add to alignables
       if (draggable.isInDropZone(self.id) && self.getIndexOf(dragEl) === -1) {
@@ -185,9 +183,11 @@ export default class DropZone {
 
   /**
    * Help determine if the drop zone can accept this draggable
+   * @param draggable
+   * @param draggables
    */
   accepts(draggable, draggables) {
-    var self = this;
+    const self = this;
     if (!draggable.hasDropZone(self.id)) {
       // Doesn't belong in this drop zone
       return false;
@@ -205,7 +205,7 @@ export default class DropZone {
             ///currentDraggable.resetPosition();
           }
           let isCorrect = false;
-          currentDraggable.elements.forEach(element => {
+          currentDraggable.elements.forEach((element) => {
             if (element.$.hasClass('h5p-correct')) {
               isCorrect = true;
             }
@@ -222,14 +222,13 @@ export default class DropZone {
 
   /**
    * Find index of given alignable
-   *
    * @param {jQuery} $alignable
-   * @return {number}
+   * @returns {number}
    */
   getIndexOf($alignable) {
-    var self = this;
+    const self = this;
 
-    for (var i = 0; i < self.alignables.length; i++) {
+    for (let i = 0; i < self.alignables.length; i++) {
       if (self.alignables[i][0] === $alignable[0]) {
         return i;
       }
@@ -240,14 +239,13 @@ export default class DropZone {
 
   /**
    * Remove alignable
-   *
    * @param {jQuery} $alignable
    */
   removeAlignable($alignable) {
-    var self = this;
+    const self = this;
 
     // Find alignable index
-    var index = self.getIndexOf($alignable);
+    const index = self.getIndexOf($alignable);
     if (index !== -1) {
       // Remove alignable
       self.alignables.splice(index, 1);
@@ -266,63 +264,62 @@ export default class DropZone {
    * Auto-align alignable elements inside drop zone.
    */
   autoAlign() {
-    var self = this;
+    const self = this;
 
     // Determine container size in order to calculate percetages
-    var containerSize = self.$dropZone.parent()[0].getBoundingClientRect();
+    const containerSize = self.$dropZone.parent()[0].getBoundingClientRect();
 
     // Calcuate borders and spacing values in percetage
-    var spacing = {
+    const spacing = {
       x: (self.autoAlignable.spacing / self.autoAlignable.size.width) * 100,
       y: (self.autoAlignable.spacing / self.autoAlignable.size.height) * 100,
     };
 
     // Determine coordinates for first 'spot'
-    var pos = {
+    const pos = {
       x: self.x + spacing.x,
       y: self.y + spacing.y,
     };
 
     // Determine space inside drop zone
-    var dropZoneSize = self.$dropZone[0].getBoundingClientRect();
-    var space = {
+    const dropZoneSize = self.$dropZone[0].getBoundingClientRect();
+    const space = {
       x: dropZoneSize.width - spacing.x * 2,
       y: dropZoneSize.height - spacing.y * 2,
     };
 
     // Set current space left inside drop zone
-    var spaceLeft = {
+    const spaceLeft = {
       x: space.x,
       y: space.y,
     };
 
     // Set height for the active row of elements
-    var currentRowHeight = 0;
+    let currentRowHeight = 0;
 
     // Current alignable element and it's size
-    var $alignable, alignableSize;
+    let $alignable, alignableSize;
 
     /**
      * Helper doing the actual positioning of the element + recalculating
      * next position and space left.
-     *
      * @private
      */
-    var alignElement = function () {
+    const alignElement = function () {
       // Position element at current spot
       $alignable.css({
-        left: pos.x + '%',
-        top: pos.y + '%',
+        left: `${pos.x  }%`,
+        top: `${pos.y  }%`,
       });
       self.trigger('elementaligned', $alignable);
 
       // Update horizontal space left + next position
-      var spaceDiffX = alignableSize.width + self.autoAlignable.spacing;
+      const spaceDiffX = alignableSize.width + self.autoAlignable.spacing;
       spaceLeft.x -= spaceDiffX;
       pos.x += (spaceDiffX / containerSize.width) * 100;
 
       // Keep track of the highest element in this row
-      var spaceDiffY = alignableSize.height + self.autoAlignable.spacing;
+      const spaceDiffY = alignableSize.height + self.autoAlignable.spacing;
       if (spaceDiffY > currentRowHeight) {
         currentRowHeight = spaceDiffY;
       }
@@ -330,7 +327,7 @@ export default class DropZone {
 
     // Try to order and align the alignables inside the drop zone
     // (in the order they were added)
-    for (var i = 0; i < self.alignables.length; i++) {
+    for (let i = 0; i < self.alignables.length; i++) {
       // Determine alignable size
       $alignable = self.alignables[i];
       alignableSize = $alignable[0].getBoundingClientRect();
@@ -338,7 +335,8 @@ export default class DropZone {
       // Try to fit on the current row
       if (spaceLeft.x >= alignableSize.width) {
         alignElement();
-      } else {
+      }
+      else {
         // Did not fit, try next row
 
         // Reset X values
@@ -391,16 +389,21 @@ export default class DropZone {
     this.alignables = [];
     DragUtils.setOpacity(this.$dropZone.children('.h5p-inner').removeClass('h5p-over'), 'background', this.backgroundOpacity);
   }
-  
+
   /**
    * Mark the current drop zone correct/wrong.
+   * @param status
    */
   markResult(status) {
-    this.$dropZone.children('.h5p-inner').addClass('h5p-dropzone-' + status + '-answer');
+    this.$dropZone.children('.h5p-inner').addClass(`h5p-dropzone-${  status  }-answer`);
   }
 
   /**
    * REmove the current drop zone correct mark.
+   * @param status
+   * @param keepCorrectAnswers
+   * @param disableCompletedDropZones
+   * @param forceReset
    */
   unmarkResult(status, keepCorrectAnswers, disableCompletedDropZones, forceReset) {
 
@@ -411,7 +414,7 @@ export default class DropZone {
     }
     else if (keepCorrectAnswers && disableCompletedDropZones) {
       // If dropzone is correct, then disable it, no more drops allowed!
-      this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", true );
+      this.$dropZone.children('.h5p-inner').droppable( 'option', 'disabled', true );
     }
     else {
       // TODO
@@ -420,7 +423,7 @@ export default class DropZone {
     if (forceReset) {
       this.$dropZone.children('.h5p-inner').removeClass('h5p-dropzone-correct-answer h5p-dropzone-wrong-answer');
       // Re-enable dropzones droppable
-      this.$dropZone.children('.h5p-inner').droppable( "option", "disabled", false );
+      this.$dropZone.children('.h5p-inner').droppable( 'option', 'disabled', false );
       this.$dropZone.removeClass('h5p-dropzone-completed-answer');
     }
   }
@@ -442,7 +445,6 @@ export default class DropZone {
 
   /**
    * JR enableDroppedQuantity Calculate score for this dropzone.
-   *
    * @param {Array} draggables
    * @param {Array} solutions
    * @returns {number}

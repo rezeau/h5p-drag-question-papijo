@@ -34,5 +34,5 @@
     "webpack-cli": "^4.10.0"
   },
   "browserslist": "> 0.5%, last 2 versions, Firefox ESR, not dead",
-  "type": "module"
+  "type": "commonjs"
 }
