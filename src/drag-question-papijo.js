@@ -485,7 +485,7 @@ C.prototype.getXAPIDefinition = function () {
   definition.correctResponsesPattern = [''];
   definition.target = [];
   let firstCorrectPair = true;
-  for (i = 0; i < this.options.question.task.dropZones.length; i++) {
+  for (let i = 0; i < this.options.question.task.dropZones.length; i++) {
     definition.target.push({
       'id': `${  i}`,
       'description': {
