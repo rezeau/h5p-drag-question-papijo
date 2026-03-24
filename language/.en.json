@@ -1,6 +1,10 @@
 {
   "semantics": [
     {
+      "label": "Tutorial and Examples: <a href=\"http://www.h5p.rezeau.org\" target=\"_blank\" rel=\"noopener\">Papi Jo's H5P site</a></span>",
+      "description": "<span style=\"color: white;margin-top: -20px;display: table-caption;font-size: large;\">&#9608;</span>"
+    },
+    {
       "label": "Check answer button",
       "default": "Check"
     },
@@ -13,8 +17,16 @@
       "default": "Retry"
     },
     {
+      "label": "Show solution button",
+      "default": "Show solution"
+    },
+    {
       "label": "Score explanation text",
       "default": "Correct answers give +1 point. Incorrect answers give -1 point. The lowest possible score is 0."
+    },
+    {
+      "label": "Score explanation text for drop zones with a fixed quantity",
+      "default": "Correctly filled drop zones have a green border and give 1 point. Incorrectly filled drop zones have a red border."
     },
     {
       "fields": [
@@ -22,8 +34,22 @@
           "label": "Settings",
           "fields": [
             {
+              "label": "The title of this question",
+              "default": "Drag and Drop",
+              "description": "Used in summaries, statistics etc."
+            },
+            {
+              "label": "Task description",
+              "default": ""
+            },
+            {
               "label": "Background image",
               "description": "Optional. Select an image to use as background for your drag and drop task."
+            },
+            {
+              "label": "Task Background color",
+              "description": "The color of the task background (if no image)",
+              "default": "rgba(0, 0, 0, 0)"
             },
             {
               "label": "Task size",
@@ -33,7 +59,7 @@
         },
         {
           "label": "Task",
-          "description": "Start by placing your drop zones.<br />Next, place your droppable elements and check off the appropriate drop zones.<br />Last, edit your drop zone again and check off the correct answers.",
+          "description": "Start by placing your drop zones.<br/>Next, place your droppable elements and check off the appropriate drop zones.<br/>Last, edit your drop zone again and check off the correct answers.",
           "fields": [
             {
               "label": "Elements",
@@ -58,6 +84,10 @@
                   {
                     "label": "Infinite number of element instances",
                     "description": "Clones this element so that it can be dragged to multiple drop zones."
+                  },
+                  {
+                    "label": "Value",
+                    "description": "Please set a value for this draggable element. Negative values accepted."
                   }
                 ]
               }
@@ -93,18 +123,34 @@
                         "label": "Tip text"
                       },
                       {
-                        "label": "Message displayed on correct match",
-                        "description": "Message will appear below the task on \"check\" if correct droppable is matched."
+                        "label": "Message displayed on correct match or drop zone",
+                        "description": "Message will appear below the task on \"check\" if correct droppable is matched. If the Draggables Quantity and Value option is enabled, this message will appear if the drop zone is correctly filled."
                       },
                       {
-                        "label": "Message displayed on incorrect match",
-                        "description": "Message will appear below the task on \"check\" if the match is incorrect."
+                        "label": "Message displayed on incorrect match or drop zone",
+                        "description": "Message will appear below the task on \"check\" if the match is incorrect. If the Draggables Quantity and Value option is enabled, this message will appear if the drop zone is incorrectly filled. In this case, this message may be replaced by the next two messages, displayed on incorrect number OR incorrect total value."
+                      },
+                      {
+                        "label": "Message displayed on incorrect number",
+                        "description": "Message will appear below the task on \"check\" if drop zone contains an incorrect number of items. You can use the variables @requirednumber and @selectednumber in your message, for example \"Sorry, you selected @selectednumber items, that's not correct. You should have selected @requirednumber\""
+                      },
+                      {
+                        "label": "Message displayed on incorrect total value",
+                        "description": "Message will appear below the task on \"check\" if drop zone contains an incorrect total value. You can use the variables @requiredvalue and @totalvalue in your message, for example \"Sorry, the items you selected make up a total value of @totalvalue; they should add up to @requiredvalue\". You can also use the variables @oppositerequiredvalue and @oppositetotalvalue is needed."
                       }
                     ]
                   },
                   {
                     "label": "This drop zone can only contain one element",
                     "description": "Make sure there is only one correct answer for this dropzone"
+                  },
+                  {
+                    "label": "How many elements MUST this drop zone contain?",
+                    "description": "Exact number of draggables expected in this drop zone"
+                  },
+                  {
+                    "label": "Total draggables value",
+                    "description": "Enter the expected total value of the draggables dropped in this zone"
                   },
                   {
                     "label": "Enable Auto-Align",
@@ -152,6 +198,20 @@
           "label": "Enable \"Retry\""
         },
         {
+          "label": "Enable draggables dropped Quantity in drop Zones AND draggables value",
+          "description": "Check this option to display an 'Exact number of draggables expected' field in each drop zone  AND draggables value."
+        },
+        {
+          "label": "Enable \"Show solution\" button"
+        },
+        {
+          "label": "Require user input before the solution can be viewed"
+        },
+        {
+          "label": "Remove all 'correct' and 'wrong' styles on the draggables when all is correct.",
+          "description": "Removing all 'correct' and 'wrong' styles may be useful e.g. when displaying a completed jigsaw puzzle activity."
+        },
+        {
           "label": "Enable \"Check\" button"
         },
         {
@@ -167,8 +227,32 @@
           "description": "Display a score explanation to user when checking their answers (if the 'Apply penalties' option has been selected)."
         },
         {
+          "label": "Enable score explanation for Quantity",
+          "description": "Display a score explanation to user when checking their answers."
+        },
+        {
+          "label": "Keep correct answers",
+          "description": "Check this option if you want to keep the draggable elements dropped in the correct drop zones after pressing 'Retry'."
+        },
+        {
+          "label": "Disable completed Drop Zones",
+          "description": "Check this option if you want to make it impossible to drag draggables into or out of correctly completed Drop Zones."
+        },
+        {
+          "label": "Randomize the position of the draggable elements",
+          "description": "Check this option if you want to randomize the position of the draggable elements. Note that the 'multiple' draggables can only be shuffled once."
+        },
+        {
+          "label": "Reset the position of a dropped draggable element.",
+          "description": "Check this option if you want to reset the position of a dropped draggable element when dropping a new one onto the drop zone (only works in drop zones which can only contain a single element)."
+        },
+        {
           "label": "Background opacity for draggables",
           "description": "If this field is set, it will override opacity set on all draggable elements. This should be a number between 0 and 100, where 0 means full transparency and 100 means no transparency"
+        },
+        {
+          "label": "Background opacity for drop zones",
+          "description": "If this field is set, it will override opacity set on all dropzones. This should be a number between 0 and 100, where 0 means full transparency and 100 means no transparency"
         },
         {
           "label": "Drop Zone Highlighting",
@@ -195,6 +279,10 @@
         {
           "label": "Show score points",
           "description": "Show points earned for each answer. Not available when the 'Give one point for the whole task' option is enabled."
+        },
+        {
+          "label": "Display correct/wrong and scorepoints horizontally",
+          "description": "Check this option to display the correct/wrong ticks and the score points horizontally (inline) instead of the default vertical display."
         },
         {
           "label": "Show Title",
@@ -252,6 +340,22 @@
       "default": "Wrong answer"
     },
     {
+      "label": "Label for correct number",
+      "default": "Correct number:&nbsp;"
+    },
+    {
+      "label": "Label for incorrect number",
+      "default": "Incorrect number:&nbsp;"
+    },
+    {
+      "label": "Label for correct  total value",
+      "default": "Correct total value:&nbsp;"
+    },
+    {
+      "label": "Label for incorrect  total value",
+      "default": "Incorrect total value:&nbsp;"
+    },
+    {
       "label": "Header for panel containing feedback for correct/incorrect answers",
       "default": "Feedback"
     },
@@ -270,6 +374,10 @@
     {
       "label": "Assistive technology label for \"Retry\" button",
       "default": "Retry the task. Reset all responses and start the task over again."
+    },
+    {
+      "label": "Text for \"Requires answer\" message",
+      "default": "Please answer before viewing the solution"
     }
   ]
 }

@@ -316,7 +316,7 @@
                       }
                     ]
                   }
-                },                                
+                },
                 {
                   "name": "value",
                   "type": "number",
@@ -509,7 +509,7 @@
                   "max": 100,
                   "label": "How many elements MUST this drop zone contain?",
                   "description": "Exact number of draggables expected in this drop zone",
-                  "importance": "low",                  
+                  "importance": "low",
                   "optional": true,
                   "widget": "showWhen",
                   "showWhen": {
@@ -520,13 +520,13 @@
                       }
                     ]
                   }
-                },                                
+                },
                 {
                   "name": "acceptedValue",
                   "type": "number",
                   "label": "Total draggables value",
                   "importance": "low",
-                  "description": "Enter the expected total value of the draggables dropped in this zone",                  
+                  "description": "Enter the expected total value of the draggables dropped in this zone",
                   "optional": true,
                   "widget": "showWhen",
                   "showWhen": {
@@ -657,7 +657,7 @@
         "default": true,
         "widget": "showWhen",
         "showWhen": {
-          "rules": [            
+          "rules": [
             {
               "field": "enableDroppedQuantity",
               "equals": false
