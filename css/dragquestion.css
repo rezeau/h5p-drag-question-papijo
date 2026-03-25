@@ -383,3 +383,13 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 .h5p-dragquestion .h5p-draggable .h5p-audio-inner {
   font-size: var(--h5p-theme-font-size-ss);
 }
+
+.h5p-dragquestion .h5p-dropzone-correct-answer {
+  border-color: #3cb371!important; 
+  ///border-style: solid!important;
+}
+.h5p-dragquestion .h5p-dropzone-wrong-answer {
+  border-color: red!important; 
+  ///border-style: solid!important;
+}
+
