@@ -360,9 +360,21 @@
                   "tags": [
                     "strong",
                     "em",
-                    "del",
-                    "code"
-                  ]
+                    "u",
+                    "a",
+                    "ul",
+                    "ol",
+                    "h2",
+                    "h3",
+                    "h4",
+                    "h5",
+                    "hr"
+                  ],
+                  "font": {
+                    "size": true,
+                    "color": true,
+                    "background": true
+                  }
                 },
                 {
                   "name": "showLabel",
