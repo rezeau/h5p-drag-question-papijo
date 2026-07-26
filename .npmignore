@@ -1,7 +1,9 @@
-{
-  "files": [
-    "dist",
-    "src",
-    "README.md"
-  ]
-}
+.github/
+src/
+tests/
+.babelrc
+.h5pignore
+.nvmrc
+eslint.config.mjs
+webpack.config.js
+package-lock.json

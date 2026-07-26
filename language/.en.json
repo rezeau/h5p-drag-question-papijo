@@ -377,7 +377,7 @@
     },
     {
       "label": "Text for \"Requires answer\" message",
-      "default": "Please answer before viewing the solution"
+      "default": "Please place all draggables before viewing the solution."
     }
   ]
 }

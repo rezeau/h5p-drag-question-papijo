@@ -1,4 +1,6 @@
+// eslint-disable-next-line no-var -- H5P presave scripts expose classic-script globals.
 var H5PEditor = H5PEditor || {};
+// eslint-disable-next-line no-var -- H5P presave scripts expose classic-script globals.
 var H5PPresave = H5PPresave || {};
 
 /**

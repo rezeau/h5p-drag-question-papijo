@@ -205,8 +205,6 @@ function C(options, contentId, contentData) {
       }
     });
     draggable.on('focus', function (event) {
-      self.controls.drag.moveFocus(event.data);
-
       if (self.controls.drag && typeof self.controls.drag.moveFocus === 'function') {
         self.controls.drag.moveFocus(event.data);
       }
@@ -908,13 +906,48 @@ C.prototype.addRetryButton = function () {
   });
 };
 /**
- * Determine if all of the draggables has been dropped somewhere.
- * Show solution will only be allowed if that is true.
+ * Determine if all draggables have been dropped somewhere by the learner.
  * @returns {boolean}
  */
 C.prototype.isAnswerSelected = function () {
-  const selected = (this.$container.find('.h5p-dropped').length) >= this.draggables.length;
-  return selected;
+  if (!Array.isArray(this.draggables)) {
+    return false;
+  }
+
+  let hasDraggables = false;
+  for (let i = 0; i < this.draggables.length; i++) {
+    const draggable = this.draggables[i];
+    if (!draggable || typeof draggable !== 'object') {
+      continue;
+    }
+    hasDraggables = true;
+
+    if (!Array.isArray(draggable.elements)) {
+      return false;
+    }
+
+    const isComplete = draggable.elements.some((element) => {
+      if (
+        !element ||
+        element.dropZone === undefined ||
+        !element.$ ||
+        typeof element.$.hasClass !== 'function'
+      ) {
+        return false;
+      }
+
+      return (
+        element.$.hasClass('h5p-dropped') &&
+        !element.$.hasClass('h5p-question-solution')
+      );
+    });
+
+    if (!isComplete) {
+      return false;
+    }
+  }
+
+  return hasDraggables;
 };
 /**
  * Determine if at least one dropzone has at least one correct draggable element.

@@ -377,7 +377,7 @@
     },
     {
       "label": "Texte pour le message \"Réponse requise\"",
-      "default": "Veuillez répondre avant de voir la solution"
+      "default": "Veuillez placer tous les éléments déplaçables avant d’afficher la solution."
     }
   ]
 }

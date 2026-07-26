@@ -1061,7 +1061,7 @@
     "importance": "low",
     "name": "noInput",
     "type": "text",
-    "default": "Please answer before viewing the solution",
+    "default": "Please place all draggables before viewing the solution.",
     "common": true
   }
 ]
