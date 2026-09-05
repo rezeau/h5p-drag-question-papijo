@@ -883,14 +883,6 @@
         "default": false
       },
       {
-        "name": "showTitle",
-        "type": "boolean",
-        "label": "Show Title",
-        "importance": "low",
-        "description": "Uncheck this option if you do not want this title to be displayed. The title will only be displayed in summaries, statistics etc.",
-        "default": true
-      },
-      {
         "name": "dragHandleVisibility",
         "type": "boolean",
         "label": "Show drag handles (new look and feel only)",

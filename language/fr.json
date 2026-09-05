@@ -285,10 +285,6 @@
           "description": "Cochez cette option pour afficher les icônes correct/incorrect et les points marqués <em>horizontalement</em> au lieu de verticalement par défaut."
         },
         {
-          "label": "Afficher le titre",
-          "description": "Décochez cette option si vous ne voulez pas que le titre de cette question s'affiche. Ce titre sera quand même affiché dans les résumés, les statistiques, etc. "
-        },
-        {
           "label": "Afficher les poignées de déplacement (nouvelle interface uniquement)",
           "description": "Active ou désactive l'affichage des poignées de déplacement utilisées pour déplacer des éléments sur le canevas."
         }

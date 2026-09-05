@@ -77,7 +77,6 @@ function C(options, contentId, contentData) {
       resetSingleDraggables: false,
       showScoreInline: false,
       showScorePoints: true,
-      showTitle: false,
       singlePoint: false,
       showSolutionsRequiresInput: true,
     },
@@ -348,8 +347,9 @@ C.prototype.registerDomElements = function () {
   const self = this;
 
   // Register introduction section
-  if (self.options.behaviour.showTitle) {
-    self.$introduction = $(`<p class="h5p-dragquestion-introduction" id="dq-intro-${  numInstances  }">${  self.options.question.settings.questionTitle  }</p>`);
+  const description = self.options.question.settings.description;
+  if (typeof description === 'string' && description.trim() !== '') {
+    self.$introduction = $(`<div class="h5p-dragquestion-introduction" id="dq-intro-${  numInstances  }">${  description  }</div>`);
     self.setIntroduction(self.$introduction);
   }
 

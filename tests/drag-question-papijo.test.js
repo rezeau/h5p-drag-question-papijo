@@ -7,7 +7,12 @@ import {
 
 class EventDispatcher {}
 
-const JQuery = () => {};
+const JQuery = (markup) => {
+  return {
+    markup,
+    text: () => typeof markup === 'string' ? markup.replace(/<[^>]*>/g, '') : '',
+  };
+};
 JQuery.inArray = (value, values) => {
   return Array.isArray(values) ? values.indexOf(value) : -1;
 };
@@ -15,6 +20,7 @@ JQuery.inArray = (value, values) => {
 const Question = function () {};
 
 globalThis.H5P = {
+  createTitle: (title) => title,
   EventDispatcher,
   Question,
   jQuery: JQuery,
@@ -40,6 +46,122 @@ const createClassQuery = (classes = []) => {
     hasClass: (className) => classNames.has(className),
   };
 };
+
+const createIntroductionSubject = ({
+  description,
+  questionTitle = 'Question title must not be displayed',
+  showTitle,
+} = {}) => {
+  const introductions = [];
+  const settings = {
+    questionTitle,
+  };
+
+  if (description !== undefined) {
+    settings.description = description;
+  }
+
+  const subject = createSubject({
+    options: {
+      behaviour: {
+        enableFullScreen: false,
+        showTitle,
+      },
+      question: {
+        settings,
+      },
+    },
+    createQuestionContent: () => ({}),
+    registerButtons: () => {},
+    setContent: () => {},
+    setIntroduction: (introduction) => introductions.push(introduction),
+    trigger: () => {},
+  });
+
+  subject.registerDomElements();
+
+  return {
+    introductions,
+    subject,
+  };
+};
+
+describe('Drag Question task introduction', () => {
+  it('displays the Task description when present', () => {
+    const { introductions } = createIntroductionSubject({
+      description: 'Follow the instructions.',
+    });
+
+    expect(introductions).toHaveLength(1);
+    expect(introductions[0].markup).toContain('Follow the instructions.');
+  });
+
+  it.each([true, false])('ignores legacy showTitle=%s and displays only the Task description', (showTitle) => {
+    const { introductions } = createIntroductionSubject({
+      description: 'Visible task description',
+      questionTitle: 'Hidden question title',
+      showTitle,
+    });
+
+    expect(introductions).toHaveLength(1);
+    expect(introductions[0].markup).toContain('Visible task description');
+    expect(introductions[0].markup).not.toContain('Hidden question title');
+  });
+
+  it.each([
+    ['empty', ''],
+    ['whitespace-only', '   '],
+    ['missing', undefined],
+  ])('does not render an introduction when the Task description is %s', (label, description) => {
+    const { introductions, subject } = createIntroductionSubject({
+      description,
+      questionTitle: 'Hidden question title',
+      showTitle: true,
+    });
+
+    expect(introductions).toHaveLength(0);
+    expect(subject.$introduction).toBeUndefined();
+  });
+
+  it('preserves authored HTML in the Task description', () => {
+    const description = '<h2>Sort these</h2><ul><li><strong>Carefully</strong></li></ul>';
+    const { introductions } = createIntroductionSubject({ description });
+
+    expect(introductions[0].markup).toContain(description);
+  });
+});
+
+describe('Drag Question title reporting', () => {
+  it('continues to use questionTitle in the xAPI definition', () => {
+    const subject = createSubject({
+      options: {
+        question: {
+          settings: {
+            questionTitle: '<strong>Reporting title</strong>',
+          },
+          task: {
+            dropZones: [],
+            elements: [],
+          },
+        },
+      },
+    });
+
+    expect(subject.getXAPIDefinition().description['en-US']).toBe('Reporting title');
+  });
+
+  it('continues to expose the H5P metadata title', () => {
+    const subject = createSubject({
+      contentData: {
+        metadata: {
+          title: 'Metadata title',
+        },
+      },
+    });
+
+    expect(subject.getTitle()).toBe('Metadata title');
+  });
+});
 
 const createScoreSubject = ({
   blankIsCorrect = false,
