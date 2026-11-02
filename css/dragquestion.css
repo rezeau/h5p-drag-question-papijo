@@ -85,6 +85,11 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
   font-size: 1rem; /* Prevent scaling depending on task size settings */
 }
 
+/* Preserve image geometry when host themes override box sizing. */
+.h5p-dragquestion .h5p-draggable:has(.h5p-image) {
+  box-sizing: content-box;
+}
+
 .h5p-dragquestion
   .h5p-draggable:has(.h5p-image):not(:hover):not(
     :focus
@@ -121,6 +126,10 @@ html.h5p-iframe .h5p-container.h5p-dragquestion.h5p-semi-fullscreen {
 .h5p-dragquestion .h5p-draggable .h5p-image {
   height: 100%;
   width: 100%;
+}
+
+.h5p-dragquestion .h5p-draggable .h5p-image > img {
+  margin: 0;
 }
 
 /* Override component css */
